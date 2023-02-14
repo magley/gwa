@@ -106,6 +106,10 @@ char string2::operator [](int i) const {
     return at(i);
 }
 
+char& string2::operator [](int i) {
+    return at_ref(i);
+}
+
 std::ostream& operator<<(std::ostream& ss, string2 b) {
     ss << b._s;
     return ss;
@@ -120,6 +124,12 @@ char string2::at(int i) const {
     i = (size() + (i % size())) % size();
     return _s[i];
 }
+
+char& string2::at_ref(int i) {
+    i = (size() + (i % size())) % size();
+    return _s[i];
+}
+
 
 int string2::index_of(char c, int start_index) const {
     for (int i = start_index; i < size(); i++) {
@@ -263,6 +273,49 @@ string2 string2::join(const std::vector<string2>& parts, string2 joiner) {
     res += parts[parts.size() - 1];
     return res;
 }
+
+string2 string2::upper() const {
+    string2 s = *this;
+    for (char& c : s) {
+        if (c >= 'a' && c <= 'z') {
+            c += 'A' - 'a';
+        }
+    }
+    return s;
+}
+
+string2 string2::lower() const {
+    string2 s = *this;
+    for (char& c : s) {
+        if (c >= 'A' && c <= 'Z') {
+            c -= 'A' - 'a';
+        }
+    }
+    return s;
+}
+
+string2 string2::title(const string2& whitespace) const {
+    string2 result = *this;
+    bool found_whitespace = true;
+    for (char& c: result) {
+        if (!whitespace.contains(c)) {
+            if (found_whitespace) {
+                if (c >= 'a' && c <= 'z') {
+                    c += 'A' - 'a';
+                }
+                found_whitespace = false;
+            } else {
+                if (c >= 'A' && c <= 'Z') {
+                    c -= 'A' - 'a';
+                }
+            }
+        } else {
+            found_whitespace = true;
+        }
+    }
+    return result;
+}
+
 
 string2::iterator string2::begin() {
     return _s.begin();

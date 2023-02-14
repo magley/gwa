@@ -25,10 +25,12 @@ public:
     bool operator     ==(const string2& rhs) const;
     bool operator     !=(const string2& rhs) const;
     char operator     [](int i) const;
+    char& operator     [](int i);
     friend std::ostream& operator <<(std::ostream& ss, string2 b);
     friend std::istream& operator >>(std::istream& ss, string2& b);
 
     char at(int i) const;
+    char& at_ref(int i);
     int index_of(char c, int start_index) const;
     int size() const;
     size_t find(const string2& substr, int pos = 0) const;
@@ -42,6 +44,9 @@ public:
     std::vector<string2> split_unless_between(string2 delimiter, const std::vector<string2>& pairs, bool include_empty_tokens = false) const;
     string2 replace(const string2& from, const string2& to) const;
     static string2 join(const std::vector<string2>& parts, string2 joiner);
+    string2 upper() const;
+    string2 lower() const;
+    string2 title(const string2& whitespace = " \t\n") const;
 
     using iterator = std::string::iterator;
     using const_iterator = std::string::const_iterator;

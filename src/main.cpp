@@ -67,5 +67,9 @@ int main(int argc, char** argv) {
     std::cout << str10.contains("ello", 0) << str10.contains("ello", 1) << str10.contains("ello", 2);
     std::cout << "\n";
 
+    string2 str11 = "Hello heLlo\the^ll)o \nho ho_ HO\t\tho";
+    std::cout << str11 << "\n" << str11.upper() << "\n" << str11.lower() << "\n" << str11.title();
+    std::cout << "\n";
+
     return 0;
 }
