@@ -47,6 +47,10 @@ public:
     string2 upper() const;
     string2 lower() const;
     string2 title(const string2& whitespace = " \t\n") const;
+    int to_i() const;
+    long to_l() const;
+    double to_d() const;
+    float to_f() const;
 
     using iterator = std::string::iterator;
     using const_iterator = std::string::const_iterator;

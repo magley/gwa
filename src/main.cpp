@@ -1,4 +1,5 @@
 #include <iostream>
+#include <iomanip>
 #include "util/string/string2.h"
 
 
@@ -69,6 +70,10 @@ int main(int argc, char** argv) {
 
     string2 str11 = "Hello heLlo\the^ll)o \nho ho_ HO\t\tho";
     std::cout << str11 << "\n" << str11.upper() << "\n" << str11.lower() << "\n" << str11.title();
+    std::cout << "\n";
+
+    string2 str12 = "1.3";
+    std::cout << std::setprecision(18) << str12.to_i() << "\n" << str12.to_l() << "\n" << str12.to_f() << "\n" << str12.to_d();
     std::cout << "\n";
 
     return 0;

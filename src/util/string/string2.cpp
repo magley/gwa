@@ -316,6 +316,21 @@ string2 string2::title(const string2& whitespace) const {
     return result;
 }
 
+int string2::to_i() const {
+    return std::stoi(str());
+}
+
+long string2::to_l() const {
+    return std::stol(str());
+}
+
+double string2::to_d() const {
+    return std::stod(str());
+}
+
+float string2::to_f() const {
+    return std::stof(str());
+}
 
 string2::iterator string2::begin() {
     return _s.begin();
