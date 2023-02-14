@@ -203,7 +203,7 @@ string2 string2::trim() const {
     return substr(l, r - l + 1);
 }
 
-std::vector<string2> string2::split_unless_between(string2 delim, const std::vector<string2>& pairs) const {
+std::vector<string2> string2::split_unless_between(string2 delim, const std::vector<string2>& pairs, bool include_empty_tokens) const {
     std::vector<string2> result;
     string2 token;
 
@@ -221,7 +221,7 @@ std::vector<string2> string2::split_unless_between(string2 delim, const std::vec
         }
 
         if (pair_sum == 0 && contains(delim, i)) {
-            if (token != "") {
+            if (token != "" || include_empty_tokens) {
                 result.push_back(token);
                 token = "";
             }
@@ -230,15 +230,15 @@ std::vector<string2> string2::split_unless_between(string2 delim, const std::vec
         }
     }
 
-    if (token != "") {
+    if (token != "" || include_empty_tokens) {
         result.push_back(token);
     }
 
     return result;  
 }
 
-std::vector<string2> string2::split(string2 delim) const {
-    return split_unless_between(delim, {});
+std::vector<string2> string2::split(string2 delim, bool include_empty_tokens) const {
+    return split_unless_between(delim, {}, include_empty_tokens);
 }
 
 string2 string2::replace(const string2& from, const string2& to) const {
@@ -247,7 +247,7 @@ string2 string2::replace(const string2& from, const string2& to) const {
         return res;
     }
     size_t start_pos = 0;
-    while((start_pos = res.find(from, start_pos)) != npos) {
+    while ((start_pos = res.find(from, start_pos)) != npos) {
         res._s.replace(start_pos, from.size(), to._s);
         start_pos += to.size();
     }

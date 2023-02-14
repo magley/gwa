@@ -52,5 +52,16 @@ int main(int argc, char** argv) {
     }
     std::cout << "\n";
 
+    string2 str08 = "1,2,3,,4,,,5,";
+    for (string2 s : str08.split(",", true)) {
+        std::cout << "[" << s << "] ";
+    }
+    std::cout << "\n";
+
+    string2 str09 = "";
+    std::cout << str09.split(",").size() << " ";
+    std::cout << str09.split(",", true).size() << " ";
+    std::cout << "\n";
+
     return 0;
 }

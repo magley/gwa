@@ -38,8 +38,8 @@ public:
     string2 substr(size_t pos, size_t size) const;
     string2 slice(int l, int r) const;
     string2 trim() const;
-    std::vector<string2> split(string2 delimiter) const;
-    std::vector<string2> split_unless_between(string2 delimiter, const std::vector<string2>& pairs) const;
+    std::vector<string2> split(string2 delimiter, bool include_empty_tokens = false) const;
+    std::vector<string2> split_unless_between(string2 delimiter, const std::vector<string2>& pairs, bool include_empty_tokens = false) const;
     string2 replace(const string2& from, const string2& to) const;
     static string2 join(const std::vector<string2>& parts, string2 joiner);
 
