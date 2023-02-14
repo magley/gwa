@@ -18,8 +18,8 @@ int main(int argc, char** argv) {
 
     std::cout << "\n";
 
-    string2 str03 = "Fizz said \"Hello World\" {to Buzz} though.";
-    for (const string2& s : str03.split_unless_between(" ", {"{}", "\"\""})) {
+    string2 str03 = "Hello {this {will [get]} ignored} and [so will this] and \"this too\" but <not this>.";
+    for (const string2& s : str03.split_unless_between(" ", {"{}", "[]", "\"\""})) {
         std::cout << "[" << s << "] ";
     }
 

@@ -9,6 +9,28 @@ static int index_of_strlist(std::vector<string2> strings, char c) {
     return -1;
 }
 
+static void calc_pair_sum(char c, const string2& pair, int* symmetric_pair, int* pair_sum) {
+    // If opening char, increment pair_sum. If closing, decrement.
+    // If opening and closing are the same, determine from symmetric_pair and flip that flag.
+
+    if (pair[0] == pair[1]) {
+        if (*symmetric_pair == 1) {
+            (*pair_sum)--;
+        } else {
+            (*pair_sum)++;
+        }
+
+        *symmetric_pair = 1 - *symmetric_pair;
+    } else {
+        if (pair[0] == c) {
+            (*pair_sum)++;
+        } else if (pair[1] == c) {
+            (*pair_sum)--;
+        }
+    }
+}
+
+
 string2::string2() {
 }
 
@@ -185,8 +207,8 @@ std::vector<string2> string2::split_unless_between(string2 delim, const std::vec
     std::vector<string2> result;
     string2 token;
 
-    int keys_sum_cached = 0;
-    int single_pair[pairs.size()] = {0};
+    int pair_sum = 0;
+    int symmetric_pair[pairs.size()] = {0};
 
     int i = -1;
     while (i < size() - 1) {
@@ -195,27 +217,10 @@ std::vector<string2> string2::split_unless_between(string2 delim, const std::vec
 
         const int pair_index = index_of_strlist(pairs, c);
         if (pair_index != -1) {
-            // if p[0] == p[1], then there's only 1 level depth allowed.
-
-            const string2& p = pairs[pair_index];
-            if (p[0] == p[1]) {
-                if (single_pair[pair_index] == 1) {
-                    keys_sum_cached--;
-                } else {
-                    keys_sum_cached++;
-                }
-
-                single_pair[pair_index] = 1 - single_pair[pair_index];
-            } else {
-                if (p[0] == c) {
-                    keys_sum_cached++;
-                } else if (p[1] == c) {
-                    keys_sum_cached--;
-                }
-            }
+            calc_pair_sum(c, pairs[pair_index], &symmetric_pair[pair_index], &pair_sum);
         }
 
-        if (keys_sum_cached == 0 && contains(delim, i)) {
+        if (pair_sum == 0 && contains(delim, i)) {
             if (token != "") {
                 result.push_back(token);
                 token = "";
