@@ -63,5 +63,9 @@ int main(int argc, char** argv) {
     std::cout << str09.split(",", true).size() << " ";
     std::cout << "\n";
 
+    string2 str10 = "Hello";
+    std::cout << str10.contains("ello", 0) << str10.contains("ello", 1) << str10.contains("ello", 2);
+    std::cout << "\n";
+
     return 0;
 }

@@ -145,7 +145,7 @@ bool string2::contains(char c) const {
 
 bool string2::contains(const string2& s, int start_index) const {
     const int end_index = s.size() + start_index;
-    if (end_index >= size()) {
+    if (end_index > size()) {
         return false;
     }
     for (int i = 0; i < s.size(); i++) {
