@@ -258,3 +258,35 @@ string2 string2::join(const std::vector<string2>& parts, string2 joiner) {
     res += parts[parts.size() - 1];
     return res;
 }
+
+string2::iterator string2::begin() {
+    return _s.begin();
+}
+
+string2::iterator string2::end() {
+    return _s.end();
+}
+
+std::reverse_iterator<string2::iterator> string2::rbegin() {
+    return _s.rbegin();
+}
+
+std::reverse_iterator<string2::iterator> string2::rend() {
+    return _s.rend();
+}
+
+string2::const_iterator string2::cbegin() const {
+    return _s.cbegin();
+}
+
+string2::const_iterator string2::cend() const {
+    return _s.cend();
+}
+
+std::reverse_iterator<string2::const_iterator> string2::crbegin() const {
+    return _s.crbegin();
+}
+
+std::reverse_iterator<string2::const_iterator> string2::crend() const {
+    return _s.crend();
+}

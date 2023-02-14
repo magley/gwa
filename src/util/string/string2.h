@@ -42,6 +42,18 @@ public:
     std::vector<string2> split_unless_between(string2 delimiter, const std::vector<string2>& pairs) const;
     string2 replace(const string2& from, const string2& to) const;
     static string2 join(const std::vector<string2>& parts, string2 joiner);
+
+    using iterator = std::string::iterator;
+    using const_iterator = std::string::const_iterator;
+
+    iterator begin();
+    iterator end();
+    std::reverse_iterator<iterator> rbegin();
+    std::reverse_iterator<iterator> rend();
+    const_iterator cbegin() const;
+    const_iterator cend() const;
+    std::reverse_iterator<const_iterator> crbegin() const;
+    std::reverse_iterator<const_iterator> crend() const;
 };
 
 bool operator ==(const std::string& lhs, const string2& rhs);
