@@ -58,38 +58,58 @@ protected:
 
     template<typename T>
     bool assert_eq(std::string name, std::vector<T> expected, std::vector<T> result) {
+        #define WRITE_EXPECTED_ELEMENT(i)\
+            if (i >= result.size() || result[i] != expected[i]) {\
+                ss << ANSI_RED;\
+            } else {\
+                ss << ANSI_RESET;\
+            }\
+            ss << expected[i];
+        #define WRITE_RESULT_ELEMENT(i)\
+            if (i >= expected.size() || result[i] != expected[i]) {\
+                ss << ANSI_RED;\
+            } else {\
+                ss << ANSI_RESET;\
+            }\
+            ss << result[i];
+
         bool eq = expected == result;
         std::string details = "";
         if (!eq) {
             std::stringstream ss;
             ss << "Expected:\n\t[";
             for (int i = 0; i < expected.size() - 1; i++) {
-                ss << expected[i] << ", ";
+                WRITE_EXPECTED_ELEMENT(i);
+                ss << ", ";
             }
-            ss << expected[expected.size() - 1] << "]";
-
-            #define WRITE_RESULT_ELEMENT(i)\
-                if (i < expected.size() && result[i] != expected[i]) {\
-                    ss << ANSI_YELLOW;\
-                } else {\
-                    ss << ANSI_RESET;\
-                }\
-                ss << result[i];
+            WRITE_EXPECTED_ELEMENT(expected.size() - 1);
+            ss << ANSI_RESET << "]";
 
             ss << "\n\tResult:\n\t[";
             for (int i = 0; i < result.size() - 1; i++) {
                 WRITE_RESULT_ELEMENT(i);
                 ss << ", ";
             }
-
             WRITE_RESULT_ELEMENT(result.size() - 1);
+            ss << ANSI_RESET << "]";
 
-            ss << ANSI_RESET;
-            ss << "]";
+            ss << "\n\n";
+            for (int i = 0; i < expected.size(); i++) {
+                if (i < result.size() && result[i] != expected[i]) {
+                    ss << ANSI_YELLOW << "\texpected[" << i << "]: " << ANSI_RESET << expected[i]
+                        << ANSI_YELLOW << "\tresult[" << i << "]: " << ANSI_RESET << result[i] << "\n";
+                }
+            }
+            if (expected.size() < result.size()) {
+                ss << "\texpected.size() < result.size()\n";
+            } else if (expected.size() > result.size()) {
+                ss << "\texpected.size() > result.size()\n";
+            }
+
             details = ss.str();
-
-            #undef WRITE_RESULT_ELEMENT
         }
+        #undef WRITE_RESULT_ELEMENT
+        #undef WRITE_EXPECTED_ELEMENT
         return assert(name, eq, details);
     }
 private:
