@@ -11,14 +11,6 @@ bool Test2::assert(std::string name, bool expression, std::string details) {
 }
 
 void Test2::report() const {
-    const char* ANSI_RED = "\033[0;31m";
-    const char* ANSI_GREEN = "\033[0;32m";
-    const char* ANSI_YELLOW = "\033[0;33m";
-    const char* ANSI_CYAN = "\033[0;36m";
-    const char* ANSI_WHITE = "\033[0;37m";
-    const char* ANSI_GRAY = "\033[0;39m";
-    const char* ANSI_RESET = "\033[0m";
-
     int total = results.size();
     int failed = 0;
     int passed = 0;
