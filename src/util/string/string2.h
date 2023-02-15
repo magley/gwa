@@ -33,6 +33,8 @@ public:
     char& at_ref(int i);
     int index_of(char c, int start_index) const;
     int size() const;
+    int length() const;
+    bool empty() const;
     size_t find(const string2& substr, int pos = 0) const;
     bool contains(char c) const;
     bool contains(const string2& s, int start_index) const;
@@ -46,7 +48,7 @@ public:
     static string2 join(const std::vector<string2>& parts, string2 joiner);
     string2 upper() const;
     string2 lower() const;
-    string2 title(const string2& whitespace = " \t\n") const;
+    string2 title() const;
     int to_i() const;
     long to_l() const;
     double to_d() const;

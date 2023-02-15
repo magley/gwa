@@ -144,6 +144,14 @@ int string2::size() const {
     return _s.size();
 }
 
+int string2::length() const {
+    return _s.length();
+}
+
+bool string2::empty() const {
+    return _s.empty();
+}
+
 bool string2::contains(char c) const {
     for (int i = 0; i < size(); i++) {
         if (at(i) == c) {
@@ -192,16 +200,14 @@ string2 string2::trim() const {
     int l = 0;
     for (l = 0; l < size(); l++) {
         char c = at(l);
-        if (c == ' ' || c == '\t' || c == '\n' || c == '\f' || c == '\r') {
-        } else {
+        if (!isspace(c)) {
             break;
         }
     }
     int r = size() - 1;
     for (r = size() - 1; r >= 0; r--) {
         char c = at(r);
-        if (c == ' ' || c == '\t' || c == '\n' || c == '\f' || c == '\r') {
-        } else {
+        if (!isspace(c)) {
             break;
         }
     }
@@ -277,9 +283,7 @@ string2 string2::join(const std::vector<string2>& parts, string2 joiner) {
 string2 string2::upper() const {
     string2 s = *this;
     for (char& c : s) {
-        if (c >= 'a' && c <= 'z') {
-            c += 'A' - 'a';
-        }
+        c = toupper(c);
     }
     return s;
 }
@@ -287,27 +291,21 @@ string2 string2::upper() const {
 string2 string2::lower() const {
     string2 s = *this;
     for (char& c : s) {
-        if (c >= 'A' && c <= 'Z') {
-            c -= 'A' - 'a';
-        }
+        c = tolower(c);
     }
     return s;
 }
 
-string2 string2::title(const string2& whitespace) const {
+string2 string2::title() const {
     string2 result = *this;
     bool found_whitespace = true;
     for (char& c: result) {
-        if (!whitespace.contains(c)) {
+        if (!isspace(c)) {
             if (found_whitespace) {
-                if (c >= 'a' && c <= 'z') {
-                    c += 'A' - 'a';
-                }
+                c = toupper(c);
                 found_whitespace = false;
             } else {
-                if (c >= 'A' && c <= 'Z') {
-                    c -= 'A' - 'a';
-                }
+                c = tolower(c);
             }
         } else {
             found_whitespace = true;
