@@ -120,17 +120,19 @@ std::istream& operator>>(std::istream& ss, string2& b) {
 }
 
 char string2::at(int i) const {
-    i = (size() + (i % size())) % size();
+    const int s = size();
+    i = (s + (i % s)) % s;
     return _s[i];
 }
 
 char& string2::at_ref(int i) {
-    i = (size() + (i % size())) % size();
+    const int s = size();
+    i = (s + (i % s)) % s;
     return _s[i];
 }
 
-int string2::index_of(char c, int start_index) const {
-    for (int i = start_index; i < size(); i++) {
+size_t string2::find(char c, int pos) const {
+    for (int i = pos; i < size(); i++) {
         if (at(i) == c) {
             return i;
         }
@@ -185,8 +187,9 @@ string2 string2::substr(size_t pos, size_t size) const {
 }
 
 string2 string2::slice(int l, int r) const {
-    l = (size() + (l % size())) % size();
-    r = (size() + (r % size())) % size();
+    const int s = size();
+    l = (s + (l % s)) % s;
+    r = (s + (r % s)) % s;
     return substr(l, r - l + 1);
 }
 
@@ -239,6 +242,7 @@ std::vector<string2> string2::split_unless_between(string2 delim, const std::vec
                 result.push_back(token);
                 token = "";
             }
+            i += delim.size() - 1; // -1 because of i++ at the start of the loop. 
         } else {
             token += c;
         }

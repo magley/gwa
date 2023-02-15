@@ -4,63 +4,63 @@
 #include "util/string/string2.h"
 
 int main(int argc, char** argv) {
-    string2 str01 = "A A  BB";
-    for (const string2& s : str01.split(" ")) {
-        std::cout << "[" << s << "] ";
-    }
+    // string2 str01 = "A A  BB";
+    // for (const string2& s : str01.split(" ")) {
+    //     std::cout << "[" << s << "] ";
+    // }
 
-    std::cout << "\n";
+    // std::cout << "\n";
 
-    string2 str02 = "A {A BB {C D }} BB C";
-    for (const string2& s : str02.split_unless_between(" ", {"{}"})) {
-        std::cout << "[" << s << "] ";
-    }
+    // string2 str02 = "A {A BB {C D }} BB C";
+    // for (const string2& s : str02.split_unless_between(" ", {"{}"})) {
+    //     std::cout << "[" << s << "] ";
+    // }
 
-    std::cout << "\n";
+    // std::cout << "\n";
 
-    string2 str03 = "Hello {this {will [get]} ignored} and [so will this] and \"this too\" but <not this>.";
-    for (const string2& s : str03.split_unless_between(" ", {"{}", "[]", "\"\""})) {
-        std::cout << "[" << s << "] ";
-    }
+    // string2 str03 = "Hello {this {will [get]} ignored} and [so will this] and \"this too\" but <not this>.";
+    // for (const string2& s : str03.split_unless_between(" ", {"{}", "[]", "\"\""})) {
+    //     std::cout << "[" << s << "] ";
+    // }
 
-    std::cout << "\n";
+    // std::cout << "\n";
 
-    string2 str04 = "Hello $1. It's a whole $2 $1.";
-    std::cout << str04.replace("$1", "world").replace("$2", "new").replace(" ", "\t");
+    // string2 str04 = "Hello $1. It's a whole $2 $1.";
+    // std::cout << str04.replace("$1", "world").replace("$2", "new").replace(" ", "\t");
 
-    std::cout << "\n";
+    // std::cout << "\n";
 
-    string2 str05 = "               \t\t\t\n  he        ho  \n\t";
-    std::cout << "[" << str05.trim() << "]";
+    // string2 str05 = "               \t\t\t\n  he        ho  \n\t";
+    // std::cout << "[" << str05.trim() << "]";
 
-    std::cout << "\n";
+    // std::cout << "\n";
 
-    string2 str06 = string2::join({"A", "B", "c", "d"}, ", ");
-    std::cout << str06;
+    // string2 str06 = string2::join({"A", "B", "c", "d"}, ", ");
+    // std::cout << str06;
 
-    std::cout << "\n";
+    // std::cout << "\n";
 
-    string2 str07 = "Testing for iterators";
-    for (const char& c : str07) {
-        std::cout << c << " ";
-    }
-    std::cout << "\n";
+    // string2 str07 = "Testing for iterators";
+    // for (const char& c : str07) {
+    //     std::cout << c << " ";
+    // }
+    // std::cout << "\n";
 
-    for (char& c : str07) {
-        c++;
-        std::cout << c << " ";
-    }
-    std::cout << "\n";
+    // for (char& c : str07) {
+    //     c++;
+    //     std::cout << c << " ";
+    // }
+    // std::cout << "\n";
 
-    string2 str08 = "1,2,3,,4,,,5,";
-    for (string2 s : str08.split(",", true)) {
+    string2 str08 = ",-1,-2,-3,-,-4,-,-,-5,-";
+    for (string2 s : str08.split(",-", false)) {
         std::cout << "[" << s << "] ";
     }
     std::cout << "\n";
 
     string2 str09 = "";
     std::cout << str09.split(",").size() << " ";
-    std::cout << str09.split(",", true).size() << " ";
+    std::cout << str09.split(",", false).size() << " ";
     std::cout << "\n";
 
     string2 str10 = "Hello";

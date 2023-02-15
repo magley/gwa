@@ -32,10 +32,10 @@ struct string2 {
 
     char at(int i) const;
     char& at_ref(int i);
-    int index_of(char c, int start_index) const;
     int size() const;
     int length() const;
     bool empty() const;
+    size_t find(char c, int pos = 0) const;
     size_t find(const string2& substr, int pos = 0) const;
     bool contains(char c) const;
     bool contains(const string2& s, int start_index) const;
@@ -43,8 +43,8 @@ struct string2 {
     string2 substr(size_t pos, size_t size) const;
     string2 slice(int l, int r) const;
     string2 trim() const;
-    std::vector<string2> split(string2 delimiter, bool include_empty_tokens = false) const;
-    std::vector<string2> split_unless_between(string2 delimiter, const std::vector<string2>& pairs, bool include_empty_tokens = false) const;
+    std::vector<string2> split(string2 delimiter, bool include_empty_tokens = true) const;
+    std::vector<string2> split_unless_between(string2 delimiter, const std::vector<string2>& pairs, bool include_empty_tokens = true) const;
     string2 replace(const string2& from, const string2& to) const;
     static string2 join(const std::vector<string2>& parts, string2 joiner);
     string2 upper() const;
