@@ -30,7 +30,6 @@ static void calc_pair_sum(char c, const string2& pair, int* symmetric_pair, int*
     }
 }
 
-
 string2::string2() {
 }
 
@@ -38,13 +37,13 @@ string2::string2(char c) {
     _s = c;
 }
 
-string2::string2(const char* s): _s(s) {
+string2::string2(const char* s) : _s(s) {
 }
 
-string2::string2(const std::string& s): _s(s) {
+string2::string2(const std::string& s) : _s(s) {
 }
 
-string2::string2(const string2& s): _s(s._s) {
+string2::string2(const string2& s) : _s(s._s) {
 }
 
 std::string string2::str() const {
@@ -63,50 +62,50 @@ const char* string2::c_str() const {
     return _s.c_str();
 }
 
-string2& string2::operator =(const string2& rhs) {
+string2& string2::operator=(const string2& rhs) {
     _s = rhs._s;
     return *this;
 }
 
-string2 string2::operator +(const string2& rhs) const {
+string2 string2::operator+(const string2& rhs) const {
     return _s + rhs._s;
 }
 
-string2 operator +(const std::string& lhs, const string2& rhs) {
+string2 operator+(const std::string& lhs, const string2& rhs) {
     return lhs + rhs.str();
 }
 
-string2& string2::operator +=(const string2& rhs) {
+string2& string2::operator+=(const string2& rhs) {
     _s += rhs._s;
     return *this;
 }
 
-std::string& operator +=(std::string& lhs, const string2& rhs) {
+std::string& operator+=(std::string& lhs, const string2& rhs) {
     lhs += rhs.str();
     return lhs;
 }
 
-bool string2::operator ==(const string2& rhs) const {
+bool string2::operator==(const string2& rhs) const {
     return _s == rhs._s;
 }
 
-bool operator ==(const std::string& a, const string2& b) {
+bool operator==(const std::string& a, const string2& b) {
     return a == b.str();
 }
 
-bool string2::operator !=(const string2& rhs) const {
+bool string2::operator!=(const string2& rhs) const {
     return _s != rhs._s;
 }
 
-bool operator !=(const std::string& a, const string2& b) {
+bool operator!=(const std::string& a, const string2& b) {
     return a != b.str();
 }
 
-char string2::operator [](int i) const {
+char string2::operator[](int i) const {
     return at(i);
 }
 
-char& string2::operator [](int i) {
+char& string2::operator[](int i) {
     return at_ref(i);
 }
 
@@ -129,7 +128,6 @@ char& string2::at_ref(int i) {
     i = (size() + (i % size())) % size();
     return _s[i];
 }
-
 
 int string2::index_of(char c, int start_index) const {
     for (int i = start_index; i < size(); i++) {
@@ -189,7 +187,7 @@ string2 string2::substr(size_t pos, size_t size) const {
 string2 string2::slice(int l, int r) const {
     l = (size() + (l % size())) % size();
     r = (size() + (r % size())) % size();
-    return substr(l, r - l + 1); 
+    return substr(l, r - l + 1);
 }
 
 string2 string2::trim() const {
@@ -250,7 +248,7 @@ std::vector<string2> string2::split_unless_between(string2 delim, const std::vec
         result.push_back(token);
     }
 
-    return result;  
+    return result;
 }
 
 std::vector<string2> string2::split(string2 delim, bool include_empty_tokens) const {
@@ -299,7 +297,7 @@ string2 string2::lower() const {
 string2 string2::title() const {
     string2 result = *this;
     bool found_whitespace = true;
-    for (char& c: result) {
+    for (char& c : result) {
         if (!isspace(c)) {
             if (found_whitespace) {
                 c = toupper(c);

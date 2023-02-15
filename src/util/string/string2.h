@@ -3,9 +3,10 @@
 #include <vector>
 
 struct string2 {
-private:
+   private:
     std::string _s;
-public:
+
+   public:
     const static size_t npos = std::string::npos;
 
     string2();
@@ -19,15 +20,15 @@ public:
     std::string* str_ptr();
     const char* c_str() const;
 
-    string2& operator  =(const string2& rhs);
-    string2 operator  +(const string2& rhs) const;
-    string2& operator +=(const string2& rhs);
-    bool operator     ==(const string2& rhs) const;
-    bool operator     !=(const string2& rhs) const;
-    char operator     [](int i) const;
-    char& operator     [](int i);
-    friend std::ostream& operator <<(std::ostream& ss, string2 b);
-    friend std::istream& operator >>(std::istream& ss, string2& b);
+    string2& operator=(const string2& rhs);
+    string2 operator+(const string2& rhs) const;
+    string2& operator+=(const string2& rhs);
+    bool operator==(const string2& rhs) const;
+    bool operator!=(const string2& rhs) const;
+    char operator[](int i) const;
+    char& operator[](int i);
+    friend std::ostream& operator<<(std::ostream& ss, string2 b);
+    friend std::istream& operator>>(std::istream& ss, string2& b);
 
     char at(int i) const;
     char& at_ref(int i);
@@ -67,16 +68,17 @@ public:
     std::reverse_iterator<const_iterator> crend() const;
 };
 
-bool operator ==(const std::string& lhs, const string2& rhs);
-bool operator !=(const std::string& lhs, const string2& rhs);
-string2 operator +(const std::string& lhs, const string2& rhs);
-std::string& operator +=(std::string& lhs, const string2& rhs);
+bool operator==(const std::string& lhs, const string2& rhs);
+bool operator!=(const std::string& lhs, const string2& rhs);
+string2 operator+(const std::string& lhs, const string2& rhs);
+std::string& operator+=(std::string& lhs, const string2& rhs);
 
 namespace std {
-    template<> struct hash<string2> {
-        size_t operator()(string2 const& t) const {
-            const std::hash<std::string> hasher;
-            return hasher(t.str());
-        }
-    };
-}
+template <>
+struct hash<string2> {
+    size_t operator()(string2 const& t) const {
+        const std::hash<std::string> hasher;
+        return hasher(t.str());
+    }
+};
+}  // namespace std
