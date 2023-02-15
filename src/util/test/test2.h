@@ -4,6 +4,7 @@
 #include <vector>
 
 #ifndef ASSERT2
+// If it says `name` not found, the test function needs to define (a string) called `name`. 
 #define ASSERT2(...)                                            \
     {                                                           \
         if (!assert(name, __VA_ARGS__, #__VA_ARGS__)) return; \
