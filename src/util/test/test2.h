@@ -18,6 +18,8 @@
     if (!assert_eq(name, expected, result)) return;                      \
 }
 
+#define EXECUTE_TEST(test) {before_each(); test(); after_each();}
+
 #endif
 
 #define ANSI_RED "\033[0;31m"
@@ -42,6 +44,10 @@ struct Test2 {
     void run();
 protected:
     virtual void run_tests() = 0;
+    virtual void before_all();
+    virtual void after_all();
+    virtual void before_each();
+    virtual void after_each();
     bool assert(std::string name, bool expression, std::string details);
 
     template<typename T>
@@ -50,7 +56,7 @@ protected:
         std::string details = "";
         if (!eq) {
             std::stringstream ss;
-            ss << "Expected:\n\t" << expected << "\ngot:\n\t" << result;
+            ss << "Expected:\n\t" << expected << "\n\tResult:\n\t" << result;
             details = ss.str();
         }
         return assert(name, eq, details);

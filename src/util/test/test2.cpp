@@ -1,7 +1,9 @@
 #include "test2.h"
 
 void Test2::run() {
+    before_all();
     run_tests();
+    after_all();
     report();
 }
 
@@ -9,6 +11,14 @@ bool Test2::assert(std::string name, bool expression, std::string details) {
     results.push_back(Test2Data(name, expression, details));   
     return expression;
 }
+
+void Test2::before_all() {}
+
+void Test2::after_all() {}
+
+void Test2::before_each() {}
+
+void Test2::after_each() {}
 
 void Test2::report() const {
     int total = results.size();

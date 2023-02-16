@@ -6,21 +6,35 @@
 
 struct string2_Test : Test2 {
 protected:
+    void before_all() {
+        printf("BEFORE ALL\n");
+    }
+    void after_all() {
+        printf("AFTER ALL\n");
+    }
+    void before_each() {
+        printf("BEFORE EACH\n");
+    }
+    void after_each() {
+        printf("AFTER EACH\n");
+    }
+
     void run_tests() {
-        test01();
-        test02();
-        test03();
-        test04();
-        test05();
-        test06();
-        test07();
-        test08();
-        test09();
-        test10();
-        test11();
-        test12();
-        test13();
-        test14();
+        EXECUTE_TEST(test01);
+        EXECUTE_TEST(test01);
+        EXECUTE_TEST(test02);
+        EXECUTE_TEST(test03);
+        EXECUTE_TEST(test04);
+        EXECUTE_TEST(test05);
+        EXECUTE_TEST(test06);
+        EXECUTE_TEST(test07);
+        EXECUTE_TEST(test08);
+        EXECUTE_TEST(test09);
+        EXECUTE_TEST(test10);
+        EXECUTE_TEST(test11);
+        EXECUTE_TEST(test12);
+        EXECUTE_TEST(test13);
+        EXECUTE_TEST(test14);
     }
 private:
     void test01(std::string name = "Should split string") {
@@ -102,7 +116,7 @@ private:
 
     void test12(std::string name = "Splitting empty string returns an empty list if empty tokens are excluded") {
         string2 str = "";
-        ASSERT2(str.split(",", false).size() == 0);
+        ASSERT2_EQ(0, (int)str.split(",", false).size());
     }
     
     void test13(std::string name = "Splitting empty string returns an empty string list if empty tokens are included") {
