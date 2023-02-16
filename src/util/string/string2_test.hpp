@@ -4,21 +4,8 @@
 #include <stdio.h>
 #include <string>
 
-struct string2_Test : Test2 {
+struct string2_Test : public test2::Test2 {
 protected:
-    void before_all() {
-        printf("BEFORE ALL\n");
-    }
-    void after_all() {
-        printf("AFTER ALL\n");
-    }
-    void before_each() {
-        printf("BEFORE EACH\n");
-    }
-    void after_each() {
-        printf("AFTER EACH\n");
-    }
-
     void run_tests() {
         EXECUTE_NAMED(test01, "Should split string");
         EXECUTE_NAMED(test02, "Should split string ignoring spaces between specified character-pairs");
@@ -34,12 +21,6 @@ protected:
         EXECUTE_NAMED(test12, "Splitting empty string returns an empty list if empty tokens are excluded");
         EXECUTE_NAMED(test13, "Splitting empty string returns an empty string list if empty tokens are included");
         EXECUTE_NAMED(test14, "Fast contains-substring works at string bounds");
-
-        for (int i = 0; i < 3; i++) {
-            std::stringstream ss;
-            ss << "Is odd: " << i;
-            EXECUTE_NAMED(test_is_odd, ss.str(), i);
-        }
     }
 private:
     void test01() {
@@ -133,9 +114,4 @@ private:
         string2 str = "Hello";
         ASSERT2(str.contains("ello", 1));
     }
-
-    void test_is_odd(int x) {
-        ASSERT2(x % 2 == 0);
-    }
-
 };

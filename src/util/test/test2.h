@@ -4,22 +4,36 @@
 #include <string>
 #include <vector>
 
+namespace test2 {
+
 #ifndef _TEST2_HELPFUL_ASSERTS
 #define _TEST2_HELPFUL_ASSERTS
 
-// If it says `name` not found, the test function needs to define (a string) called `name`. 
-#define ASSERT2(...)                                            \
-    {                                                           \
-        if (!assert(__VA_ARGS__, #__VA_ARGS__)) return; \
-    }
-
-#define ASSERT2_EQ(expected, result)                                        \
-{                                                                           \
-    if (!assert_eq(expected, result)) return;                      \
+#define ASSERT2(...)                                \
+{                                                   \
+    if (!assert(__VA_ARGS__, #__VA_ARGS__)) return; \
 }
 
-#define EXECUTE_TEST(test, ...) {current_test_name = #test; before_each(); test(__VA_ARGS__); after_each();}
-#define EXECUTE_NAMED(test, name, ...) {current_test_name = name; before_each(); test(__VA_ARGS__); after_each();}
+#define ASSERT2_EQ(expected, result)                \
+{                                                   \
+    if (!assert_eq(expected, result)) return;       \
+}
+
+#define EXECUTE_TEST(test, ...)         \
+{                                       \
+    current_test_name = #test;          \
+    before_each();                      \
+    test(__VA_ARGS__);                  \
+    after_each();                       \
+}
+
+#define EXECUTE_NAMED(test, name, ...)  \
+{                                       \
+    current_test_name = name;           \
+    before_each();                      \
+    test(__VA_ARGS__);                  \
+    after_each();                       \
+}
 #endif
 
 #define ANSI_RED "\033[0;31m"
@@ -123,3 +137,5 @@ private:
     std::vector<Test2Data> results;
     void report() const;
 };
+
+} // namespace test2

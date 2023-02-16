@@ -1,5 +1,7 @@
 #include "test2.h"
 
+using namespace test2;
+
 void Test2::run() {
     before_all();
     run_tests();
