@@ -7,8 +7,8 @@ void Test2::run() {
     report();
 }
 
-bool Test2::assert(std::string name, bool expression, std::string details) {
-    results.push_back(Test2Data(name, expression, details));   
+bool Test2::assert(bool expression, std::string details) {
+    results.push_back(Test2Data(current_test_name, expression, details));   
     return expression;
 }
 

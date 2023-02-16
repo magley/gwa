@@ -10,16 +10,16 @@
 // If it says `name` not found, the test function needs to define (a string) called `name`. 
 #define ASSERT2(...)                                            \
     {                                                           \
-        if (!assert(name, __VA_ARGS__, #__VA_ARGS__)) return; \
+        if (!assert(__VA_ARGS__, #__VA_ARGS__)) return; \
     }
 
 #define ASSERT2_EQ(expected, result)                                        \
 {                                                                           \
-    if (!assert_eq(name, expected, result)) return;                      \
+    if (!assert_eq(expected, result)) return;                      \
 }
 
-#define EXECUTE_TEST(test) {before_each(); test(); after_each();}
-
+#define EXECUTE_TEST(test, ...) {current_test_name = #test; before_each(); test(__VA_ARGS__); after_each();}
+#define EXECUTE_NAMED(test, name, ...) {current_test_name = name; before_each(); test(__VA_ARGS__); after_each();}
 #endif
 
 #define ANSI_RED "\033[0;31m"
@@ -48,10 +48,10 @@ protected:
     virtual void after_all();
     virtual void before_each();
     virtual void after_each();
-    bool assert(std::string name, bool expression, std::string details);
+    bool assert(bool expression, std::string details);
 
     template<typename T>
-    bool assert_eq(std::string name, T expected, T result) {
+    bool assert_eq(T expected, T result) {
         bool eq = expected == result;
         std::string details = "";
         if (!eq) {
@@ -59,11 +59,11 @@ protected:
             ss << "Expected:\n\t" << expected << "\n\tResult:\n\t" << result;
             details = ss.str();
         }
-        return assert(name, eq, details);
+        return assert(eq, details);
     }
 
     template<typename T>
-    bool assert_eq(std::string name, std::vector<T> expected, std::vector<T> result) {
+    bool assert_eq(std::vector<T> expected, std::vector<T> result) {
         #define WRITE_EXPECTED_ELEMENT(i)\
             if (i >= result.size() || result[i] != expected[i]) {\
                 ss << ANSI_RED;\
@@ -116,8 +116,9 @@ protected:
         }
         #undef WRITE_RESULT_ELEMENT
         #undef WRITE_EXPECTED_ELEMENT
-        return assert(name, eq, details);
+        return assert(eq, details);
     }
+    std::string current_test_name = "!no test!";
 private:
     std::vector<Test2Data> results;
     void report() const;
