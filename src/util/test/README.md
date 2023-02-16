@@ -1,6 +1,5 @@
 # test2 - micro testing framework for C++
 ## Usage
----
 ```c++
 // myTest.hpp
 #include "test2.h"
@@ -47,39 +46,44 @@ Steps:
 6) Call `.run()` on the test suite instance.
 
 ## Design limitations
----
 Since C++ lacks mechanisms for reflection, we can choose between:
 1) Manually calling tests within suites, and suites within the program:
-    `+ cleaner syntax`
-    `+ faster compile times`
-    `+ more control`
-    `+ decipherable compile-time error messages`
-    `+ dynamic execution`
-    `- same test executing mutliple times when copy-pasting code`
-    `- code redundancy`
-    `- the program itself is the test runner (no "middleware")`
+```
+    + cleaner syntax
+    + faster compile times
+    + more control
+    + decipherable compile-time error messages
+    + dynamic execution
+    - same test executing mutliple times when copy-pasting code
+    - code redundancy
+    - the program itself is the test runner (no "middleware")
+```
 2) Using macros to automatize the test writing/execution process:
-    `+ minimal redundancy`
-    `+ test suites written like in other languages`
-    `+ tester can focus on writing tests`
-    `- macro magic`
-    `- slower compile times`
-    `- source code is hard to read/maintain`
-    
+```
+    + minimal redundancy
+    + test suites written like in other languages
+    + tester can focus on writing tests
+    - macro magic
+    - slower compile times
+    - source code is hard to read/maintain
+```
 `test2` opted for the 1st solution contrary to other popular and more powerful frameworks for the sake of faster compile times and easier-to-understand code.
 
 ## Design guide
----
 
 Test suite headers should only be included in `main.cpp` and only during testing.
+
 Because of the above, it is reccommended to write the entire test suite (including definition) in `.hpp` files.
-Test suites should not inherit from other test suites (except for `test2::Test2`). 
+
+Test suites should not inherit from other test suites (except for `test2::Test2`).
+
 Exposing the `test2` namespace is discouraged.
 
 ## Inner workings
----
 `Test2` is an abstract class representing a test suite. When inheriting this class, you must override `void run_tests()`.
+
 Other functions you may override are: `void before_all()`, `void after_all()`, `void before_each()`, `void after_each()`.
+
 `before_all` and `after_all` are automatically by `Test2::run()` between the call of `run_tests()`. `before_each` and `after_each` are called by the macro `EXECUTE_TEST`/`EXECUTE_NAMED`.
 
 `current_test_name` is an `std::string` holding the name of the current test. `EXECUTE_*` macros set this variable before running each test. The name is derived from the function (in the case of `EXECUTE_TEST`), or from the second argument of the macro (in the case of `EXECUTE_NAMED`).
