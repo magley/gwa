@@ -1,5 +1,14 @@
 #include "obj_archive.h"
 
+
+int ObjArchive::get_type() const {
+    return type; 
+}
+
+int ObjArchive::get_err() const {
+    return err; 
+}
+
 string2 ObjArchive::to_str() const {
     switch (type) {
         case TYPE_LITERAL:
@@ -8,22 +17,28 @@ string2 ObjArchive::to_str() const {
             return array_to_str();
         case TYPE_MAP:
             return map_to_str();
+        case TYPE_ERROR:
+            return "???";
         default:
             return "";
     }
 }
 
 void ObjArchive::from_str(const string2& s) {
-    type = infer_type_from_str(s);
+    string2 s_sanitized = s.trim();
+    type = infer_type_from_str(s_sanitized);
     switch (type) {
         case TYPE_LITERAL:
-            str_to_literal(s);
+            str_to_literal(s_sanitized);
             break;
         case TYPE_ARRAY:
-            str_to_array(s);
+            str_to_array(s_sanitized);
             break;
         case TYPE_MAP:
-            str_to_map(s);
+            str_to_map(s_sanitized);
+            break;
+        case TYPE_ERROR:
+            throw ObjArchiveException(literal);
             break;
         default:
             break;
@@ -91,8 +106,31 @@ void ObjArchive::str_to_map(const string2& s) {
     }
 }
 
-int ObjArchive::infer_type_from_str(const string2& s) const {
-    if (s[0] == '{' && s[-1] == '}') return TYPE_MAP;
-    else if (s[0] == '[' && s[-1] == ']') return TYPE_ARRAY;
-    else return TYPE_LITERAL;
+int ObjArchive::infer_type_from_str(const string2& s) {
+    if (s[0] == '{' && s[-1] == '}') {
+        return TYPE_MAP;
+    }
+
+    if (s[0] == '[' && s[-1] == ']') {
+        return TYPE_ARRAY;
+    }
+
+    if ((s[0] == '{') != (s[-1] == '}')) {
+        const string2 ansi_red = "\033[0;31m";
+        const string2 ansi_white = "\033[0;37m";
+        literal = ansi_red + "Unmatched braces in json:\n"  + ansi_white + s;
+        err = ERR_BRACE_MISMATCH;
+        return TYPE_ERROR;
+    }
+
+    if ((s[0] == '[') != (s[-1] == ']')) {
+        const string2 ansi_red = "\033[0;31m";
+        const string2 ansi_white = "\033[0;37m";
+        literal = ansi_red + "Unmatched brackets in json:\n" + ansi_white + s;
+        err = ERR_BRACKET_MISMATCH;
+        return TYPE_ERROR;
+    }
+
+
+    return TYPE_LITERAL;
 }

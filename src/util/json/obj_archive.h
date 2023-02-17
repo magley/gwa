@@ -5,6 +5,16 @@
 #include <unordered_map>
 #include <sstream>
 
+struct ObjArchiveException : public std::exception {
+    string2 msg;
+    ObjArchiveException() {}
+    ObjArchiveException(string2 msg) : msg(msg) {}
+
+    const char* what() const noexcept {
+        return msg.c_str();
+    }
+};
+
 class ObjArchive : ISerializable {
 public:
     template<typename T>
@@ -140,10 +150,15 @@ public:
     void str_to_literal(const string2& s);
     void str_to_array(const string2& s);
     void str_to_map(const string2& s);
-    int infer_type_from_str(const string2& s) const;
+    int infer_type_from_str(const string2& s);
+    enum { TYPE_LITERAL, TYPE_ARRAY, TYPE_MAP, TYPE_ERROR };
+    enum { ERR_NONE, ERR_BRACE_MISMATCH, ERR_BRACKET_MISMATCH };
+
+    int get_type() const;
+    int get_err() const;
 private:
-    enum { TYPE_LITERAL, TYPE_ARRAY, TYPE_MAP };
     int type = TYPE_LITERAL;
+    int err = ERR_NONE;
     string2 literal;
     std::vector<string2> array;
     std::unordered_map<string2, string2> map;

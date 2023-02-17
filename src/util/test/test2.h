@@ -34,6 +34,28 @@ namespace test2 {
     test(__VA_ARGS__);                  \
     after_each();                       \
 }
+
+#define PASS()              \
+{                           \
+    assert(true, "[pass]"); \
+    return;                 \
+}
+
+#define FAIL()                  \
+{                               \
+    assert(false, "[fail]");    \
+    return;                     \
+}
+
+#define ASSERT2_THROWS(exception, code, code_in_specific_catch)     \
+try {                                                               \
+    code;                                                           \
+} catch (exception ___exception) {                                  \
+    code_in_specific_catch;                                         \
+    PASS();                                                         \
+}                                                                   \
+FAIL();
+
 #endif
 
 #define ANSI_RED "\033[0;31m"
