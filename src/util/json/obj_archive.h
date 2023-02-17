@@ -14,6 +14,15 @@ public:
     }
 
     template<typename T>
+    void get(const string2& key, T* o) const {
+        if (type != TYPE_MAP) {
+            throw "Not a map.";
+        }
+        const string2 res = map.at(key); // Will throw if key not found.
+        from_str<T>(res, o);
+    }
+
+    template<typename T>
     void insert(const std::vector<T>* arr) {
         map.clear();
         array.clear();
@@ -22,6 +31,8 @@ public:
         }
         type = TYPE_ARRAY;
     }
+
+//---------------------------------------------------------------------------------------- to_str()
 
     static string2 to_str(const string2* const o) {
         return "\"" + *o + "\"";
@@ -51,6 +62,22 @@ public:
     }
 
     string2 to_str() const;
+
+//-------------------------------------------------------------------------------------- from_str()
+
+    static void from_str(const string2& s, string2* o) {
+        *o = s.slice(1, -2);
+    }
+
+    template<typename T>
+    static typename std::enable_if<std::is_arithmetic<T>::value, void>::type
+    from_str(const string2& s, T* o) {
+        std::stringstream ss;
+        ss << s;
+        ss >> *o;
+    }
+
+//------------------------------------------------------------------------------------------- other
 
     void save(ObjArchive& ar) const;
     void load(const ObjArchive& ar);
