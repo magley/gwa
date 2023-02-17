@@ -18,5 +18,10 @@ int main(int argc, char** argv) {
 
     o.put("Names", &names);
     printf("%s\n", o.to_str().c_str());
+
+    ObjArchive o2;
+    o2.put("o", &o);
+    o.put("o2", &o2);
+    printf("%s\n", o.to_str().c_str());
     return 0;
 }

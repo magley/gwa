@@ -5,7 +5,7 @@
 #include <unordered_map>
 #include <sstream>
 
-struct ObjArchive {
+struct ObjArchive : ISerializable {
 public:
     template<typename T>
     void put(const string2& key, const T* const o) {
@@ -39,7 +39,7 @@ public:
     static typename std::enable_if<std::is_base_of<ISerializable, T>::value, string2>::type
     to_str(const T* const o) {
         ObjArchive ar;
-        o->load(&ar);
+        o->save(ar);
         return ar.to_str();
     }
 
@@ -51,6 +51,9 @@ public:
     }
 
     string2 to_str() const;
+
+    void save(ObjArchive& ar) const;
+    void load(const ObjArchive& ar);
 private:
     string2 literal_to_str() const;
     string2 array_to_str() const;

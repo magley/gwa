@@ -36,3 +36,11 @@ string2 ObjArchive::map_to_str() const {
     ss << "}";
     return ss.str();
 }
+
+void ObjArchive::save(ObjArchive& ar) const {
+    ar = *this;
+}
+
+void ObjArchive::load(const ObjArchive& ar) {
+    *this = ar;
+}
