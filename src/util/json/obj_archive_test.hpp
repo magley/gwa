@@ -2,13 +2,14 @@
 #include "obj_archive.h"
 #include "util/test/test2.h"
 
-struct Testing_P2 : ISerializable {
+class Testing_P1 : ISerializable {
+public:
     int x;
     float y;
     string2 name;
 
-    Testing_P2() {}
-    Testing_P2(int x, float y, string2 name) : x(x), y(y), name(name) {}
+    Testing_P1() {}
+    Testing_P1(int x, float y, string2 name) : x(x), y(y), name(name) {}
 
     void save(ObjArchive& ar) const {
         ar.put("x", &x);
@@ -22,20 +23,88 @@ struct Testing_P2 : ISerializable {
         ar.get("name", &name);
     }
 
-    bool operator==(const Testing_P2& other) const {
+    bool operator==(const Testing_P1& other) const {
         return (x == other.x && y == other.y && name == other.name);
     }
-    bool operator!=(const Testing_P2& other) const {
-        return !(x == other.x && y == other.y && name == other.name);
+    bool operator!=(const Testing_P1& other) const {
+        return !(this->operator==(other));
     }
     
-    friend std::ostream& operator<<(std::ostream& other, const Testing_P2& p) {
+    friend std::ostream& operator<<(std::ostream& other, const Testing_P1& p) {
         other << "{" << p.x << ", " << p.y << ", " << p.name << "}";
         return other;
     }
 };
 
-struct ObjArchive_Test : public test2::Test2 {
+class Testing_P2 : ISerializable {
+public:
+    int x;
+    int y;
+
+    Testing_P2() {}
+    Testing_P2(int x, int y) : x(x), y(y) {}
+
+    void save(ObjArchive& ar) const {
+        ar.put("x", &x);
+        ar.put("y", &y);
+    }
+
+    void load(const ObjArchive& ar) {
+        ar.get("x", &x);
+        ar.get("y", &y);
+    }
+
+    bool operator==(const Testing_P2& other) const {
+        return (x == other.x && y == other.y);
+    }
+    bool operator!=(const Testing_P2& other) const {
+        return !(this->operator==(other));
+    }
+
+    friend std::ostream& operator<<(std::ostream& other, const Testing_P2& p) {
+        other << "{" << p.x << ", " << p.y << "}";
+        return other;
+    }
+};
+
+class Testing_P3 : ISerializable {
+public:
+    Testing_P2 pos;
+    Testing_P2 vel;
+    double angle;
+    double rotspd;
+
+    Testing_P3() {}
+
+    void save(ObjArchive& ar) const {
+        ar.put("pos", &pos);
+        ar.put("vel", &vel);
+        ar.put("angle", &angle);
+        ar.put("rotspd", &rotspd);
+    }
+
+    void load(const ObjArchive& ar) {
+        ar.get("pos", &pos);
+        ar.get("vel", &vel);
+        ar.get("angle", &angle);
+        ar.get("rotspd", &rotspd);
+    }
+
+    bool operator==(const Testing_P3& other) const {
+        return (pos == other.pos && vel == other.vel && angle == other.angle && rotspd == other.rotspd);
+    }
+    bool operator!=(const Testing_P3& other) const {
+        return !(this->operator==(other));
+    }
+
+    friend std::ostream& operator<<(std::ostream& other, const Testing_P3& p) {
+        other << "{" << p.pos << ", " << p.vel << ", " << p.angle << ", " << p.rotspd << "}";
+        return other;
+    }
+};
+
+class ObjArchive_Test : public test2::Test2 {
+public:
     void run_tests() {
         EXECUTE_TEST(should_put_int);
         EXECUTE_TEST(should_put_long_long);
@@ -46,6 +115,7 @@ struct ObjArchive_Test : public test2::Test2 {
         EXECUTE_TEST(should_put_vector);
         EXECUTE_TEST(should_push_various);
         EXECUTE_TEST(should_work_as_literal);
+        EXECUTE_TEST(should_de_serialize_nested_structures);
     }
 private:
     void should_put_int() {
@@ -99,7 +169,7 @@ private:
     }
 
     void should_put_serializable() {
-        Testing_P2 p;
+        Testing_P1 p;
         p.x = 123;
         p.y = 0.1f;
         p.name = "John";
@@ -107,7 +177,7 @@ private:
         ObjArchive ar;
         ar.put("myobj", &p);
 
-        Testing_P2 p2;
+        Testing_P1 p2;
         ar.get("myobj", &p2);
 
         ASSERT2_EQ(p.x, p2.x);
@@ -116,14 +186,14 @@ private:
     }
 
     void should_put_vector() {
-        std::vector<Testing_P2> vec;
-        vec.push_back(Testing_P2(1, 0.1f, "John"));
-        vec.push_back(Testing_P2(3, 0.2f, "Troy"));
+        std::vector<Testing_P1> vec;
+        vec.push_back(Testing_P1(1, 0.1f, "John"));
+        vec.push_back(Testing_P1(3, 0.2f, "Troy"));
 
         ObjArchive ar;
         ar.put("myarr", &vec);
 
-        std::vector<Testing_P2> vec2;
+        std::vector<Testing_P1> vec2;
         ar.get("myarr", &vec2);
 
         ASSERT2_EQ(vec, vec2);
@@ -159,5 +229,18 @@ private:
         ar.get(&xx);
 
         ASSERT2_EQ(x, xx);
+    }
+
+    void should_de_serialize_nested_structures() {
+        Testing_P3 p3;
+        p3.pos = Testing_P2(12, 12.3f);
+        p3.vel = Testing_P2(-20, 0);
+        p3.angle = 123.0;
+        p3.rotspd = 12.0;
+
+        Testing_P3 p3_clone;
+        ObjArchive::from_str(ObjArchive::to_str(&p3), &p3_clone);
+
+        ASSERT2_EQ(p3, p3_clone);
     }
 };

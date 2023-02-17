@@ -5,7 +5,7 @@
 #include <unordered_map>
 #include <sstream>
 
-struct ObjArchive : ISerializable {
+class ObjArchive : ISerializable {
 public:
     template<typename T>
     void set(T* o) {
@@ -141,7 +141,7 @@ public:
     void str_to_array(const string2& s);
     void str_to_map(const string2& s);
     int infer_type_from_str(const string2& s) const;
-// private:
+private:
     enum { TYPE_LITERAL, TYPE_ARRAY, TYPE_MAP };
     int type = TYPE_LITERAL;
     string2 literal;
