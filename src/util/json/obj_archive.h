@@ -8,6 +8,35 @@
 struct ObjArchive : ISerializable {
 public:
     template<typename T>
+    void set(T* o) {
+        literal = to_str(o);
+        type = TYPE_LITERAL;
+    }
+
+    template<typename T>
+    void get(T* o) const {
+        if (type != TYPE_LITERAL) {
+            throw "Not a literal.";
+        }
+        from_str(literal, o); 
+    }
+
+    template<typename T>
+    void push(const T* const o) {
+        array.push_back(to_str(o));
+        type = TYPE_ARRAY;
+    }
+
+    template<typename T>
+    void get(int index, T* o) const {
+        if (type != TYPE_ARRAY) {
+            throw "Not an array.";
+        }
+        const string2 res = array.at(index); // Will throw if key not found.
+        from_str(res, o);
+    }
+
+    template<typename T>
     void put(const string2& key, const T* const o) {
         map[key] = to_str(o);
         type = TYPE_MAP;

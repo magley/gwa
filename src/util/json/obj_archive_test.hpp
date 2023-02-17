@@ -44,6 +44,8 @@ struct ObjArchive_Test : public test2::Test2 {
         EXECUTE_TEST(should_put_string2);
         EXECUTE_TEST(should_put_serializable);
         EXECUTE_TEST(should_put_vector);
+        EXECUTE_TEST(should_push_various);
+        EXECUTE_TEST(should_work_as_literal);
     }
 private:
     void should_put_int() {
@@ -125,5 +127,37 @@ private:
         ar.get("myarr", &vec2);
 
         ASSERT2_EQ(vec, vec2);
+    }
+
+    void should_push_various() {
+        ObjArchive ar;
+        int x = 0;
+        int y = 2;
+        string2 z = "4";
+        ar.push(&x);
+        ar.push(&y);
+        ar.push(&z);
+
+        int xx, yy;
+        string2 zz;
+        ar.get(0, &xx);
+        ar.get(1, &yy);
+        ar.get(2, &zz);
+
+        ASSERT2_EQ(x, xx);
+        ASSERT2_EQ(y, yy);
+        ASSERT2_EQ(z, zz);
+    }
+
+    void should_work_as_literal() {
+        ObjArchive ar;
+
+        int x = 123;
+        ar.set(&x);
+
+        int xx;
+        ar.get(&xx);
+
+        ASSERT2_EQ(x, xx);
     }
 };
