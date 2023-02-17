@@ -19,7 +19,7 @@ public:
             throw "Not a map.";
         }
         const string2 res = map.at(key); // Will throw if key not found.
-        from_str<T>(res, o);
+        from_str(res, o);
     }
 
     template<typename T>
@@ -77,15 +77,42 @@ public:
         ss >> *o;
     }
 
+    template<typename T>
+    static typename std::enable_if<std::is_base_of<ISerializable, T>::value, void>::type
+    from_str(const string2& s, T* o) {
+        ObjArchive ar;
+        ar.from_str(s);
+        o->load(ar);
+    }
+
+    template<typename T>
+    static typename std::enable_if<std::is_base_of<ISerializable, T>::value, void>::type
+    from_str(const string2& s, std::vector<T>* o) {
+        ObjArchive ar;
+        ar.from_str(s);
+        for (const string2& arr_element_str : ar.array) {
+            T t;
+            from_str(arr_element_str, &t);
+            o->push_back(t);
+        }
+    }
+
+    void from_str(const string2& s);
+
 //------------------------------------------------------------------------------------------- other
 
     void save(ObjArchive& ar) const;
     void load(const ObjArchive& ar);
-private:
+
     string2 literal_to_str() const;
     string2 array_to_str() const;
     string2 map_to_str() const;
 
+    void str_to_literal(const string2& s);
+    void str_to_array(const string2& s);
+    void str_to_map(const string2& s);
+    int infer_type_from_str(const string2& s) const;
+// private:
     enum { TYPE_LITERAL, TYPE_ARRAY, TYPE_MAP };
     int type = TYPE_LITERAL;
     string2 literal;
