@@ -12,6 +12,10 @@ class fp6_Test : public test2::Test2 {
         EXECUTE_TEST(subtraction_other_side);
         EXECUTE_TEST(subtraction_assignment);
         EXECUTE_TEST(decrement);
+
+        EXECUTE_TEST(multiplication);
+        EXECUTE_TEST(multiplication_other_side);
+        EXECUTE_TEST(multiplication_assignment);
     }
 
     void addition() {
@@ -155,4 +159,63 @@ class fp6_Test : public test2::Test2 {
         ASSERT2_EQ(f_expect, f2_inc_res);
         ASSERT2_EQ(f_expect, f2);
     }
+
+    void multiplication() {
+        const fp6 f(11);
+        const fp6 f_expect = fp6(22);
+
+        fp6 f_int = f * 2;
+        fp6 f_long = f * 2L;
+        fp6 f_longlong = f * 2LL;
+        fp6 f_float = f * 2.0f;
+        fp6 f_double = f * 2.0;
+        fp6 f_fp6 = f * fp6(2);
+
+        ASSERT2_EQ(f_expect, f_int);
+        ASSERT2_EQ(f_expect, f_long);
+        ASSERT2_EQ(f_expect, f_longlong);
+        ASSERT2_EQ(f_expect, f_float);
+        ASSERT2_EQ(f_expect, f_double);
+        ASSERT2_EQ(f_expect, f_fp6);
+    }
+
+    void multiplication_other_side() {
+        const fp6 f(11);
+        const fp6 f_expect = fp6(22);
+
+        fp6 f_int = 2 * f;
+        fp6 f_long = 2L * f;
+        fp6 f_longlong = 2LL * f;
+        fp6 f_float = 2.0f * f;
+        fp6 f_double = 2.0 * f;
+        fp6 f_fp6 = fp6(2) * f; 
+
+        ASSERT2_EQ(f_expect, f_int);
+        ASSERT2_EQ(f_expect, f_long);
+        ASSERT2_EQ(f_expect, f_longlong);
+        ASSERT2_EQ(f_expect, f_float);
+        ASSERT2_EQ(f_expect, f_double);
+        ASSERT2_EQ(f_expect, f_fp6);
+    }
+
+    void multiplication_assignment() {
+        fp6 f(10);
+        const fp6 f_expect = fp6(30);
+
+        f = 10; fp6 f_int = f *= 3;
+        f = 10; fp6 f_long = f *= 3L;
+        f = 10; fp6 f_longlong = f *= 3LL;
+        f = 10; fp6 f_float = f *= 3.0f;
+        f = 10; fp6 f_double = f *= 3.0;
+        f = 10; fp6 f_fp6 = f *= fp6(3);
+
+        ASSERT2_EQ(f_expect, f_int);
+        ASSERT2_EQ(f_expect, f_long);
+        ASSERT2_EQ(f_expect, f_longlong);
+        ASSERT2_EQ(f_expect, f_float);
+        ASSERT2_EQ(f_expect, f_double);
+        ASSERT2_EQ(f_expect, f_fp6);
+    }
+
+
 };
