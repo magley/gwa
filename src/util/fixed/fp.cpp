@@ -83,6 +83,17 @@ fp6& fp6::operator+=(const fp6& i) {
     return *this;
 }
 
+fp6& fp6::operator++() {
+    _v += (1 << _FP_N);
+    return *this;
+}
+
+fp6 fp6::operator++(int) {
+    fp6 before = raw(_v);
+    _v += (1 << _FP_N);
+    return before;
+}
+
 /////////////////////////////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -144,4 +155,15 @@ fp6& fp6::operator-=(double i) {
 fp6& fp6::operator-=(const fp6& i) {
     _v -= i._v;
     return *this;
+}
+
+fp6& fp6::operator--() {
+    _v -= (1 << _FP_N);
+    return *this;
+}
+
+fp6 fp6::operator--(int) {
+    fp6 before = raw(_v);
+    _v -= (1 << _FP_N);
+    return before;
 }

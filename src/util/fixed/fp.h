@@ -40,6 +40,9 @@ public:
     fp6& operator+=(double i);
     fp6& operator+=(const fp6& i);
 
+    fp6& operator++();
+    fp6 operator++(int);
+
     fp6 operator-(int i) const;
     fp6 operator-(long i) const;
     fp6 operator-(long long i) const;
@@ -53,6 +56,9 @@ public:
     fp6& operator-=(float i);
     fp6& operator-=(double i);
     fp6& operator-=(const fp6& i);
+
+    fp6& operator--();
+    fp6 operator--(int);
 };
 
 fp6 operator+(int i, const fp6& f);

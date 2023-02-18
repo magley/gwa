@@ -6,10 +6,12 @@ class fp6_Test : public test2::Test2 {
         EXECUTE_TEST(addition);
         EXECUTE_TEST(addition_other_side);
         EXECUTE_TEST(addition_assignment);
+        EXECUTE_TEST(increment);
 
         EXECUTE_TEST(subtraction);
         EXECUTE_TEST(subtraction_other_side);
         EXECUTE_TEST(subtraction_assignment);
+        EXECUTE_TEST(decrement);
     }
 
     void addition() {
@@ -69,6 +71,20 @@ class fp6_Test : public test2::Test2 {
         ASSERT2_EQ(f_expect, f_fp6);
     }
 
+    void increment() {
+        const fp6 f_expect = fp6(11);
+
+        fp6 f1 = fp6(10);
+        fp6 f1_inc_res = f1++;
+        ASSERT2_EQ(fp6(10), f1_inc_res);
+        ASSERT2_EQ(f_expect, f1);
+
+        fp6 f2 = fp6(10);
+        fp6 f2_inc_res = ++f2;
+        ASSERT2_EQ(f_expect, f2_inc_res);
+        ASSERT2_EQ(f_expect, f2);
+    }
+
     void subtraction() {
         const fp6 f(11);
         const fp6 f_expect = fp6(10);
@@ -124,5 +140,19 @@ class fp6_Test : public test2::Test2 {
         ASSERT2_EQ(f_expect, f_float);
         ASSERT2_EQ(f_expect, f_double);
         ASSERT2_EQ(f_expect, f_fp6);
+    }
+
+    void decrement() {
+        const fp6 f_expect = fp6(9);
+
+        fp6 f1 = fp6(10);
+        fp6 f1_inc_res = f1--;
+        ASSERT2_EQ(fp6(10), f1_inc_res);
+        ASSERT2_EQ(f_expect, f1);
+
+        fp6 f2 = fp6(10);
+        fp6 f2_inc_res = --f2;
+        ASSERT2_EQ(f_expect, f2_inc_res);
+        ASSERT2_EQ(f_expect, f2);
     }
 };
