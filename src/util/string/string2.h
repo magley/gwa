@@ -2,11 +2,11 @@
 #include <string>
 #include <vector>
 
-struct string2 {
-   private:
+class string2 {
+private:
     std::string _s;
 
-   public:
+public:
     const static size_t npos = std::string::npos;
 
     string2();

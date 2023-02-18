@@ -34,6 +34,28 @@ namespace test2 {
     test(__VA_ARGS__);                  \
     after_each();                       \
 }
+
+#define PASS()              \
+{                           \
+    assert(true, "[pass]"); \
+    return;                 \
+}
+
+#define FAIL()                  \
+{                               \
+    assert(false, "[fail]");    \
+    return;                     \
+}
+
+#define ASSERT2_THROWS(exception, code, code_in_specific_catch)     \
+try {                                                               \
+    code;                                                           \
+} catch (exception ___exception) {                                  \
+    code_in_specific_catch;                                         \
+    PASS();                                                         \
+}                                                                   \
+FAIL();
+
 #endif
 
 #define ANSI_RED "\033[0;31m"
@@ -44,7 +66,8 @@ namespace test2 {
 #define ANSI_GRAY "\033[0;39m"
 #define ANSI_RESET "\033[0m"
 
-struct Test2Data {
+class Test2Data {
+public:
     std::string name;
     bool passed;
     std::string failure_details;
@@ -54,7 +77,8 @@ struct Test2Data {
         name(name), passed(passed), failure_details(failure_details) {}
 };
 
-struct Test2 {
+class Test2 {
+public:
     void run();
 protected:
     virtual void run_tests() = 0;

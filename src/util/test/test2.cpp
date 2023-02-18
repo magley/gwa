@@ -10,7 +10,14 @@ void Test2::run() {
 }
 
 bool Test2::assert(bool expression, std::string details) {
-    results.push_back(Test2Data(current_test_name, expression, details));   
+    const Test2Data result = Test2Data(current_test_name, expression, details);
+    for (auto& res : results) {
+        if (res.name == current_test_name) {
+            res = result;
+            return expression;
+        }
+    }
+    results.push_back(result);   
     return expression;
 }
 
@@ -35,6 +42,10 @@ void Test2::report() const {
         }
     }
 
+    printf(ANSI_WHITE);
+    printf("\n\n==============================================================\n");
+
+
     for (const auto& res : results) {
         if (res.passed) {
             printf(ANSI_GREEN);
@@ -48,7 +59,7 @@ void Test2::report() const {
     }
 
     printf(ANSI_WHITE);
-    printf("=================================================\n");
+    printf("--------------------------------------------------------------\n");
     if (passed > 0 && failed == 0) {
         printf(ANSI_GREEN);
     } else {
@@ -62,6 +73,9 @@ void Test2::report() const {
         printf(ANSI_RED);
     }
     printf("Fail: %d\n", failed);
+
+    printf(ANSI_WHITE);
+    printf("==============================================================\n\n");
 
     printf(ANSI_RESET);
 }

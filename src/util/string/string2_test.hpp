@@ -4,7 +4,7 @@
 #include <stdio.h>
 #include <string>
 
-struct string2_Test : public test2::Test2 {
+class string2_Test : public test2::Test2 {
 protected:
     void run_tests() {
         EXECUTE_NAMED(test01, "Should split string");

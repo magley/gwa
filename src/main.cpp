@@ -1,11 +1,11 @@
 #include <iomanip>
 #include <iostream>
 
-#include "util/string/string2.h"
-#include "util/string/string2_test.hpp"
+#include "util/json/obj_archive.h"
+#include "util/json/obj_archive_test.hpp"
 
 int main(int argc, char** argv) {
-    string2_Test string_tests;
-    string_tests.run();
+    ObjArchive_Test obj_archive_test;
+    obj_archive_test.run();
     return 0;
 }
