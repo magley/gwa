@@ -35,9 +35,11 @@ class fp6_Test : public test2::Test2 {
 
         EXECUTE_TEST(equals);
         EXECUTE_TEST(equals_left);
-
         EXECUTE_TEST(not_equals);
         EXECUTE_TEST(not_equals_left);
+
+        EXECUTE_TEST(shift_left);
+        EXECUTE_TEST(shift_right);
     }
 
     void addition() {
@@ -479,5 +481,25 @@ class fp6_Test : public test2::Test2 {
         ASSERT2(2.0f != f1);
         ASSERT2(2.0 != f1);
         ASSERT2(fp6(2) != f1);
+    }
+
+    void shift_left() {
+        fp6 f1(1);
+        fp6 f2(1 << 4);
+
+        ASSERT2_EQ(f2, f1 << 4);
+
+        f1 <<= 4;
+        ASSERT2_EQ(f2, f1);
+    }
+
+    void shift_right() {
+        fp6 f1(65536);
+        fp6 f2(65536 >> 4);
+
+        ASSERT2_EQ(f2, f1 >> 4);
+
+        f1 >>= 4;
+        ASSERT2_EQ(f2, f1);
     }
 };

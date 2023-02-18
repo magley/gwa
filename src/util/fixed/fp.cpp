@@ -16,6 +16,13 @@ std::ostream& operator<<(std::ostream& other, const fp6& p) {
     return other;
 }
 
+std::istream& operator>>(std::istream& other, fp6& p) {
+    double d;
+    other >> d;
+    p = fp6(d);
+    return other;
+}
+
 bool fp6::operator==(int i) const { return (_v >> _FP_N) == i; }
 bool fp6::operator==(long i) const { return (_v >> _FP_N) == i; }
 bool fp6::operator==(long long i) const { return (_v >> _FP_N) == i; }
@@ -387,5 +394,26 @@ fp6& fp6::operator/=(double i) {
 }
 fp6& fp6::operator/=(const fp6& i) {
     _v = (_v / i._v) << _FP_N;
+    return *this;
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+fp6 fp6::operator<<(int i) const {
+    return raw(_v << i);
+}
+
+fp6 fp6::operator>>(int i) const {
+    return raw(_v >> i);
+}
+
+fp6& fp6::operator<<=(int i) {
+    _v <<= i;
+    return *this;
+}
+
+fp6& fp6::operator>>=(int i) {
+    _v >>= i;
     return *this;
 }

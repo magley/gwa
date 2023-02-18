@@ -18,6 +18,7 @@ public:
     inline static fp6 raw(int raw_val);
 
     friend std::ostream& operator<<(std::ostream& other, const fp6& p);
+    friend std::istream& operator>>(std::istream& other, fp6& p);
 
     bool operator==(int i) const;
     bool operator==(long i) const;
@@ -129,6 +130,12 @@ public:
     fp6& operator/=(float i);
     fp6& operator/=(double i);
     fp6& operator/=(const fp6& i);
+
+    fp6 operator<<(int i) const;
+    fp6 operator>>(int i) const;
+
+    fp6& operator<<=(int i);
+    fp6& operator>>=(int i);
 };
 
 bool operator==(int i, const fp6& f);
