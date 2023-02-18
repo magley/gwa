@@ -5,26 +5,26 @@
 #include "test2.h"
 class MyTestSuite : public test2::Test2 {
 public:
-    void run_tests() { // override from Test2::run_tests()
-        EXECUTE_TEST(always_passes);
-        EXECUTE_NAMED(is_zero, "0 is 0", 0);
-        EXECUTE_NAMED(is_zero, "this will fail", 1248);
-        EXECUTE_NAMED(arrays_equal, "arrays should be equal");
-    }
+	void run_tests() { // override from Test2::run_tests()
+		EXECUTE_TEST(always_passes);
+		EXECUTE_NAMED(is_zero, "0 is 0", 0);
+		EXECUTE_NAMED(is_zero, "this will fail", 1248);
+		EXECUTE_NAMED(arrays_equal, "arrays should be equal");
+	}
 private:
-    void is_zero(int i) {
-        ASSERT2_EQ(0, i);
-    }
-    
-    void always_passes() {
-        ASSERT2(true);
-    }
-    
-    void arrays_equal() {
-        std::vector<int> v1 = {0, 1, 2, 3};
-        std::vector<int> v2 = {0, 1, 2, 3};
-        ASSERT2_EQ(v1, v2);
-    }
+	void is_zero(int i) {
+		ASSERT2_EQ(0, i);
+	}
+	
+	void always_passes() {
+		ASSERT2(true);
+	}
+	
+	void arrays_equal() {
+		std::vector<int> v1 = {0, 1, 2, 3};
+		std::vector<int> v2 = {0, 1, 2, 3};
+		ASSERT2_EQ(v1, v2);
+	}
 };
 ```
 
@@ -32,9 +32,9 @@ private:
 // main.cpp
 #include "myTest.hpp"
 int main() {
-    MyTestSuite myTestSuite;
-    myTestSuite.run();
-    return 0;
+	MyTestSuite myTestSuite;
+	myTestSuite.run();
+	return 0;
 }
 ```
 Steps:
@@ -49,23 +49,23 @@ Steps:
 Since C++ lacks mechanisms for reflection, we can choose between:
 1) Manually calling tests within suites, and suites within the program:
 ```
-    + cleaner syntax
-    + faster compile times
-    + more control
-    + decipherable compile-time error messages
-    + dynamic execution
-    - same test executing mutliple times when copy-pasting code
-    - code redundancy
-    - the program itself is the test runner (no "middleware")
+	+ cleaner syntax
+	+ faster compile times
+	+ more control
+	+ decipherable compile-time error messages
+	+ dynamic execution
+	- same test executing mutliple times when copy-pasting code
+	- code redundancy
+	- the program itself is the test runner (no "middleware")
 ```
 2) Using macros to automatize the test writing/execution process:
 ```
-    + minimal redundancy
-    + test suites written like in other languages
-    + tester can focus on writing tests
-    - macro magic
-    - slower compile times
-    - source code is hard to read/maintain
+	+ minimal redundancy
+	+ test suites written like in other languages
+	+ tester can focus on writing tests
+	- macro magic
+	- slower compile times
+	- source code is hard to read/maintain
 ```
 `test2` opted for the 1st solution contrary to other popular and more powerful frameworks for the sake of faster compile times and easier-to-understand code.
 
@@ -91,7 +91,7 @@ Assertions work by checking a single boolean value based on the condition specif
 
 Exception assertions wrap the given code in a `try-catch` block, catching a specified exception. If the exception is not thrown, the test fails, otherwise the test may succeed. The tester has the option of performing additional code once the given exception is caught, including specialized assertions which can cause the test to fail.
 
-```
+```c++
 ASSERT2_THROWS(exception_name, code, after_catch);
 
 // Roughly translates to: 
@@ -100,8 +100,8 @@ try {
 	code;
 } catch(exception_name ex) {
 	after_catch;
-    
-    PASS();
+		
+	PASS();
 };
 FAIL();
 ```
@@ -115,13 +115,13 @@ Once all tests are finished with execution, `run()` prints the test results to s
 ```c++
 class Test : public test2::Test2 {
 	void before_all() { // Called once, when Test::run() is called by the client.
-    }
-    void after_all() { // Called once, after all tests execute, before reports.
-    }
-    void before_each() { // Called before each test, use EXECUTE_* macros in run_tests().
-    }
-    void after_each() { // Called after each test, use EXECUTE_* macros in run_tests().
-    }
+	}
+	void after_all() { // Called once, after all tests execute, before reports.
+	}
+	void before_each() { // Called before each test, use EXECUTE_* macros in run_tests().
+	}
+	void after_each() { // Called after each test, use EXECUTE_* macros in run_tests().
+	}
 }
 ```
 
@@ -132,14 +132,14 @@ By default, all of the methods above do nothing.
 ```c++
 class Test : public test2::Test2 {
 	void run_all() {
-    	EXECUTE_NAMED(f, "1 - 0.95 < 0.1", 1, 0.95);
-        EXECUTE_NAMED(f, "1 - 0.98 < 0.1", 1, 0.98);
-    }
-    
-    void f(int x, double y) {
-    	double diff = (double)x - y;
-        ASSERT2(diff < 0.1);
-    }
+		EXECUTE_NAMED(f, "1 - 0.95 < 0.1", 1, 0.95);
+		EXECUTE_NAMED(f, "1 - 0.98 < 0.1", 1, 0.98);
+	}
+	
+	void f(int x, double y) {
+		double diff = (double)x - y;
+		ASSERT2(diff < 0.1);
+	}
 };
 ```
 
@@ -156,26 +156,23 @@ void always_throws() {
 
 class Test : public test2::Test2() {
 	void run_all() {
-    	EXECUTE_TEST(should_throw_MyException);
-    }
-    
-    void should_throw_MyException() {
-    	ASSERT2_THROWS(
-        	MyException, // This is the exception we are expecting the code below will throw.
-            {
-            	// This is the code where MyException should be thrown.
-                always_throws();
-            },
-            {
-            	// This is the code ran if MyException is caught.
-                // You can do side-effect assertions here.
-            }
-        );
-    }
+		EXECUTE_TEST(should_throw_MyException);
+	}
+	
+	void should_throw_MyException() {
+		ASSERT2_THROWS(
+			MyException, // This is the exception we are expecting the code below will throw.
+			{
+				// This is the code where MyException should be thrown.
+				always_throws();
+			},
+			{
+				// This code runs after MyException is caught.
+				// You can do side-effect assertions here.
+			}
+		);
+	}
 }
 ```
 
 There should be at most one `ASSERT2_THROWS` in any test.
-
-
-

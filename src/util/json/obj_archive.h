@@ -75,6 +75,13 @@ public:
         return t;
     }
 
+    template<typename T>
+    static T from_str(const string2& s) {
+        ObjArchive ar;
+        ar.from_str(s);
+        return ar.to<T>();
+    }
+
 //---------------------------------------------------------------------------------------- to_str()
 
 
@@ -159,6 +166,7 @@ public:
 private:
     int type = TYPE_LITERAL;
     int err = ERR_NONE;
+
     string2 literal;
     std::vector<string2> array;
     std::unordered_map<string2, string2> map;
