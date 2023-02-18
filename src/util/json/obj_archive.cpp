@@ -100,6 +100,20 @@ void ObjArchive::str_to_map(const string2& s) {
 
     for (const string2& keyval : keyvals) {
         const std::vector<string2> keyval_tokens = keyval.split_unless_between(":", unless_pairs);
+
+        if (keyval_tokens.size() != 2) {
+            type = TYPE_ERROR;
+            err = ERR_BAD_KEYVAL_COUNT;
+            const string2 ansi_red = "\033[0;31m";
+            const string2 ansi_white = "\033[0;37m";
+            throw ObjArchiveException(
+                ansi_red + "\nBad key-value pair:\n" + 
+                ansi_white + keyval + 
+                ansi_red + "\nin:\n" + 
+                ansi_white + s
+            );
+        }
+
         const string2 key = keyval_tokens[0].trim().slice(1, -2); // No need for quotes.
         const string2 val = keyval_tokens[1].trim();
         map[key] = val;
@@ -118,7 +132,7 @@ int ObjArchive::infer_type_from_str(const string2& s) {
     if ((s[0] == '{') != (s[-1] == '}')) {
         const string2 ansi_red = "\033[0;31m";
         const string2 ansi_white = "\033[0;37m";
-        literal = ansi_red + "Unmatched braces in json:\n"  + ansi_white + s;
+        literal = ansi_red + "\nUnmatched braces in json:\n"  + ansi_white + s;
         err = ERR_BRACE_MISMATCH;
         return TYPE_ERROR;
     }
@@ -126,7 +140,7 @@ int ObjArchive::infer_type_from_str(const string2& s) {
     if ((s[0] == '[') != (s[-1] == ']')) {
         const string2 ansi_red = "\033[0;31m";
         const string2 ansi_white = "\033[0;37m";
-        literal = ansi_red + "Unmatched brackets in json:\n" + ansi_white + s;
+        literal = ansi_red + "\nUnmatched brackets in json:\n" + ansi_white + s;
         err = ERR_BRACKET_MISMATCH;
         return TYPE_ERROR;
     }

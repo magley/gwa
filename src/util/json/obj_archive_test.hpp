@@ -121,6 +121,10 @@ public:
         EXECUTE_TEST(neg_should_throw_on_unopened_brace);
         EXECUTE_TEST(neg_should_throw_on_unclosed_bracket);
         EXECUTE_TEST(neg_should_throw_on_unopened_bracket);
+        EXECUTE_TEST(neg_should_throw_on_nested_unopened_brace);
+        EXECUTE_TEST(neg_should_throw_on_nested_unclosed_brace);
+        EXECUTE_TEST(neg_should_throw_on_nested_unopened_bracket);
+        EXECUTE_TEST(neg_should_throw_on_nested_unclosed_bracket);
     }
 private:
     void should_put_int() {
@@ -295,7 +299,7 @@ private:
             },
             {
                 ASSERT2_EQ((int)ObjArchive::TYPE_ERROR, ar.get_type());
-                ASSERT2_EQ((int)ObjArchive::ERR_BRACE_MISMATCH, ar.get_err());
+                ASSERT2_EQ((int)ObjArchive::ERR_BRACKET_MISMATCH , ar.get_err());
             }
         );
     }
@@ -311,6 +315,80 @@ private:
             {
                 ASSERT2_EQ((int)ObjArchive::TYPE_ERROR, ar.get_type());
                 ASSERT2_EQ((int)ObjArchive::ERR_BRACKET_MISMATCH, ar.get_err());
+            }
+        );
+    }
+
+    void neg_should_throw_on_nested_unopened_brace() {
+        const string2 json = "{\"x\": {\"y\": 12 }";
+        ObjArchive ar;
+
+        ar.from_str(json);
+        string2 json_bad = ar.get_raw("x");
+        ObjArchive ar2;
+
+        ASSERT2_THROWS(ObjArchiveException,
+            {
+                ar2.from_str(json_bad);
+            },
+            {
+                ASSERT2_EQ((int)ObjArchive::TYPE_ERROR, ar2.get_type());
+                ASSERT2_EQ((int)ObjArchive::ERR_BRACE_MISMATCH, ar2.get_err());
+            }
+        );
+    }
+
+    void neg_should_throw_on_nested_unclosed_brace() {
+        const string2 json = "{\"x\": \"y\": 12} }";
+        ObjArchive ar;
+
+        ASSERT2_THROWS(ObjArchiveException,
+            {
+                ar.from_str(json);
+            },
+            {
+                ASSERT2_EQ((int)ObjArchive::TYPE_ERROR, ar.get_type());
+                ASSERT2_EQ((int)ObjArchive::ERR_BAD_KEYVAL_COUNT, ar.get_err());
+            }
+        );
+    }
+
+    void neg_should_throw_on_nested_unopened_bracket() {
+        const string2 json = "{\"x\": [12 }";
+        ObjArchive ar;
+
+        ar.from_str(json);
+        string2 json_bad = ar.get_raw("x");
+        ObjArchive ar2;
+
+        ASSERT2_THROWS(ObjArchiveException,
+            {
+                ar2.from_str(json_bad);
+            },
+            {
+                ASSERT2_EQ((int)ObjArchive::TYPE_ERROR, ar2.get_type());
+                ASSERT2_EQ((int)ObjArchive::ERR_BRACKET_MISMATCH, ar2.get_err());
+            }
+        );
+    }
+
+    void neg_should_throw_on_nested_unclosed_bracket() {
+        const string2 json = "{\"x\": 12] }";
+        ObjArchive ar;
+        ar.from_str(json);
+
+        int x;
+        printf("%s\n", ar.get_raw("x").c_str());
+        ar.get("x", &x);
+        printf("%d\n", x);
+
+        ASSERT2_THROWS(ObjArchiveException,
+            {
+                ar.from_str(json);
+            },
+            {
+                ASSERT2_EQ((int)ObjArchive::TYPE_ERROR, ar.get_type());
+                ASSERT2_EQ((int)ObjArchive::ERR_BAD_KEYVAL_COUNT, ar.get_err());
             }
         );
     }

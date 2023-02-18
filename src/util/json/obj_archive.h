@@ -57,8 +57,15 @@ public:
         if (type != TYPE_MAP) {
             throw "Not a map.";
         }
-        const string2 res = map.at(key); // Will throw if key not found.
+        const string2 res = get_raw(key);
         from_str(res, o);
+    }
+
+    string2 get_raw(const string2& key) const {
+        if (type != TYPE_MAP) {
+            throw "Not a map.";
+        }
+        return map.at(key); // Will throw if key not found.
     }
 
     template<typename T>
@@ -152,7 +159,7 @@ public:
     void str_to_map(const string2& s);
     int infer_type_from_str(const string2& s);
     enum { TYPE_LITERAL, TYPE_ARRAY, TYPE_MAP, TYPE_ERROR };
-    enum { ERR_NONE, ERR_BRACE_MISMATCH, ERR_BRACKET_MISMATCH };
+    enum { ERR_NONE, ERR_BRACE_MISMATCH, ERR_BRACKET_MISMATCH, ERR_BAD_KEYVAL_COUNT };
 
     int get_type() const;
     int get_err() const;
