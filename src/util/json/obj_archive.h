@@ -5,16 +5,6 @@
 #include <unordered_map>
 #include <sstream>
 
-struct ObjArchiveException : public std::exception {
-    string2 msg;
-    ObjArchiveException() {}
-    ObjArchiveException(string2 msg) : msg(msg) {}
-
-    const char* what() const noexcept {
-        return msg.c_str();
-    }
-};
-
 class ObjArchive : ISerializable {
 public:
     template<typename T>
@@ -73,33 +63,10 @@ public:
 
 //--------------------------------------------------------------------------------------- get_raw()
 
-    string2 get_raw(const string2& key) const {
-        if (type != TYPE_MAP) {
-            throw "Not a map.";
-        }
-        return map.at(key); // Will throw if key not found.
-    }
-
-    string2 get_raw(int index) const {
-        if (type != TYPE_ARRAY) {
-            throw "Not an array.";
-        }
-        return array.at(index); // Will throw if key not found.
-    }
-
-    ObjArchive operator[](const string2& key) const {
-        string2 raw_val = get_raw(key);
-        ObjArchive ar;
-        ar.from_str(raw_val);
-        return ar;
-    }
-
-    ObjArchive operator[](int index) const {
-        string2 raw_val = get_raw(index);
-        ObjArchive ar;
-        ar.from_str(raw_val);
-        return ar;
-    }
+    string2 get_raw(const string2& key) const;
+    string2 get_raw(int index) const;
+    ObjArchive operator[](const string2& key) const;
+    ObjArchive operator[](int index) const;
 
     template<typename T>
     T to() const {
@@ -110,9 +77,6 @@ public:
 
 //---------------------------------------------------------------------------------------- to_str()
 
-    static string2 to_str(const string2* const o) {
-        return "\"" + *o + "\"";
-    }
 
     template<typename T>
     static typename std::enable_if<std::is_arithmetic<T>::value, string2>::type
@@ -138,12 +102,10 @@ public:
     }
 
     string2 to_str() const;
+    static string2 to_str(const string2* const o);
 
 //-------------------------------------------------------------------------------------- from_str()
 
-    static void from_str(const string2& s, string2* o) {
-        *o = s.slice(1, -2);
-    }
 
     template<typename T>
     static typename std::enable_if<std::is_arithmetic<T>::value, void>::type
@@ -173,6 +135,7 @@ public:
         }
     }
 
+    static void from_str(const string2& s, string2* o);
     void from_str(const string2& s);
 
 //------------------------------------------------------------------------------------------- other

@@ -1,5 +1,6 @@
 #pragma once
 #include "obj_archive.h"
+#include "obj_archive_exception.h"
 #include "util/test/test2.h"
 #include <fstream>
 
@@ -483,7 +484,9 @@ private:
         ObjArchive ar;
         ar.from_str(value);
         string2 servlet_class = ar["web-app"]["servlet"][1]["servlet-class"].to<string2>();
+        int log = ar["web-app"]["servlet"][4]["init-param"]["log"].to<int>();
 
         ASSERT2_EQ(string2("org.cofax.cds.EmailServlet"), servlet_class);
+        ASSERT2_EQ(1, log);
     }
 };

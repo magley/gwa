@@ -1,5 +1,5 @@
 #include "obj_archive.h"
-
+#include "obj_archive_exception.h"
 
 int ObjArchive::get_type() const {
     return type; 
@@ -7,6 +7,34 @@ int ObjArchive::get_type() const {
 
 int ObjArchive::get_err() const {
     return err; 
+}
+
+string2 ObjArchive::get_raw(const string2& key) const {
+    if (type != TYPE_MAP) {
+        throw "Not a map.";
+    }
+    return map.at(key); // Will throw if key not found.
+}
+
+string2 ObjArchive::get_raw(int index) const {
+    if (type != TYPE_ARRAY) {
+        throw "Not an array.";
+    }
+    return array.at(index); // Will throw if key not found.
+}
+
+ObjArchive ObjArchive::operator[](const string2& key) const {
+    string2 raw_val = get_raw(key);
+    ObjArchive ar;
+    ar.from_str(raw_val);
+    return ar;
+}
+
+ObjArchive ObjArchive::operator[](int index) const {
+    string2 raw_val = get_raw(index);
+    ObjArchive ar;
+    ar.from_str(raw_val);
+    return ar;
 }
 
 string2 ObjArchive::to_str() const {
@@ -24,6 +52,14 @@ string2 ObjArchive::to_str() const {
     }
 }
 
+string2 ObjArchive::to_str(const string2* const o) {
+    return "\"" + *o + "\"";
+}
+
+void ObjArchive::from_str(const string2& s, string2* o) {
+    *o = s.slice(1, -2);
+}
+
 void ObjArchive::from_str(const string2& s) {
     string2 s_sanitized = s.trim();
     type = infer_type_from_str(s_sanitized);
@@ -38,7 +74,7 @@ void ObjArchive::from_str(const string2& s) {
             str_to_map(s_sanitized);
             break;
         case TYPE_ERROR:
-            throw ObjArchiveException(literal);
+            throw ObjArchiveException(literal.c_str());
             break;
         default:
             break;
@@ -107,10 +143,10 @@ void ObjArchive::str_to_map(const string2& s) {
             const string2 ansi_red = "\033[0;31m";
             const string2 ansi_white = "\033[0;37m";
             throw ObjArchiveException(
-                ansi_red + "\nBad key-value pair:\n" + 
+                (ansi_red + "\nBad key-value pair:\n" + 
                 ansi_white + keyval + 
                 ansi_red + "\nin:\n" + 
-                ansi_white + s
+                ansi_white + s).c_str()
             );
         }
 
