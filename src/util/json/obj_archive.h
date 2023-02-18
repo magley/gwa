@@ -42,7 +42,7 @@ public:
         if (type != TYPE_ARRAY) {
             throw "Not an array.";
         }
-        const string2 res = array.at(index); // Will throw if key not found.
+        const string2 res = get_raw(index);
         from_str(res, o);
     }
 
@@ -66,6 +66,13 @@ public:
             throw "Not a map.";
         }
         return map.at(key); // Will throw if key not found.
+    }
+
+    string2 get_raw(int index) const {
+        if (type != TYPE_ARRAY) {
+            throw "Not an array.";
+        }
+        return array.at(index); // Will throw if key not found.
     }
 
     template<typename T>
