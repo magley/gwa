@@ -40,6 +40,10 @@ class fp6_Test : public test2::Test2 {
 
         EXECUTE_TEST(shift_left);
         EXECUTE_TEST(shift_right);
+
+        EXECUTE_TEST(modulo);
+        EXECUTE_TEST(modulo_left);
+        EXECUTE_TEST(modulo_assignment);        
     }
 
     void addition() {
@@ -501,5 +505,35 @@ class fp6_Test : public test2::Test2 {
 
         f1 >>= 4;
         ASSERT2_EQ(f2, f1);
+    }
+
+    void modulo() {
+        fp6 f(5);
+
+        for (int i = 0; i < 5; i++) {
+            ASSERT2_EQ(fp6(5 % (i + 1)), f % (i + 1));
+            ASSERT2_EQ(fp6(5 % (i + 1)), f % (i + 1L));
+            ASSERT2_EQ(fp6(5 % (i + 1)), f % (i + 1LL));
+            ASSERT2_EQ(fp6(5 % (i + 1)), f % fp6(i + 1));
+        }
+    }
+
+    void modulo_left() {
+        for (int i = 0; i < 5; i++) {
+            ASSERT2_EQ(fp6(5 % (i + 1)), 5 % fp6(i + 1));
+            ASSERT2_EQ(fp6(5 % (i + 1)), 5L % fp6(i + 1));
+            ASSERT2_EQ(fp6(5 % (i + 1)), 5LL % fp6(i + 1));
+        }
+    }
+
+    void modulo_assignment() {
+        fp6 f(5);
+
+        for (int i = 0; i < 5; i++) {
+            ASSERT2_EQ(fp6(5 % (i + 1)), f %= (i + 1)); f = fp6(5);
+            ASSERT2_EQ(fp6(5 % (i + 1)), f %= (i + 1L)); f = fp6(5);
+            ASSERT2_EQ(fp6(5 % (i + 1)), f %= (i + 1LL)); f = fp6(5);
+            ASSERT2_EQ(fp6(5 % (i + 1)), f %= fp6(i + 1)); f = fp6(5);
+        }
     }
 };

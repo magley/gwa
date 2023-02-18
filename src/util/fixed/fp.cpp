@@ -400,6 +400,51 @@ fp6& fp6::operator/=(const fp6& i) {
 /////////////////////////////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+
+fp6 fp6::operator%(int i) const {
+    return raw(((_v >> _FP_N) % i) << _FP_N);
+}
+fp6 fp6::operator%(long i) const {
+    return raw(((_v >> _FP_N) % i) << _FP_N);
+}
+fp6 fp6::operator%(long long i) const {
+    return raw(((_v >> _FP_N) % i) << _FP_N);
+}
+fp6 fp6::operator%(const fp6& i) const {
+    return raw((_v % i._v));
+}
+
+fp6 operator%(int i, const fp6& f) { 
+    return fp6::raw((i % (f._v >> _FP_N)) << _FP_N);
+}
+fp6 operator%(long i, const fp6& f) { 
+    return fp6::raw((i % (f._v >> _FP_N)) << _FP_N);
+}
+fp6 operator%(long long i, const fp6& f) { 
+    return fp6::raw((i % (f._v >> _FP_N)) << _FP_N);
+}
+
+fp6& fp6::operator%=(int i) {
+    _v = ((_v >> _FP_N) % i) << _FP_N;
+    return *this;
+}
+fp6& fp6::operator%=(long i) {
+    _v = ((_v >> _FP_N) % i) << _FP_N;
+    return *this;
+}
+fp6& fp6::operator%=(long long i) {
+    _v = ((_v >> _FP_N) % i) << _FP_N;
+    return *this;
+}
+fp6& fp6::operator%=(const fp6& i) {
+    _v = (_v % i._v);
+    return *this;
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+
 fp6 fp6::operator<<(int i) const {
     return raw(_v << i);
 }
