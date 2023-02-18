@@ -23,6 +23,37 @@ bool fp6::operator==(float i) const { return _v == fp6(i)._v; }
 bool fp6::operator==(double i) const { return _v == fp6(i)._v; }
 bool fp6::operator==(const fp6& i) const { return _v == i._v; }
 
+bool operator==(int i, const fp6& f) { return (f._v >> _FP_N) == i; }
+bool operator==(long i, const fp6& f) { return (f._v >> _FP_N) == i; }
+bool operator==(long long i, const fp6& f) { return (f._v >> _FP_N) == i; }
+bool operator==(float i, const fp6& f) { return f._v == fp6(i)._v; }
+bool operator==(double i, const fp6& f) { return f._v == fp6(i)._v; }
+
+fp6& fp6::operator=(int i) {
+    _v = i << _FP_N;
+    return *this;
+}
+fp6& fp6::operator=(long i) {
+    _v = i << _FP_N;
+    return *this;
+}
+fp6& fp6::operator=(long long i) {
+    _v = i << _FP_N;
+    return *this;
+}
+fp6& fp6::operator=(float i) {
+    _v = roundf(i * (1 << _FP_N));
+    return *this;
+}
+fp6& fp6::operator=(double i) {
+    _v = round(i * (1 << _FP_N));
+    return *this;
+}
+fp6& fp6::operator=(const fp6& i) {
+    _v = i._v;
+    return *this;
+}
+
 fp6 fp6::operator+(int i) const {
     return raw(_v + (i << _FP_N));
 }

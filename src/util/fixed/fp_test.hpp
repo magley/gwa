@@ -20,6 +20,8 @@ class fp6_Test : public test2::Test2 {
         EXECUTE_TEST(division);
         EXECUTE_TEST(division_other_side);
         EXECUTE_TEST(division_assignment);
+
+        EXECUTE_TEST(assignment);
     }
 
     void addition() {
@@ -276,5 +278,26 @@ class fp6_Test : public test2::Test2 {
         ASSERT2_EQ(f_expect, f_float);
         ASSERT2_EQ(f_expect, f_double);
         ASSERT2_EQ(f_expect, f_fp6);
+    }
+
+    void assignment() {
+        fp6 f(0);
+        f = 1;
+        ASSERT2_EQ(fp6(1), f);
+
+        f = 2L;
+        ASSERT2_EQ(fp6(2L), f);
+
+        f = 3LL;
+        ASSERT2_EQ(fp6(3LL), f);
+
+        f = 4.5f;
+        ASSERT2_EQ(fp6(4.5f), f);
+
+        f = 6.78;
+        ASSERT2_EQ(fp6(6.78), f);
+
+        f = fp6(9);
+        ASSERT2_EQ(fp6(9), f);
     }
 };
