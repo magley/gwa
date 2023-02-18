@@ -22,6 +22,22 @@ class fp6_Test : public test2::Test2 {
         EXECUTE_TEST(division_assignment);
 
         EXECUTE_TEST(assignment);
+
+        EXECUTE_TEST(less_than);
+        EXECUTE_TEST(less_than_left);
+        EXECUTE_TEST(less_than_eq);
+        EXECUTE_TEST(less_than_eq_left);
+
+        EXECUTE_TEST(greater_than);
+        EXECUTE_TEST(greater_than_left);
+        EXECUTE_TEST(greater_than_eq);
+        EXECUTE_TEST(greater_than_eq_left);
+
+        EXECUTE_TEST(equals);
+        EXECUTE_TEST(equals_left);
+
+        EXECUTE_TEST(not_equals);
+        EXECUTE_TEST(not_equals_left);
     }
 
     void addition() {
@@ -299,5 +315,169 @@ class fp6_Test : public test2::Test2 {
 
         f = fp6(9);
         ASSERT2_EQ(fp6(9), f);
+    }
+
+    void less_than() {
+        fp6 f1(1);
+
+        ASSERT2(f1 < 2);
+        ASSERT2(f1 < 2L);
+        ASSERT2(f1 < 2LL);
+        ASSERT2(f1 < 2.0f);
+        ASSERT2(f1 < 2.0);
+        ASSERT2(f1 < fp6(2));
+    }
+
+    void less_than_left() {
+        fp6 f1(10);
+
+        ASSERT2(2 < f1);
+        ASSERT2(2L < f1);
+        ASSERT2(2LL < f1);
+        ASSERT2(2.0f < f1);
+        ASSERT2(2.0 < f1);
+        ASSERT2(fp6(2) < f1);
+    }
+
+    void less_than_eq() {
+        fp6 f1(1);
+
+        ASSERT2(f1 <= 2);
+        ASSERT2(f1 <= 2L);
+        ASSERT2(f1 <= 2LL);
+        ASSERT2(f1 <= 2.0f);
+        ASSERT2(f1 <= 2.0);
+        ASSERT2(f1 <= fp6(2));
+
+        f1 = fp6(2);
+        ASSERT2(f1 <= 2);
+        ASSERT2(f1 <= 2L);
+        ASSERT2(f1 <= 2LL);
+        ASSERT2(f1 <= 2.0f);
+        ASSERT2(f1 <= 2.0);
+        ASSERT2(f1 <= fp6(2));
+    }
+
+    void less_than_eq_left() {
+        fp6 f1(10);
+
+        ASSERT2(2 <= f1);
+        ASSERT2(2L <= f1);
+        ASSERT2(2LL <= f1);
+        ASSERT2(2.0f <= f1);
+        ASSERT2(2.0 <= f1);
+        ASSERT2(fp6(2) <= f1);
+
+        f1 = fp6(2);
+        ASSERT2(2 <= f1);
+        ASSERT2(2L <= f1);
+        ASSERT2(2LL <= f1);
+        ASSERT2(2.0f <= f1);
+        ASSERT2(2.0 <= f1);
+        ASSERT2(fp6(2) <= f1);
+    }
+
+    void greater_than() {
+        fp6 f1(4);
+
+        ASSERT2(f1 > 2);
+        ASSERT2(f1 > 2L);
+        ASSERT2(f1 > 2LL);
+        ASSERT2(f1 > 2.0f);
+        ASSERT2(f1 > 2.0);
+        ASSERT2(f1 > fp6(2));
+    }
+
+    void greater_than_left() {
+        fp6 f1(1);
+
+        ASSERT2(2 > f1);
+        ASSERT2(2L > f1);
+        ASSERT2(2LL > f1);
+        ASSERT2(2.0f > f1);
+        ASSERT2(2.0 > f1);
+        ASSERT2(fp6(2) > f1);
+    }
+
+    void greater_than_eq() {
+        fp6 f1(4);
+
+        ASSERT2(f1 >= 2);
+        ASSERT2(f1 >= 2L);
+        ASSERT2(f1 >= 2LL);
+        ASSERT2(f1 >= 2.0f);
+        ASSERT2(f1 >= 2.0);
+        ASSERT2(f1 >= fp6(2));
+
+        f1 = fp6(2);
+        ASSERT2(f1 >= 2);
+        ASSERT2(f1 >= 2L);
+        ASSERT2(f1 >= 2LL);
+        ASSERT2(f1 >= 2.0f);
+        ASSERT2(f1 >= 2.0);
+        ASSERT2(f1 >= fp6(2));
+    }
+
+    void greater_than_eq_left() {
+        fp6 f1(1);
+
+        ASSERT2(2 >= f1);
+        ASSERT2(2L >= f1);
+        ASSERT2(2LL >= f1);
+        ASSERT2(2.0f >= f1);
+        ASSERT2(2.0 >= f1);
+        ASSERT2(fp6(2) >= f1);
+
+        f1 = fp6(2);
+        ASSERT2(2 >= f1);
+        ASSERT2(2L >= f1);
+        ASSERT2(2LL >= f1);
+        ASSERT2(2.0f >= f1);
+        ASSERT2(2.0 >= f1);
+        ASSERT2(fp6(2) >= f1);
+    }
+
+    void equals() {
+        fp6 f1(2);
+
+        ASSERT2(f1 == 2);
+        ASSERT2(f1 == 2L);
+        ASSERT2(f1 == 2LL);
+        ASSERT2(f1 == 2.0f);
+        ASSERT2(f1 == 2.0);
+        ASSERT2(f1 == fp6(2));
+    }
+
+    void equals_left() {
+        fp6 f1(2);
+
+        ASSERT2(2 == f1);
+        ASSERT2(2L == f1);
+        ASSERT2(2LL == f1);
+        ASSERT2(2.0f == f1);
+        ASSERT2(2.0 == f1);
+        ASSERT2(fp6(2) == f1);
+    }
+
+    void not_equals() {
+        fp6 f1(3);
+
+        ASSERT2(f1 != 2);
+        ASSERT2(f1 != 2L);
+        ASSERT2(f1 != 2LL);
+        ASSERT2(f1 != 2.0f);
+        ASSERT2(f1 != 2.0);
+        ASSERT2(f1 != fp6(2));
+    }
+
+    void not_equals_left() {
+        fp6 f1(3);
+
+        ASSERT2(2 != f1);
+        ASSERT2(2L != f1);
+        ASSERT2(2LL != f1);
+        ASSERT2(2.0f != f1);
+        ASSERT2(2.0 != f1);
+        ASSERT2(fp6(2) != f1);
     }
 };

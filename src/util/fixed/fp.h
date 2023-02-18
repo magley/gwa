@@ -26,6 +26,41 @@ public:
     bool operator==(double i) const;
     bool operator==(const fp6& i) const;
 
+    bool operator!=(int i) const;
+    bool operator!=(long i) const;
+    bool operator!=(long long i) const;
+    bool operator!=(float i) const;
+    bool operator!=(double i) const;
+    bool operator!=(const fp6& i) const;
+
+    bool operator<(int i) const;
+    bool operator<(long i) const;
+    bool operator<(long long i) const;
+    bool operator<(float i) const;
+    bool operator<(double i) const;
+    bool operator<(const fp6& i) const;
+
+    bool operator>(int i) const;
+    bool operator>(long i) const;
+    bool operator>(long long i) const;
+    bool operator>(float i) const;
+    bool operator>(double i) const;
+    bool operator>(const fp6& i) const;
+
+    bool operator<=(int i) const;
+    bool operator<=(long i) const;
+    bool operator<=(long long i) const;
+    bool operator<=(float i) const;
+    bool operator<=(double i) const;
+    bool operator<=(const fp6& i) const;
+
+    bool operator>=(int i) const;
+    bool operator>=(long i) const;
+    bool operator>=(long long i) const;
+    bool operator>=(float i) const;
+    bool operator>=(double i) const;
+    bool operator>=(const fp6& i) const;
+
     fp6& operator=(int i);
     fp6& operator=(long i);
     fp6& operator=(long long i);
@@ -101,6 +136,36 @@ bool operator==(long i, const fp6& f);
 bool operator==(long long i, const fp6& f);
 bool operator==(float i, const fp6& f);
 bool operator==(double i, const fp6& f);
+
+bool operator!=(int i, const fp6& f);
+bool operator!=(long i, const fp6& f);
+bool operator!=(long long i, const fp6& f);
+bool operator!=(float i, const fp6& f);
+bool operator!=(double i, const fp6& f);
+
+bool operator<(int i, const fp6& f);
+bool operator<(long i, const fp6& f);
+bool operator<(long long i, const fp6& f);
+bool operator<(float i, const fp6& f);
+bool operator<(double i, const fp6& f);
+
+bool operator>(int i, const fp6& f);
+bool operator>(long i, const fp6& f);
+bool operator>(long long i, const fp6& f);
+bool operator>(float i, const fp6& f);
+bool operator>(double i, const fp6& f);
+
+bool operator<=(int i, const fp6& f);
+bool operator<=(long i, const fp6& f);
+bool operator<=(long long i, const fp6& f);
+bool operator<=(float i, const fp6& f);
+bool operator<=(double i, const fp6& f);
+
+bool operator>=(int i, const fp6& f);
+bool operator>=(long i, const fp6& f);
+bool operator>=(long long i, const fp6& f);
+bool operator>=(float i, const fp6& f);
+bool operator>=(double i, const fp6& f);
 
 fp6 operator+(int i, const fp6& f);
 fp6 operator+(long i, const fp6& f);
