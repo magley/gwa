@@ -16,6 +16,10 @@ class fp6_Test : public test2::Test2 {
         EXECUTE_TEST(multiplication);
         EXECUTE_TEST(multiplication_other_side);
         EXECUTE_TEST(multiplication_assignment);
+
+        EXECUTE_TEST(division);
+        EXECUTE_TEST(division_other_side);
+        EXECUTE_TEST(division_assignment);
     }
 
     void addition() {
@@ -217,5 +221,60 @@ class fp6_Test : public test2::Test2 {
         ASSERT2_EQ(f_expect, f_fp6);
     }
 
+    void division() {
+        const fp6 f(22);
+        const fp6 f_expect = fp6(2);
 
+        fp6 f_int = f / 11;
+        fp6 f_long = f / 11L;
+        fp6 f_longlong = f / 11LL;
+        fp6 f_float = f / 11.0f;
+        fp6 f_double = f / 11.0;
+        fp6 f_fp6 = f / fp6(11);
+
+        ASSERT2_EQ(f_expect, f_int);
+        ASSERT2_EQ(f_expect, f_long);
+        ASSERT2_EQ(f_expect, f_longlong);
+        ASSERT2_EQ(f_expect, f_float);
+        ASSERT2_EQ(f_expect, f_double);
+        ASSERT2_EQ(f_expect, f_fp6);
+    }
+
+    void division_other_side() {
+        const fp6 f(6);
+        const fp6 f_expect = fp6(2);
+
+        fp6 f_int = 12 / f;
+        fp6 f_long = 12L / f;
+        fp6 f_longlong = 12LL / f;
+        fp6 f_float = 12.0f / f;
+        fp6 f_double = 12.0 / f;
+        fp6 f_fp6 = fp6(12) / f; 
+
+        ASSERT2_EQ(f_expect, f_int);
+        ASSERT2_EQ(f_expect, f_long);
+        ASSERT2_EQ(f_expect, f_longlong);
+        ASSERT2_EQ(f_expect, f_float);
+        ASSERT2_EQ(f_expect, f_double);
+        ASSERT2_EQ(f_expect, f_fp6);
+    }
+
+    void division_assignment() {
+        fp6 f(30);
+        const fp6 f_expect = fp6(6);
+
+        f = 30; fp6 f_int = f /= 5;
+        f = 30; fp6 f_long = f /= 5L;
+        f = 30; fp6 f_longlong = f /= 5LL;
+        f = 30; fp6 f_float = f /= 5.0f;
+        f = 30; fp6 f_double = f /= 5.0;
+        f = 30; fp6 f_fp6 = f /= fp6(5);
+
+        ASSERT2_EQ(f_expect, f_int);
+        ASSERT2_EQ(f_expect, f_long);
+        ASSERT2_EQ(f_expect, f_longlong);
+        ASSERT2_EQ(f_expect, f_float);
+        ASSERT2_EQ(f_expect, f_double);
+        ASSERT2_EQ(f_expect, f_fp6);
+    }
 };

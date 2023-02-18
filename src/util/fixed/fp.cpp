@@ -230,3 +230,66 @@ fp6& fp6::operator*=(const fp6& i) {
     _v = (_v * i._v) >> _FP_N;
     return *this;
 }
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+fp6 fp6::operator/(int i) const {
+    return raw(_v / i);
+}
+fp6 fp6::operator/(long i) const {
+    return raw(_v / i);
+}
+fp6 fp6::operator/(long long i) const {
+    return raw(_v / i);
+}
+fp6 fp6::operator/(float i) const {
+    return raw((_v / (int)roundf(i * (1 << _FP_N))) << _FP_N);
+}
+fp6 fp6::operator/(double i) const {
+    return raw((_v / (int)round(i * (1 << _FP_N))) << _FP_N);
+}
+fp6 fp6::operator/(const fp6& i) const {
+    return raw((_v / i._v) << _FP_N);
+}
+
+fp6 operator/(int i, const fp6& f) { 
+    return fp6::raw((i << _FP_N) / (f._v >> _FP_N));
+}
+fp6 operator/(long i, const fp6& f) { 
+    return fp6::raw((i << _FP_N) / (f._v >> _FP_N));
+}
+fp6 operator/(long long i, const fp6& f) { 
+    return fp6::raw((i << _FP_N) / (f._v >> _FP_N));
+}
+fp6 operator/(float i, const fp6& f) { 
+    return fp6::raw((((int)roundf(i * (1 << _FP_N))) / (f._v  >> _FP_N)));
+}
+fp6 operator/(double i, const fp6& f) { 
+    return fp6::raw((((int)round(i * (1 << _FP_N))) / (f._v  >> _FP_N)));
+}
+
+fp6& fp6::operator/=(int i) {
+    _v /= i;
+    return *this;
+}
+fp6& fp6::operator/=(long i) {
+    _v /= i;
+    return *this;
+}
+fp6& fp6::operator/=(long long i) {
+    _v /= i;
+    return *this;
+}
+fp6& fp6::operator/=(float i) {
+    _v = (_v / (int)roundf(i * (1 << _FP_N))) << _FP_N;
+    return *this;
+}
+fp6& fp6::operator/=(double i) {
+    _v = (_v / (int)round(i * (1 << _FP_N))) << _FP_N;
+    return *this;
+}
+fp6& fp6::operator/=(const fp6& i) {
+    _v = (_v / i._v) << _FP_N;
+    return *this;
+}
