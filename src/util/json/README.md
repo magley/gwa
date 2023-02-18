@@ -61,14 +61,20 @@ struct ObjArchive {
 };
 ```
 
-The archive object functions as a sort of union (not a C `union`) between the 3 groups of values in json - `literal`, `list`, `dictionary`.
+`ObjArchive` works as a sort of union (not to be confused with a C `union`) between the 3 groups of values in json - `literal`, `list`, `dictionary`.
 
-When you feed some object into `ObjArchive` through `put(key, val)`, `insert(val)`, `set(val)`, it'll automatically change its `type` to accommodate.
+When you feed some object into `ObjArchive` (through `put(key, val)`, `insert(val)`, `set(val)`), it will automatically change its `type` to accommodate.
 
-When `ObjArchive` parses a json string, it'll infer the type based on the structure of the string.
+When `ObjArchive` parses a json string, it will infer the type based on the structure of the string.
 
-To support generic conversion to/from strings, template functions are used. There are several "groups" of template functions needed:
+To support generic conversion to/from strings, template functions are used. There are several "groups" of template functions required:
 1) For types satisfying `std::is_arithmetic` (int, long, float, double, ...), conversion is done using `stringstream`.
-2) For types inheriting from `ISerializable`, `ISerializable::load()`, `ISerializable::save()` is called.
-3) For `string2`, conversion is trivial (except for adding, omitting double quotes).
-4) For lists (`std::vector`), each element is generically converted based on the underlying type.
+2) For types inheriting from `ISerializable`, methods `load()` and `save()` are called.
+3) For `string2`, conversion is trivial (aside from adding/omitting double quotes for keys/strings in json).
+4) For lists (`std::vector`), each element is generically converted based on its underlying type.
+
+It's worth noting that `ObjArchive` uses lazy storing.
+When a dictionary is parsed, it's split into key-value pairs but only on the 1st level of depth.
+In other words, the root json element is parsed as-is, but its values are kept as raw json strings.
+If the value from a key is a dictionary or a list, it is implicitly converted into the appropriate
+object when neccessary.
