@@ -61,6 +61,18 @@ public:
         from_str(res, o);
     }
 
+    template<typename T>
+    void insert(const std::vector<T>* arr) {
+        map.clear();
+        array.clear();
+        for (const auto& t : *arr) {
+            array.push_back(to_str(&t));
+        }
+        type = TYPE_ARRAY;
+    }
+
+//--------------------------------------------------------------------------------------- get_raw()
+
     string2 get_raw(const string2& key) const {
         if (type != TYPE_MAP) {
             throw "Not a map.";
@@ -75,14 +87,25 @@ public:
         return array.at(index); // Will throw if key not found.
     }
 
+    ObjArchive operator[](const string2& key) const {
+        string2 raw_val = get_raw(key);
+        ObjArchive ar;
+        ar.from_str(raw_val);
+        return ar;
+    }
+
+    ObjArchive operator[](int index) const {
+        string2 raw_val = get_raw(index);
+        ObjArchive ar;
+        ar.from_str(raw_val);
+        return ar;
+    }
+
     template<typename T>
-    void insert(const std::vector<T>* arr) {
-        map.clear();
-        array.clear();
-        for (const auto& t : *arr) {
-            array.push_back(to_str(&t));
-        }
-        type = TYPE_ARRAY;
+    T to() const {
+        T t;
+        from_str(to_str(), &t);
+        return t;
     }
 
 //---------------------------------------------------------------------------------------- to_str()
