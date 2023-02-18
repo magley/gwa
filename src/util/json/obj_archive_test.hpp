@@ -119,6 +119,8 @@ public:
 
         EXECUTE_TEST(neg_should_throw_on_unclosed_brace);
         EXECUTE_TEST(neg_should_throw_on_unopened_brace);
+        EXECUTE_TEST(neg_should_throw_on_unclosed_bracket);
+        EXECUTE_TEST(neg_should_throw_on_unopened_bracket);
     }
 private:
     void should_put_int() {
@@ -279,6 +281,36 @@ private:
             {
                 ASSERT2_EQ((int)ObjArchive::TYPE_ERROR, ar.get_type());
                 ASSERT2_EQ((int)ObjArchive::ERR_BRACE_MISMATCH, ar.get_err());
+            }
+        );
+    }
+
+    void neg_should_throw_on_unclosed_bracket() {
+        const string2 json = "[12";
+
+        ObjArchive ar;
+        ASSERT2_THROWS(ObjArchiveException, 
+            {
+                ar.from_str(json);
+            },
+            {
+                ASSERT2_EQ((int)ObjArchive::TYPE_ERROR, ar.get_type());
+                ASSERT2_EQ((int)ObjArchive::ERR_BRACE_MISMATCH, ar.get_err());
+            }
+        );
+    }
+
+    void neg_should_throw_on_unopened_bracket() {
+        const string2 json = "12]";
+        ObjArchive ar;
+
+        ASSERT2_THROWS(ObjArchiveException, 
+            {
+                ar.from_str(json);
+            },
+            {
+                ASSERT2_EQ((int)ObjArchive::TYPE_ERROR, ar.get_type());
+                ASSERT2_EQ((int)ObjArchive::ERR_BRACKET_MISMATCH, ar.get_err());
             }
         );
     }
