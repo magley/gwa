@@ -52,6 +52,8 @@ class fp6_Test : public test2::Test2 {
         const fp6 f(10);
         const fp6 f_expect = fp6(11);
 
+        fp6 f_char = f + (char)1;
+        fp6 f_short = f + (short)1;
         fp6 f_int = f + 1;
         fp6 f_long = f + 1L;
         fp6 f_longlong = f + 1LL;
@@ -59,6 +61,8 @@ class fp6_Test : public test2::Test2 {
         fp6 f_double = f + 1.0;
         fp6 f_fp6 = f + fp6(1);
 
+        ASSERT2_EQ(f_expect, f_char);
+        ASSERT2_EQ(f_expect, f_short);
         ASSERT2_EQ(f_expect, f_int);
         ASSERT2_EQ(f_expect, f_long);
         ASSERT2_EQ(f_expect, f_longlong);
@@ -71,6 +75,8 @@ class fp6_Test : public test2::Test2 {
         const fp6 f(10);
         const fp6 f_expect = fp6(11);
 
+        fp6 f_char = (char)1 + f;
+        fp6 f_short = (short)1 + f;
         fp6 f_int = 1 + f;
         fp6 f_long = 1L + f;
         fp6 f_longlong = 1LL + f;
@@ -78,6 +84,8 @@ class fp6_Test : public test2::Test2 {
         fp6 f_double = 1.0 + f;
         fp6 f_fp6 = fp6(1) + f; 
 
+        ASSERT2_EQ(f_expect, f_char);
+        ASSERT2_EQ(f_expect, f_short);
         ASSERT2_EQ(f_expect, f_int);
         ASSERT2_EQ(f_expect, f_long);
         ASSERT2_EQ(f_expect, f_longlong);
@@ -90,6 +98,8 @@ class fp6_Test : public test2::Test2 {
         fp6 f(10);
         const fp6 f_expect = fp6(13);
 
+        f = 10; fp6 f_char = f += (char)3;
+        f = 10; fp6 f_short = f += (short)3;
         f = 10; fp6 f_int = f += 3;
         f = 10; fp6 f_long = f += 3L;
         f = 10; fp6 f_longlong = f += 3LL;
@@ -97,6 +107,8 @@ class fp6_Test : public test2::Test2 {
         f = 10; fp6 f_double = f += 3.0;
         f = 10; fp6 f_fp6 = f += fp6(3);
 
+        ASSERT2_EQ(f_expect, f_char);
+        ASSERT2_EQ(f_expect, f_short);
         ASSERT2_EQ(f_expect, f_int);
         ASSERT2_EQ(f_expect, f_long);
         ASSERT2_EQ(f_expect, f_longlong);
@@ -122,7 +134,9 @@ class fp6_Test : public test2::Test2 {
     void subtraction() {
         const fp6 f(11);
         const fp6 f_expect = fp6(10);
-
+        
+        fp6 f_char = f - (char)1;
+        fp6 f_short = f - (short)1;
         fp6 f_int = f - 1;
         fp6 f_long = f - 1L;
         fp6 f_longlong = f - 1LL;
@@ -130,6 +144,8 @@ class fp6_Test : public test2::Test2 {
         fp6 f_double = f - 1.0;
         fp6 f_fp6 = f - fp6(1);
 
+        ASSERT2_EQ(f_expect, f_char);
+        ASSERT2_EQ(f_expect, f_short);
         ASSERT2_EQ(f_expect, f_int);
         ASSERT2_EQ(f_expect, f_long);
         ASSERT2_EQ(f_expect, f_longlong);
@@ -142,6 +158,8 @@ class fp6_Test : public test2::Test2 {
         const fp6 f(11);
         const fp6 f_expect = fp6(-10);
 
+        fp6 f_char = (char)1 - f;
+        fp6 f_short = (short)1 - f;
         fp6 f_int = 1 - f;
         fp6 f_long = 1L - f;
         fp6 f_longlong = 1LL - f;
@@ -149,6 +167,8 @@ class fp6_Test : public test2::Test2 {
         fp6 f_double = 1.0 - f;
         fp6 f_fp6 = fp6(1) - f; 
 
+        ASSERT2_EQ(f_expect, f_char);
+        ASSERT2_EQ(f_expect, f_short);
         ASSERT2_EQ(f_expect, f_int);
         ASSERT2_EQ(f_expect, f_long);
         ASSERT2_EQ(f_expect, f_longlong);
@@ -161,6 +181,8 @@ class fp6_Test : public test2::Test2 {
         fp6 f(13);
         const fp6 f_expect = fp6(10);
 
+        f = 13; fp6 f_char = f -= (char)3;
+        f = 13; fp6 f_short = f -= (short)3;
         f = 13; fp6 f_int = f -= 3;
         f = 13; fp6 f_long = f -= 3L;
         f = 13; fp6 f_longlong = f -= 3LL;
@@ -168,6 +190,8 @@ class fp6_Test : public test2::Test2 {
         f = 13; fp6 f_double = f -= 3.0;
         f = 13; fp6 f_fp6 = f -= fp6(3);
 
+        ASSERT2_EQ(f_expect, f_char);
+        ASSERT2_EQ(f_expect, f_short);
         ASSERT2_EQ(f_expect, f_int);
         ASSERT2_EQ(f_expect, f_long);
         ASSERT2_EQ(f_expect, f_longlong);
@@ -194,6 +218,8 @@ class fp6_Test : public test2::Test2 {
         const fp6 f(11);
         const fp6 f_expect = fp6(22);
 
+        fp6 f_char = f * (char)2;
+        fp6 f_short = f * (short)2;
         fp6 f_int = f * 2;
         fp6 f_long = f * 2L;
         fp6 f_longlong = f * 2LL;
@@ -201,6 +227,8 @@ class fp6_Test : public test2::Test2 {
         fp6 f_double = f * 2.0;
         fp6 f_fp6 = f * fp6(2);
 
+        ASSERT2_EQ(f_expect, f_char);
+        ASSERT2_EQ(f_expect, f_short);
         ASSERT2_EQ(f_expect, f_int);
         ASSERT2_EQ(f_expect, f_long);
         ASSERT2_EQ(f_expect, f_longlong);
@@ -213,6 +241,8 @@ class fp6_Test : public test2::Test2 {
         const fp6 f(11);
         const fp6 f_expect = fp6(22);
 
+        fp6 f_char = (char)2 * f;
+        fp6 f_short = (short)2 * f;
         fp6 f_int = 2 * f;
         fp6 f_long = 2L * f;
         fp6 f_longlong = 2LL * f;
@@ -220,6 +250,8 @@ class fp6_Test : public test2::Test2 {
         fp6 f_double = 2.0 * f;
         fp6 f_fp6 = fp6(2) * f; 
 
+        ASSERT2_EQ(f_expect, f_char);
+        ASSERT2_EQ(f_expect, f_short);
         ASSERT2_EQ(f_expect, f_int);
         ASSERT2_EQ(f_expect, f_long);
         ASSERT2_EQ(f_expect, f_longlong);
@@ -232,6 +264,8 @@ class fp6_Test : public test2::Test2 {
         fp6 f(10);
         const fp6 f_expect = fp6(30);
 
+        f = 10; fp6 f_char = f *= (char)3;
+        f = 10; fp6 f_short = f *= (short)3;
         f = 10; fp6 f_int = f *= 3;
         f = 10; fp6 f_long = f *= 3L;
         f = 10; fp6 f_longlong = f *= 3LL;
@@ -239,6 +273,8 @@ class fp6_Test : public test2::Test2 {
         f = 10; fp6 f_double = f *= 3.0;
         f = 10; fp6 f_fp6 = f *= fp6(3);
 
+        ASSERT2_EQ(f_expect, f_char);
+        ASSERT2_EQ(f_expect, f_short);
         ASSERT2_EQ(f_expect, f_int);
         ASSERT2_EQ(f_expect, f_long);
         ASSERT2_EQ(f_expect, f_longlong);
@@ -251,6 +287,8 @@ class fp6_Test : public test2::Test2 {
         const fp6 f(22);
         const fp6 f_expect = fp6(2);
 
+        fp6 f_char = f / (char)11;
+        fp6 f_short = f / (short)11;
         fp6 f_int = f / 11;
         fp6 f_long = f / 11L;
         fp6 f_longlong = f / 11LL;
@@ -258,6 +296,8 @@ class fp6_Test : public test2::Test2 {
         fp6 f_double = f / 11.0;
         fp6 f_fp6 = f / fp6(11);
 
+        ASSERT2_EQ(f_expect, f_char);
+        ASSERT2_EQ(f_expect, f_short);
         ASSERT2_EQ(f_expect, f_int);
         ASSERT2_EQ(f_expect, f_long);
         ASSERT2_EQ(f_expect, f_longlong);
@@ -270,13 +310,17 @@ class fp6_Test : public test2::Test2 {
         const fp6 f(6);
         const fp6 f_expect = fp6(2);
 
+        fp6 f_char = (char)12 / f;
+        fp6 f_short = (short)12 / f;
         fp6 f_int = 12 / f;
         fp6 f_long = 12L / f;
         fp6 f_longlong = 12LL / f;
         fp6 f_float = 12.0f / f;
         fp6 f_double = 12.0 / f;
-        fp6 f_fp6 = fp6(12) / f; 
+        fp6 f_fp6 = fp6(12) / f;
 
+        ASSERT2_EQ(f_expect, f_char);
+        ASSERT2_EQ(f_expect, f_short);
         ASSERT2_EQ(f_expect, f_int);
         ASSERT2_EQ(f_expect, f_long);
         ASSERT2_EQ(f_expect, f_longlong);
@@ -289,6 +333,8 @@ class fp6_Test : public test2::Test2 {
         fp6 f(30);
         const fp6 f_expect = fp6(6);
 
+        f = 30; fp6 f_char = f /= (char)5;
+        f = 30; fp6 f_short = f /= (short)5;
         f = 30; fp6 f_int = f /= 5;
         f = 30; fp6 f_long = f /= 5L;
         f = 30; fp6 f_longlong = f /= 5LL;
@@ -296,6 +342,8 @@ class fp6_Test : public test2::Test2 {
         f = 30; fp6 f_double = f /= 5.0;
         f = 30; fp6 f_fp6 = f /= fp6(5);
 
+        ASSERT2_EQ(f_expect, f_char);
+        ASSERT2_EQ(f_expect, f_short);
         ASSERT2_EQ(f_expect, f_int);
         ASSERT2_EQ(f_expect, f_long);
         ASSERT2_EQ(f_expect, f_longlong);
@@ -306,6 +354,13 @@ class fp6_Test : public test2::Test2 {
 
     void assignment() {
         fp6 f(0);
+
+        f = (char)1;
+        ASSERT2_EQ(fp6((char)1), f);
+
+        f = (short)1;
+        ASSERT2_EQ(fp6((short)1), f);
+
         f = 1;
         ASSERT2_EQ(fp6(1), f);
 
@@ -328,6 +383,8 @@ class fp6_Test : public test2::Test2 {
     void less_than() {
         fp6 f1(1);
 
+        ASSERT2(f1 < (char)2);
+        ASSERT2(f1 < (short)2);
         ASSERT2(f1 < 2);
         ASSERT2(f1 < 2L);
         ASSERT2(f1 < 2LL);
@@ -339,6 +396,8 @@ class fp6_Test : public test2::Test2 {
     void less_than_left() {
         fp6 f1(10);
 
+        ASSERT2((char)2 < f1);
+        ASSERT2((short)2 < f1);
         ASSERT2(2 < f1);
         ASSERT2(2L < f1);
         ASSERT2(2LL < f1);
@@ -350,6 +409,8 @@ class fp6_Test : public test2::Test2 {
     void less_than_eq() {
         fp6 f1(1);
 
+        ASSERT2(f1 <= (char)2);
+        ASSERT2(f1 <= (short)2);
         ASSERT2(f1 <= 2);
         ASSERT2(f1 <= 2L);
         ASSERT2(f1 <= 2LL);
@@ -358,6 +419,8 @@ class fp6_Test : public test2::Test2 {
         ASSERT2(f1 <= fp6(2));
 
         f1 = fp6(2);
+        ASSERT2(f1 <= (char)2);
+        ASSERT2(f1 <= (short)2);
         ASSERT2(f1 <= 2);
         ASSERT2(f1 <= 2L);
         ASSERT2(f1 <= 2LL);
@@ -369,6 +432,8 @@ class fp6_Test : public test2::Test2 {
     void less_than_eq_left() {
         fp6 f1(10);
 
+        ASSERT2((char)2 <= f1);
+        ASSERT2((short)2 <= f1);
         ASSERT2(2 <= f1);
         ASSERT2(2L <= f1);
         ASSERT2(2LL <= f1);
@@ -377,6 +442,8 @@ class fp6_Test : public test2::Test2 {
         ASSERT2(fp6(2) <= f1);
 
         f1 = fp6(2);
+        ASSERT2((char)2 <= f1);
+        ASSERT2((short)2 <= f1);
         ASSERT2(2 <= f1);
         ASSERT2(2L <= f1);
         ASSERT2(2LL <= f1);
@@ -388,6 +455,8 @@ class fp6_Test : public test2::Test2 {
     void greater_than() {
         fp6 f1(4);
 
+        ASSERT2(f1 > (char)2);
+        ASSERT2(f1 > (short)2);
         ASSERT2(f1 > 2);
         ASSERT2(f1 > 2L);
         ASSERT2(f1 > 2LL);
@@ -399,6 +468,8 @@ class fp6_Test : public test2::Test2 {
     void greater_than_left() {
         fp6 f1(1);
 
+        ASSERT2((char)2 > f1);
+        ASSERT2((short)2 > f1);
         ASSERT2(2 > f1);
         ASSERT2(2L > f1);
         ASSERT2(2LL > f1);
@@ -410,6 +481,8 @@ class fp6_Test : public test2::Test2 {
     void greater_than_eq() {
         fp6 f1(4);
 
+        ASSERT2(f1 >= (char)2);
+        ASSERT2(f1 >= (short)2);
         ASSERT2(f1 >= 2);
         ASSERT2(f1 >= 2L);
         ASSERT2(f1 >= 2LL);
@@ -418,6 +491,8 @@ class fp6_Test : public test2::Test2 {
         ASSERT2(f1 >= fp6(2));
 
         f1 = fp6(2);
+        ASSERT2(f1 >= (char)2);
+        ASSERT2(f1 >= (short)2);
         ASSERT2(f1 >= 2);
         ASSERT2(f1 >= 2L);
         ASSERT2(f1 >= 2LL);
@@ -429,6 +504,8 @@ class fp6_Test : public test2::Test2 {
     void greater_than_eq_left() {
         fp6 f1(1);
 
+        ASSERT2((char)2 >= f1);
+        ASSERT2((short)2 >= f1);
         ASSERT2(2 >= f1);
         ASSERT2(2L >= f1);
         ASSERT2(2LL >= f1);
@@ -437,6 +514,8 @@ class fp6_Test : public test2::Test2 {
         ASSERT2(fp6(2) >= f1);
 
         f1 = fp6(2);
+        ASSERT2((char)2 >= f1);
+        ASSERT2((short)2 >= f1);
         ASSERT2(2 >= f1);
         ASSERT2(2L >= f1);
         ASSERT2(2LL >= f1);
@@ -448,6 +527,8 @@ class fp6_Test : public test2::Test2 {
     void equals() {
         fp6 f1(2);
 
+        ASSERT2(f1 == (char)2);
+        ASSERT2(f1 == (short)2);
         ASSERT2(f1 == 2);
         ASSERT2(f1 == 2L);
         ASSERT2(f1 == 2LL);
@@ -459,6 +540,8 @@ class fp6_Test : public test2::Test2 {
     void equals_left() {
         fp6 f1(2);
 
+        ASSERT2((char)2 == f1);
+        ASSERT2((short)2 == f1);
         ASSERT2(2 == f1);
         ASSERT2(2L == f1);
         ASSERT2(2LL == f1);
@@ -470,6 +553,8 @@ class fp6_Test : public test2::Test2 {
     void not_equals() {
         fp6 f1(3);
 
+        ASSERT2(f1 != (char)2);
+        ASSERT2(f1 != (short)2);
         ASSERT2(f1 != 2);
         ASSERT2(f1 != 2L);
         ASSERT2(f1 != 2LL);
@@ -481,6 +566,8 @@ class fp6_Test : public test2::Test2 {
     void not_equals_left() {
         fp6 f1(3);
 
+        ASSERT2((char)2 != f1);
+        ASSERT2((short)2 != f1);
         ASSERT2(2 != f1);
         ASSERT2(2L != f1);
         ASSERT2(2LL != f1);
@@ -513,6 +600,8 @@ class fp6_Test : public test2::Test2 {
         fp6 f(5);
 
         for (int i = 0; i < 5; i++) {
+            ASSERT2_EQ(fp6(5 % (i + 1)), f % (i + (char)1));
+            ASSERT2_EQ(fp6(5 % (i + 1)), f % (i + (short)1));
             ASSERT2_EQ(fp6(5 % (i + 1)), f % (i + 1));
             ASSERT2_EQ(fp6(5 % (i + 1)), f % (i + 1L));
             ASSERT2_EQ(fp6(5 % (i + 1)), f % (i + 1LL));
@@ -522,6 +611,8 @@ class fp6_Test : public test2::Test2 {
 
     void modulo_left() {
         for (int i = 0; i < 5; i++) {
+            ASSERT2_EQ(fp6(5 % (i + 1)), (char)5 % fp6(i + 1));
+            ASSERT2_EQ(fp6(5 % (i + 1)), (short)5 % fp6(i + 1));         
             ASSERT2_EQ(fp6(5 % (i + 1)), 5 % fp6(i + 1));
             ASSERT2_EQ(fp6(5 % (i + 1)), 5L % fp6(i + 1));
             ASSERT2_EQ(fp6(5 % (i + 1)), 5LL % fp6(i + 1));
@@ -532,6 +623,8 @@ class fp6_Test : public test2::Test2 {
         fp6 f(5);
 
         for (int i = 0; i < 5; i++) {
+            ASSERT2_EQ(fp6(5 % (i + 1)), f %= (char)(i + (char)1)); f = fp6(5);
+            ASSERT2_EQ(fp6(5 % (i + 1)), f %= (short)(i + (short)1)); f = fp6(5);
             ASSERT2_EQ(fp6(5 % (i + 1)), f %= (i + 1)); f = fp6(5);
             ASSERT2_EQ(fp6(5 % (i + 1)), f %= (i + 1L)); f = fp6(5);
             ASSERT2_EQ(fp6(5 % (i + 1)), f %= (i + 1LL)); f = fp6(5);
@@ -541,12 +634,16 @@ class fp6_Test : public test2::Test2 {
 
     void conversion_operators() {
         fp6 f(10.5);
+        char v00 = (char)f;
+        short v0 = (short)f;
         int v1 = (int)f;
         long v2 = (long)f;
         long long v3 = (long long)f;
         float v4 = (float)f;
         double v5 = (double)f;
 
+        ASSERT2_EQ((char)10, v00);
+        ASSERT2_EQ((short)10, v0);
         ASSERT2_EQ(10, v1);
         ASSERT2_EQ(10L, v2);
         ASSERT2_EQ(10LL, v3);
