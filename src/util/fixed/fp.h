@@ -146,6 +146,12 @@ public:
 
     fp6& operator<<=(int i);
     fp6& operator>>=(int i);
+
+    explicit operator int() const;
+    explicit operator long() const;
+    explicit operator long long() const;
+    explicit operator float() const;
+    explicit operator double() const;
 };
 
 bool operator==(int i, const fp6& f);

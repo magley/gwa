@@ -43,7 +43,9 @@ class fp6_Test : public test2::Test2 {
 
         EXECUTE_TEST(modulo);
         EXECUTE_TEST(modulo_left);
-        EXECUTE_TEST(modulo_assignment);        
+        EXECUTE_TEST(modulo_assignment);    
+
+        EXECUTE_TEST(conversion_operators);    
     }
 
     void addition() {
@@ -535,5 +537,20 @@ class fp6_Test : public test2::Test2 {
             ASSERT2_EQ(fp6(5 % (i + 1)), f %= (i + 1LL)); f = fp6(5);
             ASSERT2_EQ(fp6(5 % (i + 1)), f %= fp6(i + 1)); f = fp6(5);
         }
+    }
+
+    void conversion_operators() {
+        fp6 f(10.5);
+        int v1 = (int)f;
+        long v2 = (long)f;
+        long long v3 = (long long)f;
+        float v4 = (float)f;
+        double v5 = (double)f;
+
+        ASSERT2_EQ(10, v1);
+        ASSERT2_EQ(10L, v2);
+        ASSERT2_EQ(10LL, v3);
+        ASSERT2_EQ(10.5f, v4);
+        ASSERT2_EQ(10.5, v5);
     }
 };

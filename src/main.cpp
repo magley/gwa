@@ -1,4 +1,3 @@
-#include <iomanip>
 #include <iostream>
 
 #include "util/json/obj_archive_test.hpp"
@@ -14,6 +13,6 @@ int main(int argc, char** argv) {
 
     fp6_Test fp6_test;
     fp6_test.run();
-    
+
     return 0;
 }

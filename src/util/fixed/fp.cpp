@@ -12,7 +12,7 @@ fp6::fp6(const fp6& i): _v(i._v) {}
 inline fp6 fp6::raw(int raw_val) { fp6 r; r._v = raw_val; return r; }
 
 std::ostream& operator<<(std::ostream& other, const fp6& p) {
-    other << (double)(p._v / (double)(1 << _FP_N));
+    other << (double)(p);
     return other;
 }
 
@@ -461,4 +461,27 @@ fp6& fp6::operator<<=(int i) {
 fp6& fp6::operator>>=(int i) {
     _v >>= i;
     return *this;
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+fp6::operator int() const {
+    return _v >> _FP_N;
+}
+
+fp6::operator long() const {
+    return (long)_v >> _FP_N;
+}
+
+fp6::operator long long() const {
+    return (long long)_v >> _FP_N;
+}
+
+fp6::operator float() const {
+    return _v / (float)(1 << _FP_N);
+}
+
+fp6::operator double() const {
+    return _v / (double)(1 << _FP_N);
 }
