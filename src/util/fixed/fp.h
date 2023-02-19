@@ -177,11 +177,29 @@ public:
     fp6& operator%=(long long i);
     fp6& operator%=(const fp6& i);
 
+    fp6 operator+() const;
+    fp6 operator-() const;
+    fp6 operator~() const;
+
     fp6 operator<<(int i) const;
     fp6 operator>>(int i) const;
 
     fp6& operator<<=(int i);
     fp6& operator>>=(int i);
+
+    fp6 operator^(int i) const;
+    fp6 operator&(int i) const;
+    fp6 operator|(int i) const;
+    fp6& operator^=(int i);
+    fp6& operator&=(int i);
+    fp6& operator|=(int i);
+
+    fp6 operator^(const fp6& i) const;
+    fp6 operator&(const fp6& i) const;
+    fp6 operator|(const fp6& i) const;
+    fp6& operator^=(const fp6& i);
+    fp6& operator&=(const fp6& i);
+    fp6& operator|=(const fp6& i);
 
     explicit operator char() const;
     explicit operator short() const;
@@ -277,3 +295,10 @@ fp6 operator%(short i, const fp6& f);
 fp6 operator%(int i, const fp6& f);
 fp6 operator%(long i, const fp6& f);
 fp6 operator%(long long i, const fp6& f);
+
+fp6 operator&(int i, const fp6& f);
+fp6 operator|(int i, const fp6& f);
+fp6 operator^(int i, const fp6& f);
+int& operator&=(int& i, const fp6& f);
+int& operator|=(int& i, const fp6& f);
+int& operator^=(int& i, const fp6& f);

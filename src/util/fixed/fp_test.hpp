@@ -43,9 +43,22 @@ class fp6_Test : public test2::Test2 {
 
         EXECUTE_TEST(modulo);
         EXECUTE_TEST(modulo_left);
-        EXECUTE_TEST(modulo_assignment);    
+        EXECUTE_TEST(modulo_assignment);
 
-        EXECUTE_TEST(conversion_operators);    
+        EXECUTE_TEST(conversion_operators);
+        EXECUTE_TEST(unary_plus);
+        EXECUTE_TEST(unary_minus);
+
+        EXECUTE_TEST(biwise_not);
+        EXECUTE_TEST(biwise_and);
+        EXECUTE_TEST(biwise_or);
+        EXECUTE_TEST(biwise_xor);
+        EXECUTE_TEST(biwise_and_assign);
+        EXECUTE_TEST(biwise_or_assign);
+        EXECUTE_TEST(biwise_xor_assign);
+        EXECUTE_TEST(bitwise_and_other_side);
+        EXECUTE_TEST(bitwise_or_other_side);
+        EXECUTE_TEST(bitwise_xor_other_side);
     }
 
     void addition() {
@@ -649,5 +662,74 @@ class fp6_Test : public test2::Test2 {
         ASSERT2_EQ(10LL, v3);
         ASSERT2_EQ(10.5f, v4);
         ASSERT2_EQ(10.5, v5);
+    }
+
+    void unary_plus() {
+        fp6 f(5);
+        ASSERT2_EQ(f, +f);
+    }
+
+    void unary_minus() {
+        fp6 f(5);
+        ASSERT2_EQ(f * -1, -f);
+    }
+
+    void biwise_not() {
+        fp6 f(0);
+        ASSERT2_EQ(fp6(~0), ~f);
+    }
+
+    void biwise_and() {
+        fp6 f(7);
+        ASSERT2_EQ(fp6(7 & 3), f & 3);
+        ASSERT2_EQ(fp6(7 & 3), f & fp6(3));
+    }
+
+    void biwise_or() {
+        fp6 f(7);
+        ASSERT2_EQ(fp6(7 | 3), f | 3);
+        ASSERT2_EQ(fp6(7 | 3), f | fp6(3));
+    }
+
+    void biwise_xor() {
+        fp6 f(7);
+        ASSERT2_EQ(fp6(7 ^ 3), f ^ 3);
+        ASSERT2_EQ(fp6(7 ^ 3), f ^ fp6(3));
+    }
+
+    void biwise_and_assign() {
+        fp6 f(7);
+        ASSERT2_EQ(fp6(7 & 3), f &= 3); f = 7;
+        ASSERT2_EQ(fp6(7 & 3), f &= fp6(3)); f = 7;
+    }
+
+    void biwise_or_assign() {
+        fp6 f(7);
+        ASSERT2_EQ(fp6(7 | 3), f |= 3); f = 7;
+        ASSERT2_EQ(fp6(7 | 3), f |= fp6(3)); f = 7;
+    }
+
+    void biwise_xor_assign() {
+        fp6 f(7);
+        ASSERT2_EQ(fp6(7 ^ 3), f ^= 3); f = 7;
+        ASSERT2_EQ(fp6(7 ^ 3), f ^= fp6(3)); f = 7;
+    }
+
+    void bitwise_and_other_side() {
+        int i = 7;
+        ASSERT2_EQ(fp6(7 & 3), i & fp6(3));
+        ASSERT2_EQ(7 & 3, i &= fp6(3));
+    }
+
+    void bitwise_or_other_side() {
+        int i = 7;
+        ASSERT2_EQ(fp6(7 | 3), i | fp6(3));
+        ASSERT2_EQ(7 | 3, i |= fp6(3));
+    }
+
+    void bitwise_xor_other_side() {
+        int i = 7;
+        ASSERT2_EQ(fp6(7 ^ 3), i ^ fp6(3));
+        ASSERT2_EQ(7 ^ 3, i ^= fp6(3));
     }
 };

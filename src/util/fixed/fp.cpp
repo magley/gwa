@@ -13,6 +13,8 @@ fp6::fp6(double i): _v(round(i * (1 << _FP_N))) {}
 fp6::fp6(const fp6& i): _v(i._v) {}
 inline fp6 fp6::raw(int raw_val) { fp6 r; r._v = raw_val; return r; }
 
+/////////////////////////////////////////////////////////////////////////////////////////////////
+
 std::ostream& operator<<(std::ostream& other, const fp6& p) {
     other << (double)(p);
     return other;
@@ -24,6 +26,93 @@ std::istream& operator>>(std::istream& other, fp6& p) {
     p = fp6(d);
     return other;
 }
+
+/////////////////////////////////////////////////////////////////////////////////////////////////
+
+fp6 fp6::operator+() const {
+    return *this;
+}
+fp6 fp6::operator-() const {
+    return raw(0 - _v);
+}
+fp6 fp6::operator~() const {
+    return raw(~(_v >> _FP_N) << _FP_N);
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////////////
+
+fp6 fp6::operator^(int i) const {
+    return fp6((_v >> _FP_N) ^ i);
+}
+fp6 fp6::operator&(int i) const {
+    return fp6((_v >> _FP_N) & i);
+}
+fp6 fp6::operator|(int i) const {
+    return fp6((_v >> _FP_N) | i);
+}
+
+fp6& fp6::operator^=(int i) {
+    _v = ((_v >> _FP_N) ^ i) << _FP_N;
+    return *this;
+}
+fp6& fp6::operator&=(int i) {
+    _v = ((_v >> _FP_N) & i) << _FP_N;
+    return *this;
+}
+fp6& fp6::operator|=(int i) {
+    _v = ((_v >> _FP_N) | i) << _FP_N;
+    return *this;
+}
+
+fp6 operator^(int i, const fp6& f) {
+    return fp6(i) ^ f;
+}
+fp6 operator&(int i, const fp6& f) {
+    return fp6(i) & f;
+}
+fp6 operator|(int i, const fp6& f) {
+    return fp6(i) | f;
+}
+
+int& operator^=(int& i, const fp6& f) {
+    i = (int)(i ^ f);
+    return i;
+}
+int& operator&=(int& i, const fp6& f) {
+    i = (int)(i & f);
+    return i;
+}
+int& operator|=(int& i, const fp6& f) {
+    i = (int)(i | f);
+    return i;
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////////////
+
+fp6 fp6::operator^(const fp6& i) const {
+    return raw(_v ^ i._v);
+}
+fp6 fp6::operator&(const fp6& i) const {
+    return raw(_v & i._v);
+}
+fp6 fp6::operator|(const fp6& i) const {
+    return raw(_v | i._v);
+}
+
+fp6& fp6::operator^=(const fp6& i) {
+    _v ^= i._v;
+    return *this;
+}
+fp6& fp6::operator&=(const fp6& i) {
+    _v &= i._v;
+    return *this;
+}
+fp6& fp6::operator|=(const fp6& i) {
+    _v |= i._v;
+    return *this;
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////////////
 
 bool fp6::operator==(char i) const { return (_v >> _FP_N) == i; }
 bool fp6::operator==(short i) const { return (_v >> _FP_N) == i; }
