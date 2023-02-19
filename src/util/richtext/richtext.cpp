@@ -16,6 +16,7 @@ RichText::RichText(const string2& xml, RichTextStyles styles): styles(styles) {
 
 void RichText::make(const string2& xml) {
     nodes.clear();
+    text_size = 0;
     const std::vector<string2> parts = split_by_tags_inclusive(xml);
     std::vector<RichTextStyle> style_stack;
 
@@ -35,6 +36,7 @@ void RichText::make(const string2& xml) {
             } else {
                 RichTextStyle style = styles[s.slice(1, -2)];
 
+
                 if (style_stack.size() > 0) {
                     style = style_stack[style_stack.size() - 1].cascade(style);
                 }
@@ -45,17 +47,10 @@ void RichText::make(const string2& xml) {
         } else {
             n.type = RichTextNode::RICH_TEXT_NODE_TEXT;
             n.text = s;
+            text_size += s.size();
         }
 
         nodes.push_back(n);
-    }
-
-    for (const RichTextNode& n : nodes) {
-        if (n.type == RichTextNode::RICH_TEXT_NODE_TEXT) {
-            printf("[%s]\n", n.text.c_str());
-        } else {
-            printf("{%s}\n", n.style_delta.to_str().c_str());
-        }
     }
 }
 
@@ -104,4 +99,28 @@ std::vector<string2> RichText::split_by_tags_inclusive(const string2& xml) const
 
 bool RichText::is_tag(const string2& s) const {
     return (s[0] == '<' && s[-1] == '>');
+}
+
+size_t RichText::size() const {
+    return text_size;
+}
+
+RichTextChar RichText::at(int i) const {
+    int cnt = 0;
+    RichTextStyle last_style; // TODO: This is done differently with deltas.
+    for (const RichTextNode& node : nodes) {
+        if (node.is_text()) {
+            if (i >= node.text.size() + cnt) {
+                cnt += node.text.size();
+            } else {
+                return RichTextChar(
+                    node.text[i - cnt],
+                    last_style
+                );
+            }
+        } else {
+            last_style = node.style_delta;
+        }
+    }
+    throw "RichText::at - Out of bounds";
 }

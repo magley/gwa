@@ -180,8 +180,7 @@ int ObjArchive::infer_type_from_str(const string2& s) {
         err = ERR_BRACKET_MISMATCH;
         return TYPE_ERROR;
     }
-
-
+    
     return TYPE_LITERAL;
 }
 
@@ -191,4 +190,11 @@ ObjArchive ObjArchive::cascade(const ObjArchive& other) const {
         ar.map[keyval.first] = keyval.second;
     }
     return ar;
+}
+
+bool ObjArchive::has(const string2& key) const {
+    if (type != TYPE_MAP) {
+        return false;
+    }
+    return map.find(key) != map.end();
 }

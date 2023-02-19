@@ -152,6 +152,8 @@ public:
     // Does nothing for non-maps.
     ObjArchive cascade(const ObjArchive& other) const;
 
+    bool has(const string2& key) const;
+
     void save(ObjArchive& ar) const;
     void load(const ObjArchive& ar);
 

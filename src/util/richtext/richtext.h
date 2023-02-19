@@ -39,10 +39,25 @@ struct RichTextTraversalNode {
     bool is_style() const { return type == RICH_TEXT_TRAVERSAL_NODE_TAG; }
 };
 
+struct RichTextChar {
+    char c;
+    RichTextStyle style;
+
+    string2 get_str(string2 key, string2 default_val) const {
+        if (style.has(key)) {
+            return style[key].to<string2>();
+        }
+        return default_val;
+    }
+
+    RichTextChar(char c, RichTextStyle style): c(c), style(style) {}
+};
+
 using rich_text_traversal_callback = void(*)(const RichTextTraversalNode& ctx);
 
 class RichText {
 private:
+    size_t text_size = 0;
     std::vector<RichTextNode> nodes;
     RichTextStyles styles;
 
@@ -54,4 +69,6 @@ public:
     RichText(const string2& xml, RichTextStyles styles);
     void make(const string2& xml);
     void traverse(rich_text_traversal_callback callback) const;
+    size_t size() const;
+    RichTextChar at(int i) const;
 };
