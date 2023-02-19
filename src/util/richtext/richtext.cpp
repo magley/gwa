@@ -20,39 +20,12 @@ size_t RichText::size() const {
 }
 
 void RichText::make(const string2& xml) {
-    const std::vector<string2> parts = xml.split_by_tags();
     std::vector<RichTextNode> nodes;
     std::vector<RichTextStyle> style_stack;
 
-    for (const string2& s : parts) {
-        RichTextNode n;
-
-        if (is_tag(s)) {
-            n.type = RichTextNode::RICH_TEXT_NODE_TAG;
-            const bool is_closing_tag = s[1] == '/';
-
-            // TODO: No need to store all styles.
-            if (is_closing_tag && style_stack.size() > 0) {
-                style_stack.pop_back();
-                if (style_stack.size() > 0) {
-                    n.style_delta = style_stack[style_stack.size() - 1];
-                }
-            } else {
-                RichTextStyle style = styles[s.slice(1, -2)];
-
-                if (style_stack.size() > 0) {
-                    style = style_stack[style_stack.size() - 1].cascade(style);
-                }
-                style_stack.push_back(style);
-
-                n.style_delta = style;
-            }
-        } else {
-            n.type = RichTextNode::RICH_TEXT_NODE_TEXT;
-            n.text = s;
-        }
-
-        nodes.push_back(n);
+    for (const string2& s : xml.split_by_tags()) {
+        const RichTextNode node = build_node(s, style_stack);
+        nodes.push_back(node);
     }
 
     text = "";
@@ -72,6 +45,38 @@ void RichText::make(const string2& xml) {
             style_list.push_back(node.style_delta); // TODO: Delta vs full?
             style_invchmap.push_back(text.size());
         }
+    }
+}
+
+RichTextNode RichText::build_node(const string2& s, std::vector<RichTextStyle>& style_stack) const {
+    if (is_tag(s)) {
+        return build_node_tag(s, style_stack);
+    }
+    return build_node_text(s, style_stack);
+}
+
+RichTextNode RichText::build_node_text(const string2& s, std::vector<RichTextStyle>& style_stack) const {
+    return RichTextNode(s);
+}
+
+RichTextNode RichText::build_node_tag(const string2& s, std::vector<RichTextStyle>& style_stack) const {
+    const bool is_closing_tag = s[1] == '/';
+
+    if (is_closing_tag && style_stack.size() > 0) {
+        style_stack.pop_back();
+        if (style_stack.size() > 0) {
+            return RichTextNode(style_stack[style_stack.size() - 1]);
+        } else {
+            return RichTextNode(RichTextStyle());
+        }
+    } else {
+        RichTextStyle style = styles[s.slice(1, -2)];
+        if (style_stack.size() > 0) {
+            style = style_stack[style_stack.size() - 1].cascade(style);
+        }
+        style_stack.push_back(style);
+
+        return RichTextNode(style);
     }
 }
 

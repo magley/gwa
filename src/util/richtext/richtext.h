@@ -15,6 +15,14 @@ struct RichTextNode {
     enum {RICH_TEXT_NODE_TEXT, RICH_TEXT_NODE_TAG};
     int type = RICH_TEXT_NODE_TEXT;
 
+    RichTextNode();
+    RichTextNode(const string2& text): 
+        text(text), 
+        type(RICH_TEXT_NODE_TEXT) {}
+    RichTextNode(const RichTextStyle& style_delta): 
+        style_delta(style_delta), 
+        type(RICH_TEXT_NODE_TAG) {}
+
     bool is_text() const { return type == RICH_TEXT_NODE_TEXT; }
     bool is_style() const { return type == RICH_TEXT_NODE_TAG; }
 };
@@ -62,8 +70,10 @@ private:
     std::vector<int> style_invchmap;
 
     bool is_tag(const string2& s) const;
+    RichTextNode build_node(const string2& s, std::vector<RichTextStyle>& style_stack) const;
+    RichTextNode build_node_text(const string2& s, std::vector<RichTextStyle>& style_stack) const;
+    RichTextNode build_node_tag(const string2& s, std::vector<RichTextStyle>& style_stack) const;
 public:
-
     RichText();
     RichText(const string2& xml, RichTextStyles styles);
     void make(const string2& xml);
