@@ -274,6 +274,10 @@ string2 string2::replace(const string2& from, const string2& to) const {
 }
 
 string2 string2::join(const std::vector<string2>& parts, string2 joiner) {
+    if (parts.size() == 0) {
+        return "";
+    }
+
     string2 res;
     for (int i = 0; i < parts.size() - 1; i++) {
         res += parts[i] + joiner;
