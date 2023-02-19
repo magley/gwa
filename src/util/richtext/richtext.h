@@ -73,10 +73,10 @@ private:
     RichTextNode build_node(const string2& s, std::vector<RichTextStyle>& style_stack) const;
     RichTextNode build_node_text(const string2& s, std::vector<RichTextStyle>& style_stack) const;
     RichTextNode build_node_tag(const string2& s, std::vector<RichTextStyle>& style_stack) const;
+    void make(const string2& xml);
 public:
     RichText();
     RichText(const string2& xml, RichTextStyles styles);
-    void make(const string2& xml);
     RichTextChar at(int i) const;
     size_t size() const;
 };

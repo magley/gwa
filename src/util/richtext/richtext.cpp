@@ -20,25 +20,17 @@ size_t RichText::size() const {
 }
 
 void RichText::make(const string2& xml) {
-    std::vector<RichTextNode> nodes;
-    std::vector<RichTextStyle> style_stack;
-
-    for (const string2& s : xml.split_by_tags()) {
-        const RichTextNode node = build_node(s, style_stack);
-        nodes.push_back(node);
-    }
-
-    text = "";
-    style_list.clear();
-    style_invchmap.clear();
-
     // Including an empty style at the start of the rich-text, it is guaranteed that each character
     // in the string has one style it can map to. Thanks to this, RichTextChar can take a reference
     // (never null) to a RichTextStyle instead of copying or using pointers.
     style_list.push_back(RichTextStyle());
     style_invchmap.push_back(0);
 
-    for (const RichTextNode& node : nodes) {
+    std::vector<RichTextStyle> style_stack;
+
+    for (const string2& s : xml.split_by_tags()) {
+        const RichTextNode node = build_node(s, style_stack);
+
         if (node.is_text()) {
             text += node.text;
         } else {
