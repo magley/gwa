@@ -62,7 +62,6 @@ private:
     std::vector<int> style_invchmap;
 
     bool is_tag(const string2& s) const;
-    std::vector<string2> split_by_tags_inclusive(const string2& xml) const;
 public:
 
     RichText();

@@ -20,7 +20,7 @@ size_t RichText::size() const {
 }
 
 void RichText::make(const string2& xml) {
-    const std::vector<string2> parts = split_by_tags_inclusive(xml);
+    const std::vector<string2> parts = xml.split_by_tags();
     std::vector<RichTextNode> nodes;
     std::vector<RichTextStyle> style_stack;
 
@@ -39,7 +39,6 @@ void RichText::make(const string2& xml) {
                 }
             } else {
                 RichTextStyle style = styles[s.slice(1, -2)];
-
 
                 if (style_stack.size() > 0) {
                     style = style_stack[style_stack.size() - 1].cascade(style);
@@ -74,42 +73,6 @@ void RichText::make(const string2& xml) {
             style_invchmap.push_back(text.size());
         }
     }
-}
-
-std::vector<string2> RichText::split_by_tags_inclusive(const string2& xml) const {
-    std::vector<string2> result;
-    string2 token = "";
-    int i = -1;
-    bool in_tag = false;
-
-    while (i < xml.size() - 1) {
-        i++;
-        char c = xml[i];
-
-        if (c == '<' && !in_tag) {
-            in_tag = true;
-            if (token != "") {
-                result.push_back(token);
-            }
-            token = "";
-        } 
-
-        token += c;
-        
-        if (c == '>' && in_tag) {
-            in_tag = false;
-            if (token != "") {
-                result.push_back(token);
-            }
-            token = "";
-        } 
-    }
-
-    if (token != "") {
-        result.push_back(token);
-    }
-
-    return result;
 }
 
 bool RichText::is_tag(const string2& s) const {

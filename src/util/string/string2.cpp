@@ -259,6 +259,42 @@ std::vector<string2> string2::split(string2 delim, bool include_empty_tokens) co
     return split_unless_between(delim, {}, include_empty_tokens);
 }
 
+std::vector<string2> string2::split_by_tags() const {
+    std::vector<string2> result;
+    string2 token;
+    int i = -1;
+    bool in_tag = false;
+
+    while (i < size() - 1) {
+        i++;
+        const char c = at(i);
+
+        if (c == '<' && !in_tag) {
+            in_tag = true;
+            if (token != "") {
+                result.push_back(token);
+            }
+            token = "";
+        } 
+
+        token += c;
+        
+        if (c == '>' && in_tag) {
+            in_tag = false;
+            if (token != "") {
+                result.push_back(token);
+            }
+            token = "";
+        } 
+    }
+
+    if (token != "") {
+        result.push_back(token);
+    }
+
+    return result;   
+}
+
 string2 string2::replace(const string2& from, const string2& to) const {
     string2 res = *this;
     if (from.size() == 0) {
