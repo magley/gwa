@@ -11,7 +11,7 @@ class richtext_Test : public test2::Test2 {
     void idk() {
         const string2 styles_json = R"(
             {
-                "red-wave": {
+                "red": {
                     "color": "#FF0000",
                     "wave": "fast"
                 },
@@ -21,7 +21,7 @@ class richtext_Test : public test2::Test2 {
             }
         )";
 
-        const string2 text_xml = "Hello <red-wave>world <blue>AB<red-wave>CD</red-wave></blue></red-wave>!";
+        const string2 text_xml = "Hello <red>world <blue>AB</blue>!</red>";
 
         RichTextStyles styles(styles_json);
         RichText rt(text_xml, styles);

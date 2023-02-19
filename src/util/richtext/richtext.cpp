@@ -1,4 +1,5 @@
 #include "richtext.h"
+#include <cassert>
 
 RichTextStyles::RichTextStyles() {
 }
@@ -19,8 +20,8 @@ size_t RichText::size() const {
 }
 
 void RichText::make(const string2& xml) {
-    std::vector<RichTextNode> nodes;
     const std::vector<string2> parts = split_by_tags_inclusive(xml);
+    std::vector<RichTextNode> nodes;
     std::vector<RichTextStyle> style_stack;
 
     for (const string2& s : parts) {
@@ -55,11 +56,15 @@ void RichText::make(const string2& xml) {
         nodes.push_back(n);
     }
 
-    // Better:
-
     text = "";
     style_list.clear();
     style_invchmap.clear();
+
+    // Including an empty style at the start of the rich-text, it is guaranteed that each character
+    // in the string has one style it can map to. Thanks to this, RichTextChar can take a reference
+    // (never null) to a RichTextStyle instead of copying or using pointers.
+    style_list.push_back(RichTextStyle());
+    style_invchmap.push_back(0);
 
     for (const RichTextNode& node : nodes) {
         if (node.is_text()) {
@@ -123,10 +128,6 @@ static int find_first_greater_than(int what, const std::vector<int>& v) {
 RichTextChar RichText::at(int i) const {
     const char c = text[i];
     const int style_index = find_first_greater_than(i, style_invchmap);
-    RichTextStyle style;
-    if (style_index != -1) {
-        style = style_list[style_index];
-    }
-
-    return RichTextChar(c, style);
+    assert(style_index != -1);
+    return RichTextChar(c, style_list[style_index]);
 }

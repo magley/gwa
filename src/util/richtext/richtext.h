@@ -41,7 +41,7 @@ struct RichTextTraversalNode {
 
 struct RichTextChar {
     char c;
-    RichTextStyle style;
+    const RichTextStyle& style;
 
     string2 get_str(string2 key, string2 default_val) const {
         if (style.has(key)) {
@@ -50,7 +50,7 @@ struct RichTextChar {
         return default_val;
     }
 
-    RichTextChar(char c, RichTextStyle style): c(c), style(style) {}
+    RichTextChar(char c, const RichTextStyle& style): c(c), style(style) {}
 };
 
 class RichText {
