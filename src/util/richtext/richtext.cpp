@@ -14,9 +14,12 @@ RichText::RichText(const string2& xml, RichTextStyles styles): styles(styles) {
     make(xml);
 }
 
+size_t RichText::size() const {
+    return text.size();
+}
+
 void RichText::make(const string2& xml) {
-    nodes.clear();
-    text_size = 0;
+    std::vector<RichTextNode> nodes;
     const std::vector<string2> parts = split_by_tags_inclusive(xml);
     std::vector<RichTextStyle> style_stack;
 
@@ -47,17 +50,24 @@ void RichText::make(const string2& xml) {
         } else {
             n.type = RichTextNode::RICH_TEXT_NODE_TEXT;
             n.text = s;
-            text_size += s.size();
         }
 
         nodes.push_back(n);
     }
-}
 
-void RichText::traverse(rich_text_traversal_callback callback) const {
-    for (const RichTextNode& n : nodes) {
-        RichTextTraversalNode traversal_node = RichTextTraversalNode(n);
-        callback(traversal_node);
+    // Better:
+
+    text = "";
+    style_list.clear();
+    style_invchmap.clear();
+
+    for (const RichTextNode& node : nodes) {
+        if (node.is_text()) {
+            text += node.text;
+        } else {
+            style_list.push_back(node.style_delta); // TODO: Delta vs full?
+            style_invchmap.push_back(text.size());
+        }
     }
 }
 
@@ -101,26 +111,22 @@ bool RichText::is_tag(const string2& s) const {
     return (s[0] == '<' && s[-1] == '>');
 }
 
-size_t RichText::size() const {
-    return text_size;
+static int find_first_greater_than(int what, const std::vector<int>& v) {
+    for (int i = 0; i < v.size(); i++) {
+        if (what < v[i]) {
+            return i - 1;
+        }
+    }
+    return -1;
 }
 
 RichTextChar RichText::at(int i) const {
-    int cnt = 0;
-    RichTextStyle last_style; // TODO: This is done differently with deltas.
-    for (const RichTextNode& node : nodes) {
-        if (node.is_text()) {
-            if (i >= node.text.size() + cnt) {
-                cnt += node.text.size();
-            } else {
-                return RichTextChar(
-                    node.text[i - cnt],
-                    last_style
-                );
-            }
-        } else {
-            last_style = node.style_delta;
-        }
+    const char c = text[i];
+    const int style_index = find_first_greater_than(i, style_invchmap);
+    RichTextStyle style;
+    if (style_index != -1) {
+        style = style_list[style_index];
     }
-    throw "RichText::at - Out of bounds";
+
+    return RichTextChar(c, style);
 }

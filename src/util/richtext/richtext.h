@@ -53,13 +53,13 @@ struct RichTextChar {
     RichTextChar(char c, RichTextStyle style): c(c), style(style) {}
 };
 
-using rich_text_traversal_callback = void(*)(const RichTextTraversalNode& ctx);
-
 class RichText {
 private:
-    size_t text_size = 0;
-    std::vector<RichTextNode> nodes;
     RichTextStyles styles;
+
+    string2 text;
+    std::vector<RichTextStyle> style_list;
+    std::vector<int> style_invchmap;
 
     bool is_tag(const string2& s) const;
     std::vector<string2> split_by_tags_inclusive(const string2& xml) const;
@@ -68,7 +68,6 @@ public:
     RichText();
     RichText(const string2& xml, RichTextStyles styles);
     void make(const string2& xml);
-    void traverse(rich_text_traversal_callback callback) const;
-    size_t size() const;
     RichTextChar at(int i) const;
+    size_t size() const;
 };

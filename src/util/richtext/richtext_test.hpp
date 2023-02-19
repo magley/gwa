@@ -26,14 +26,6 @@ class richtext_Test : public test2::Test2 {
         RichTextStyles styles(styles_json);
         RichText rt(text_xml, styles);
 
-        // rt.traverse([](const RichTextTraversalNode& node) {
-        //     if (node.is_text()) {
-        //         printf("[%s]\n", node.text.c_str());
-        //     } else {
-        //         printf("{%s}\n", node.style.to_str().c_str());
-        //     }
-        // });
-
         for (int i = 0; i < rt.size(); i++) {
             const RichTextChar node = rt.at(i);
             const string2 color = node.get_str("color", "");
