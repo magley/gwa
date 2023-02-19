@@ -21,9 +21,17 @@ class richtext_Test : public test2::Test2 {
             }
         )";
 
-        const string2 text_xml = "Hello <red-wave>world <blue>ABCD</blue></red-wave>!";
+        const string2 text_xml = "Hello <red-wave>world <blue>AB<red-wave>CD</red-wave></blue></red-wave>!";
 
         RichTextStyles styles(styles_json);
         RichText rt(text_xml, styles);
+
+        rt.traverse([](const RichTextTraversalNode& node) {
+            if (node.is_text()) {
+                printf("[%s]\n", node.text.c_str());
+            } else {
+                printf("{%s}\n", node.style.to_str().c_str());
+            }
+        });
     }
 };

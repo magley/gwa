@@ -57,10 +57,13 @@ void RichText::make(const string2& xml) {
             printf("{%s}\n", n.style_delta.to_str().c_str());
         }
     }
+}
 
-    // ObjArchive oa;
-    // oa.insert(&parts);
-    // printf("%s\n", oa.to_str().c_str());
+void RichText::traverse(rich_text_traversal_callback callback) const {
+    for (const RichTextNode& n : nodes) {
+        RichTextTraversalNode traversal_node = RichTextTraversalNode(n);
+        callback(traversal_node);
+    }
 }
 
 std::vector<string2> RichText::split_by_tags_inclusive(const string2& xml) const {
