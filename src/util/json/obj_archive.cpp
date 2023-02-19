@@ -184,3 +184,11 @@ int ObjArchive::infer_type_from_str(const string2& s) {
 
     return TYPE_LITERAL;
 }
+
+ObjArchive ObjArchive::cascade(const ObjArchive& other) const {
+    ObjArchive ar = *this;
+    for (const auto& keyval : other.map) {
+        ar.map[keyval.first] = keyval.second;
+    }
+    return ar;
+}

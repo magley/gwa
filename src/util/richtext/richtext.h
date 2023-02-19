@@ -7,7 +7,7 @@ public:
     RichTextStyles(const string2& styles);
 };
 
-using RichTextStyle = ObjArchive; 
+using RichTextStyle = ObjArchive;
 
 struct RichTextNode {
     string2 text;

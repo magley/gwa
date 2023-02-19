@@ -34,7 +34,12 @@ void RichText::make(const string2& xml) {
                 }
             } else {
                 RichTextStyle style = styles[s.slice(1, -2)];
+
+                if (style_stack.size() > 0) {
+                    style = style_stack[style_stack.size() - 1].cascade(style);
+                }
                 style_stack.push_back(style);
+
                 n.style_delta = style;
             }
         } else {

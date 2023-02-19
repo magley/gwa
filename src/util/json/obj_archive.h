@@ -147,6 +147,11 @@ public:
 
 //------------------------------------------------------------------------------------------- other
 
+    // Merge 2 ObjArchives. 
+    // If overlapping keys, `other`-s value overrides.
+    // Does nothing for non-maps.
+    ObjArchive cascade(const ObjArchive& other) const;
+
     void save(ObjArchive& ar) const;
     void load(const ObjArchive& ar);
 
