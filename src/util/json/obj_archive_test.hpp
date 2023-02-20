@@ -231,6 +231,8 @@ public:
         EXECUTE_TEST(neg_should_throw_on_nested_unopened_bracket);
 
         EXECUTE_TEST(should_properly_parse_larger_json);
+
+        EXECUTE_TEST(should_load_empty_map);
     }
 private:
     void should_put_int() {
@@ -488,5 +490,13 @@ private:
 
         ASSERT2_EQ(string2("org.cofax.cds.EmailServlet"), servlet_class);
         ASSERT2_EQ(1, log);
+    }
+
+    void should_load_empty_map() {
+        const string2 json = "{}";
+        ObjArchive ar;
+        ar.from_str(json);
+
+        ASSERT2_EQ((int)ObjArchive::TYPE_MAP, ar.get_type());
     }
 };

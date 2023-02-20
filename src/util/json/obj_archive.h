@@ -170,6 +170,7 @@ public:
 
     int get_type() const;
     int get_err() const;
+    int count() const;
 private:
     int type = TYPE_LITERAL;
     int err = ERR_NONE;

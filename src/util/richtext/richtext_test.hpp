@@ -5,10 +5,13 @@
 
 class richtext_Test : public test2::Test2 {
     void run_tests() {
-        EXECUTE_TEST(idk);
+        EXECUTE_TEST(example);
+
+        EXECUTE_TEST(should_properly_contain_the_text);
+        EXECUTE_TEST(should_not_crash_if_styles_missing);
     }
 
-    void idk() {
+    void example() {
         const string2 styles_json = R"(
             {
                 "red": {
@@ -35,5 +38,36 @@ class richtext_Test : public test2::Test2 {
             else printf(ANSI_RESET);
             printf("%c", node.c);
         }
+    }
+
+    void should_properly_contain_the_text() {
+        const string2 styles_json = R"(
+            {
+                "red": {
+                    "color": "#FF0000",
+                    "wave": "fast"
+                },
+                "blue": {
+                    "color": "#0000FF"
+                }
+            }
+        )";
+
+        const string2 text_xml = "Hello <red>world <blue>AB</blue>!</red>";
+        const string2 text_just_text = "Hello world AB!";
+
+        RichTextStyles styles(styles_json);
+        RichText rt(text_xml, styles);
+
+        ASSERT2_EQ(text_just_text, rt.get_text());
+    }
+
+    void should_not_crash_if_styles_missing() {
+        const string2 text_xml = "Hello <red>world <blue>AB</blue>!</red>";
+        const string2 text_just_text = "Hello world AB!";
+
+        RichText rt(text_xml);
+
+        ASSERT2_EQ(text_just_text, rt.get_text());
     }
 };

@@ -1,68 +1,42 @@
 #pragma once
 #include "util/json/obj_archive.h"
 
+using RichTextStyle = ObjArchive;
+
 class RichTextStyles : public ObjArchive {
 public:
     RichTextStyles();
     RichTextStyles(const string2& styles);
 };
 
-using RichTextStyle = ObjArchive;
-
 struct RichTextNode {
     string2 text;
-    RichTextStyle style_delta;
+    RichTextStyle style;
     enum {RICH_TEXT_NODE_TEXT, RICH_TEXT_NODE_TAG};
     int type = RICH_TEXT_NODE_TEXT;
 
     RichTextNode();
-    RichTextNode(const string2& text): 
-        text(text), 
-        type(RICH_TEXT_NODE_TEXT) {}
-    RichTextNode(const RichTextStyle& style_delta): 
-        style_delta(style_delta), 
-        type(RICH_TEXT_NODE_TAG) {}
+    RichTextNode(const string2& text);
+    RichTextNode(const RichTextStyle& style_delta);
 
     bool is_text() const { return type == RICH_TEXT_NODE_TEXT; }
     bool is_style() const { return type == RICH_TEXT_NODE_TAG; }
-};
-
-struct RichTextTraversalNode {
-    enum {RICH_TEXT_TRAVERSAL_NODE_TEXT, RICH_TEXT_TRAVERSAL_NODE_TAG};
-    int type = RICH_TEXT_TRAVERSAL_NODE_TEXT;
-
-    RichTextTraversalNode(const RichTextNode& rn) {
-        if (rn.is_text()) {
-            text = rn.text;
-            type = RICH_TEXT_TRAVERSAL_NODE_TEXT;
-        } else {
-            style = rn.style_delta; // TODO: Change once deltas are involved.
-            type = RICH_TEXT_TRAVERSAL_NODE_TAG;
-        }
-    }
-
-    string2 text;
-    RichTextStyle style;
-    bool is_text() const { return type == RICH_TEXT_TRAVERSAL_NODE_TEXT; }
-    bool is_style() const { return type == RICH_TEXT_TRAVERSAL_NODE_TAG; }
 };
 
 struct RichTextChar {
     char c;
     const RichTextStyle& style;
 
-    string2 get_str(string2 key, string2 default_val) const {
-        if (style.has(key)) {
-            return style[key].to<string2>();
-        }
-        return default_val;
-    }
+    string2 get_str(string2 key, string2 default_val) const;
+    int get_int(string2 key, int default_val) const;
+    float get_float(string2 key, float default_val) const;
 
     RichTextChar(char c, const RichTextStyle& style): c(c), style(style) {}
 };
 
 class RichText {
 private:
+    // TODO: In the future, a style will be a resource. RichText shouldn't keep track of styles.
     RichTextStyles styles;
 
     string2 text;
@@ -76,7 +50,9 @@ private:
     void make(const string2& xml);
 public:
     RichText();
+    RichText(const string2& xml);
     RichText(const string2& xml, RichTextStyles styles);
     RichTextChar at(int i) const;
     size_t size() const;
+    const string2& get_text() const;
 };

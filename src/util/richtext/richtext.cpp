@@ -8,7 +8,23 @@ RichTextStyles::RichTextStyles(const string2& styles) {
     from_str(styles);
 }
 
-RichText::RichText() {
+RichTextNode::RichTextNode() {
+
+}
+
+RichTextNode::RichTextNode(const string2& text): text(text), type(RICH_TEXT_NODE_TEXT) {
+
+}
+
+RichTextNode::RichTextNode(const RichTextStyle& style_delta): 
+    style(style_delta), type(RICH_TEXT_NODE_TAG) {
+}
+
+RichText::RichText(): styles("{}") {
+}
+
+RichText::RichText(const string2& xml): styles("{}") {
+    make(xml);
 }
 
 RichText::RichText(const string2& xml, RichTextStyles styles): styles(styles) {
@@ -34,7 +50,7 @@ void RichText::make(const string2& xml) {
         if (node.is_text()) {
             text += node.text;
         } else {
-            style_list.push_back(node.style_delta); // TODO: Delta vs full?
+            style_list.push_back(node.style);
             style_invchmap.push_back(text.size());
         }
     }
@@ -52,6 +68,10 @@ RichTextNode RichText::build_node_text(const string2& s, std::vector<RichTextSty
 }
 
 RichTextNode RichText::build_node_tag(const string2& s, std::vector<RichTextStyle>& style_stack) const {
+    if (styles.count() == 0) {
+        return RichTextNode(RichTextStyle());
+    }
+
     const bool is_closing_tag = s[1] == '/';
 
     if (is_closing_tag && style_stack.size() > 0) {
@@ -90,4 +110,29 @@ RichTextChar RichText::at(int i) const {
     const int style_index = find_first_greater_than(i, style_invchmap);
     assert(style_index != -1);
     return RichTextChar(c, style_list[style_index]);
+}
+
+const string2& RichText::get_text() const {
+    return text;
+}
+
+string2 RichTextChar::get_str(string2 key, string2 default_val) const {
+    if (style.has(key)) {
+        return style[key].to<string2>();
+    }
+    return default_val;
+}
+
+int RichTextChar::get_int(string2 key, int default_val) const {
+    if (style.has(key)) {
+        return style[key].to<int>();
+    }
+    return default_val;
+}
+
+float RichTextChar::get_float(string2 key, float default_val) const {
+    if (style.has(key)) {
+        return style[key].to<float>();
+    }
+    return default_val;
 }

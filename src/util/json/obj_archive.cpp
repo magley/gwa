@@ -119,7 +119,7 @@ void ObjArchive::str_to_literal(const string2& s) {
 
 void ObjArchive::str_to_array(const string2& s) {
     const string2 ss = s.slice(1, -2);
-    std::vector<string2> parts = ss.split_unless_between(",", {"{}", "[]", "\"\""});
+    std::vector<string2> parts = ss.split_unless_between(",", {"{}", "[]", "\"\""}, false);
     for (string2& part : parts) {
         part = part.trim();
     }
@@ -129,13 +129,13 @@ void ObjArchive::str_to_array(const string2& s) {
 void ObjArchive::str_to_map(const string2& s) {
     const std::vector<string2> unless_pairs = {"{}", "[]", "\"\""};
     const string2 ss = s.slice(1, -2);
-    std::vector<string2> keyvals = ss.split_unless_between(",", unless_pairs);
+    std::vector<string2> keyvals = ss.split_unless_between(",", unless_pairs, false);
     for (string2& keyval : keyvals) {
         keyval = keyval.trim();
     }
 
     for (const string2& keyval : keyvals) {
-        const std::vector<string2> keyval_tokens = keyval.split_unless_between(":", unless_pairs);
+        const std::vector<string2> keyval_tokens = keyval.split_unless_between(":", unless_pairs, false);
 
         if (keyval_tokens.size() != 2) {
             type = TYPE_ERROR;
@@ -197,4 +197,16 @@ bool ObjArchive::has(const string2& key) const {
         return false;
     }
     return map.find(key) != map.end();
+}
+
+int ObjArchive::count() const {
+    if (type == TYPE_ARRAY) {
+        return array.size();
+    } else if (type == TYPE_MAP) {
+        return map.size();
+    } else if (type == TYPE_LITERAL) {
+        return 1;
+    } else {
+        return 0;
+    }
 }
