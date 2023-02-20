@@ -30,7 +30,7 @@ class richtext_Test : public test2::Test2 {
         RichText rt(text_xml, styles);
 
         for (int i = 0; i < rt.size(); i++) {
-            const RichTextChar node = rt.at(i);
+            const RichTextChar node = rt[i];
             const string2 color = node.get_str("color", "");
 
             if (color == "#FF0000") printf(ANSI_RED);

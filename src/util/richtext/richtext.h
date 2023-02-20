@@ -9,19 +9,6 @@ public:
     RichTextStyles(const string2& styles);
 };
 
-struct RichTextNode {
-    string2 text;
-    RichTextStyle style;
-    enum {RICH_TEXT_NODE_TEXT, RICH_TEXT_NODE_TAG};
-    int type = RICH_TEXT_NODE_TEXT;
-
-    RichTextNode();
-    RichTextNode(const string2& text);
-    RichTextNode(const RichTextStyle& style_delta);
-
-    bool is_text() const { return type == RICH_TEXT_NODE_TEXT; }
-    bool is_style() const { return type == RICH_TEXT_NODE_TAG; }
-};
 
 struct RichTextChar {
     char c;
@@ -53,6 +40,7 @@ public:
     RichText(const string2& xml);
     RichText(const string2& xml, RichTextStyles styles);
     RichTextChar at(int i) const;
+    RichTextChar operator[](int i) const;
     size_t size() const;
     const string2& get_text() const;
 };

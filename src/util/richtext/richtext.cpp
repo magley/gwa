@@ -112,6 +112,10 @@ RichTextChar RichText::at(int i) const {
     return RichTextChar(c, style_list[style_index]);
 }
 
+RichTextChar RichText::operator[](int i) const {
+    return at(i);
+}
+
 const string2& RichText::get_text() const {
     return text;
 }
