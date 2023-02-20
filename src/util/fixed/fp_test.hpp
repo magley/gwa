@@ -636,12 +636,18 @@ class fp6_Test : public test2::Test2 {
         fp6 f(5);
 
         for (int i = 0; i < 5; i++) {
-            ASSERT2_EQ(fp6(5 % (i + 1)), f %= (char)(i + (char)1)); f = fp6(5);
-            ASSERT2_EQ(fp6(5 % (i + 1)), f %= (short)(i + (short)1)); f = fp6(5);
-            ASSERT2_EQ(fp6(5 % (i + 1)), f %= (i + 1)); f = fp6(5);
-            ASSERT2_EQ(fp6(5 % (i + 1)), f %= (i + 1L)); f = fp6(5);
-            ASSERT2_EQ(fp6(5 % (i + 1)), f %= (i + 1LL)); f = fp6(5);
-            ASSERT2_EQ(fp6(5 % (i + 1)), f %= fp6(i + 1)); f = fp6(5);
+            ASSERT2_EQ(fp6(5 % (i + 1)), f %= (char)(i + (char)1)); 
+            f = fp6(5);
+            ASSERT2_EQ(fp6(5 % (i + 1)), f %= (short)(i + (short)1));
+            f = fp6(5);
+            ASSERT2_EQ(fp6(5 % (i + 1)), f %= (i + 1));
+            f = fp6(5);
+            ASSERT2_EQ(fp6(5 % (i + 1)), f %= (i + 1L));
+            f = fp6(5);
+            ASSERT2_EQ(fp6(5 % (i + 1)), f %= (i + 1LL)); 
+            f = fp6(5);
+            ASSERT2_EQ(fp6(5 % (i + 1)), f %= fp6(i + 1)); 
+            f = fp6(5);
         }
     }
 

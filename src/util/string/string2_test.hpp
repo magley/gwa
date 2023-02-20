@@ -8,18 +8,18 @@ class string2_Test : public test2::Test2 {
 protected:
     void run_tests() {
         EXECUTE_NAMED(test01, "Should split string");
-        EXECUTE_NAMED(test02, "Should split string ignoring spaces between specified character-pairs");
+        EXECUTE_NAMED(test02, "Should split string ignoring spaces");
         EXECUTE_NAMED(test03, "Should split string and include empty tokens");
         EXECUTE_NAMED(test04, "Should split string and exclude empty tokens");
         EXECUTE_NAMED(test05, "Should replace strings properly");
-        EXECUTE_NAMED(test06, "Should give same string if nothing gets replaced");
-        EXECUTE_NAMED(test07, "Should trim string properly even if a side has nothing to trim");
-        EXECUTE_NAMED(test08, "Should trim string properly for different whitespace characters");
+        EXECUTE_NAMED(test06, "Replace nothing -> same string result");
+        EXECUTE_NAMED(test07, "Should trim, one side has nothing to trim");
+        EXECUTE_NAMED(test08, "Should trim, different whitespace characters");
         EXECUTE_NAMED(test09, "Should join strings like in python");
-        EXECUTE_NAMED(test10, "Split (default: keep empty tokens) and join are inverse functions");
-        EXECUTE_NAMED(test11, "Split works if delimiter has multiple characters");
-        EXECUTE_NAMED(test12, "Splitting empty string returns an empty list if empty tokens are excluded");
-        EXECUTE_NAMED(test13, "Splitting empty string returns an empty string list if empty tokens are included");
+        EXECUTE_NAMED(test10, "Split (default: keep empty tokens) =~ join");
+        EXECUTE_NAMED(test11, "Split with multiple-character delimiters");
+        EXECUTE_NAMED(test12, "Splitting empty string exluding empty tokens");
+        EXECUTE_NAMED(test13, "Splitting empty string including empty tokens");
         EXECUTE_NAMED(test14, "Fast contains-substring works at string bounds");
     }
 private:
@@ -30,18 +30,18 @@ private:
     }
 
     void test02() {
-        const string2 str = "Hello {this {will [get]} ignored} and [so will this] and \"this too\" but <not this>.";
+        const string2 str = "1 {22 {3 [4]} 5} 6 [7] 8 \"9\" <10 11>.";
         const auto parts = str.split_unless_between(" ", {"[]", "{}", "\"\""});
         ASSERT2_EQ((std::vector<string2>{
-            "Hello", "{this {will [get]} ignored}", "and", "[so will this]", "and", "\"this too\"",
-            "but", "<not", "this>."
+            "1", "{22 {3 [4]} 5}", "6", "[7]", "8", 
+            "\"9\"", "<10", "11>."
         }), parts);
     }
 
     void test03() {
-        const string2 str = "A   A   BB  C";
+        const string2 str = "A  A   BB";
         const auto parts = str.split(" ");
-        ASSERT2_EQ((std::vector<string2>{"A", "", "", "A", "", "", "BB", "", "C"}), parts);
+        ASSERT2_EQ((std::vector<string2>{"A", "", "A", "", "", "BB"}), parts);
     }
 
     void test04() {
@@ -51,13 +51,12 @@ private:
     }
 
     void test05() {
-        const string2 str = "Replace this {0} this {1} this {2} this {3} and {0} again.";
+        const string2 str = "Replace this {0} this {1} and {0} again.";
         const string2 str2 = str
             .replace("{0}", "first")
-            .replace("{1}", "second")
-            .replace("{2}", "third")
-            .replace("{3}", "fourth");
-        ASSERT2_EQ(string2("Replace this first this second this third this fourth and first again."), str2);
+            .replace("{1}", "second");
+        const string2 ss = "Replace this first this second and first again.";
+        ASSERT2_EQ(ss, str2);
     }
 
     void test06() {

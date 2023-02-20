@@ -44,7 +44,7 @@ static string2 big_json = R"(
           "redirectionClass": "org.cofax.SqlRedirection",
           "dataStoreName": "cofax",
           "dataStoreDriver": "com.microsoft.jdbc.sqlserver.SQLServerDriver",
-          "dataStoreUrl": "jdbc:microsoft:sqlserver://LOCALHOST:1433;DatabaseName=goon",
+"dataStoreUrl": "jdbc:microsoft:sqlserver://LOCALHOST:1433;DatabaseName=goon",
           "dataStoreUser": "sa",
           "dataStorePassword": "dataStoreTestQuery",
           "dataStoreTestQuery": "SET NOCOUNT ON;select test='test';",
@@ -85,7 +85,7 @@ static string2 big_json = R"(
           "dataLogMaxSize": "",
           "removePageCache": "/content/admin/remove?cache=pages&id=",
           "removeTemplateCache": "/content/admin/remove?cache=templates&id=",
-          "fileTransferFolder": "/usr/local/tomcat/webapps/content/fileTransferFolder",
+"fileTransferFolder": "/usr/local/tomcat/webapps/content/fileTransferFolder",
           "lookInContext": 1,
           "adminGroupID": 4,
           "betaServer": true
@@ -196,14 +196,20 @@ public:
     }
 
     bool operator==(const Testing_P3& other) const {
-        return (pos == other.pos && vel == other.vel && angle == other.angle && rotspd == other.rotspd);
+        return (
+            pos == other.pos && 
+            vel == other.vel && 
+            angle == other.angle && 
+            rotspd == other.rotspd
+        );
     }
     bool operator!=(const Testing_P3& other) const {
         return !(this->operator==(other));
     }
 
     friend std::ostream& operator<<(std::ostream& other, const Testing_P3& p) {
-        other << "{" << p.pos << ", " << p.vel << ", " << p.angle << ", " << p.rotspd << "}";
+        other << "{" << p.pos << ", " << p.vel << ", " 
+        << p.angle << ", " << p.rotspd << "}";
         return other;
     }
 };
@@ -485,10 +491,10 @@ private:
 
         ObjArchive ar;
         ar.from_str(value);
-        string2 servlet_class = ar["web-app"]["servlet"][1]["servlet-class"].to<string2>();
+        auto cname = ar["web-app"]["servlet"][1]["servlet-class"].to<string2>();
         int log = ar["web-app"]["servlet"][4]["init-param"]["log"].to<int>();
 
-        ASSERT2_EQ(string2("org.cofax.cds.EmailServlet"), servlet_class);
+        ASSERT2_EQ(string2("org.cofax.cds.EmailServlet"), cname);
         ASSERT2_EQ(1, log);
     }
 

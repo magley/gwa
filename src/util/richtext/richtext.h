@@ -22,7 +22,8 @@ struct RichTextChar {
 
 class RichText {
 private:
-    // TODO: In the future, a style will be a resource. RichText shouldn't keep track of styles.
+    // TODO: Styles will be resources one day.
+    // The RichText shouldn't be responsible for a style's lifecycle.
     RichTextStyles styles;
 
     string2 text;

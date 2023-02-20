@@ -9,9 +9,14 @@ static int index_of_strlist(std::vector<string2> strings, char c) {
     return -1;
 }
 
-static void calc_pair_sum(char c, const string2& pair, int* symmetric_pair, int* pair_sum) {
+static void calc_pair_sum(
+    char c, 
+    const string2& pair, 
+    int* symmetric_pair, 
+    int* pair_sum
+) {
     // If opening char, increment pair_sum. If closing, decrement.
-    // If opening and closing are the same, determine from symmetric_pair and flip that flag.
+    // If opening == closing, determine from symmetric_pair and flip that flag.
 
     if (pair[0] == pair[1]) {
         if (*symmetric_pair == 1) {
@@ -220,21 +225,25 @@ string2 string2::trim() const {
     return substr(l, r - l + 1);
 }
 
-std::vector<string2> string2::split_unless_between(string2 delim, const std::vector<string2>& pairs, bool include_empty_tokens) const {
+std::vector<string2> string2::split_unless_between(
+    string2 delim, 
+    const std::vector<string2>& pairs, 
+    bool include_empty_tokens
+) const {
     std::vector<string2> result;
     string2 token;
 
     int pair_sum = 0;
-    int symmetric_pair[pairs.size()] = {0};
+    int symm_pair[pairs.size()] = {0};
 
     int i = -1;
     while (i < size() - 1) {
         i++;
         char c = at(i);
 
-        const int pair_index = index_of_strlist(pairs, c);
-        if (pair_index != -1) {
-            calc_pair_sum(c, pairs[pair_index], &symmetric_pair[pair_index], &pair_sum);
+        const int p_index = index_of_strlist(pairs, c);
+        if (p_index != -1) {
+            calc_pair_sum(c, pairs[p_index], &symm_pair[p_index], &pair_sum);
         }
 
         if (pair_sum == 0 && contains(delim, i)) {
@@ -242,7 +251,7 @@ std::vector<string2> string2::split_unless_between(string2 delim, const std::vec
                 result.push_back(token);
                 token = "";
             }
-            i += delim.size() - 1; // -1 because of i++ at the start of the loop. 
+            i += delim.size() - 1; // -1 because of i++ loop start. 
         } else {
             token += c;
         }
@@ -255,7 +264,10 @@ std::vector<string2> string2::split_unless_between(string2 delim, const std::vec
     return result;
 }
 
-std::vector<string2> string2::split(string2 delim, bool include_empty_tokens) const {
+std::vector<string2> string2::split(
+    string2 delim, 
+    bool include_empty_tokens
+) const {
     return split_unless_between(delim, {}, include_empty_tokens);
 }
 

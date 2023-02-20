@@ -43,7 +43,7 @@ void Test2::report() const {
     }
 
     printf(ANSI_WHITE);
-    printf("\n\n==============================================================\n");
+    printf("\n============================================================\n");
 
 
     for (const auto& res : results) {
@@ -59,7 +59,7 @@ void Test2::report() const {
     }
 
     printf(ANSI_WHITE);
-    printf("--------------------------------------------------------------\n");
+    printf("------------------------------------------------------------\n");
     if (passed > 0 && failed == 0) {
         printf(ANSI_GREEN);
     } else {
@@ -75,7 +75,7 @@ void Test2::report() const {
     printf("Fail: %d\n", failed);
 
     printf(ANSI_WHITE);
-    printf("==============================================================\n\n");
+    printf("============================================================\n");
 
     printf(ANSI_RESET);
 }

@@ -119,7 +119,7 @@ void ObjArchive::str_to_literal(const string2& s) {
 
 void ObjArchive::str_to_array(const string2& s) {
     const string2 ss = s.slice(1, -2);
-    std::vector<string2> parts = ss.split_unless_between(",", {"{}", "[]", "\"\""}, false);
+    auto parts = ss.split_unless_between(",", {"{}", "[]", "\"\""}, false);
     for (string2& part : parts) {
         part = part.trim();
     }
@@ -127,17 +127,17 @@ void ObjArchive::str_to_array(const string2& s) {
 }
 
 void ObjArchive::str_to_map(const string2& s) {
-    const std::vector<string2> unless_pairs = {"{}", "[]", "\"\""};
+    const std::vector<string2> unless = {"{}", "[]", "\"\""};
     const string2 ss = s.slice(1, -2);
-    std::vector<string2> keyvals = ss.split_unless_between(",", unless_pairs, false);
+    std::vector<string2> keyvals = ss.split_unless_between(",", unless, false);
     for (string2& keyval : keyvals) {
         keyval = keyval.trim();
     }
 
     for (const string2& keyval : keyvals) {
-        const std::vector<string2> keyval_tokens = keyval.split_unless_between(":", unless_pairs, false);
+        const auto kv_parts = keyval.split_unless_between(":", unless, false);
 
-        if (keyval_tokens.size() != 2) {
+        if (kv_parts.size() != 2) {
             type = TYPE_ERROR;
             err = ERR_BAD_KEYVAL_COUNT;
             const string2 ansi_red = "\033[0;31m";
@@ -150,8 +150,8 @@ void ObjArchive::str_to_map(const string2& s) {
             );
         }
 
-        const string2 key = keyval_tokens[0].trim().slice(1, -2); // No need for quotes.
-        const string2 val = keyval_tokens[1].trim();
+        const string2 key = kv_parts[0].trim().slice(1, -2); // Remove quotes.
+        const string2 val = kv_parts[1].trim();
         map[key] = val;
     }
 }

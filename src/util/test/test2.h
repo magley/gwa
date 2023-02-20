@@ -140,8 +140,11 @@ protected:
             ss << "\n\n";
             for (int i = 0; i < expected.size(); i++) {
                 if (i < result.size() && result[i] != expected[i]) {
-                    ss << ANSI_YELLOW << "\texpected[" << i << "]: " << ANSI_RESET << expected[i]
-                        << ANSI_YELLOW << "\tresult[" << i << "]: " << ANSI_RESET << result[i] << "\n";
+                    ss 
+                        << ANSI_YELLOW << "\texpected[" << i << "]: " 
+                        << ANSI_RESET << expected[i]
+                        << ANSI_YELLOW << "\tresult[" << i << "]: " 
+                        << ANSI_RESET << result[i] << "\n";
                 }
             }
             if (expected.size() < result.size()) {

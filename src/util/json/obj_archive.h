@@ -61,7 +61,7 @@ public:
         type = TYPE_ARRAY;
     }
 
-//--------------------------------------------------------------------------------------- get_raw()
+//------------------------------------------------------------------- get_raw()
 
     string2 get_raw(const string2& key) const;
     string2 get_raw(int index) const;
@@ -82,7 +82,7 @@ public:
         return ar.to<T>();
     }
 
-//---------------------------------------------------------------------------------------- to_str()
+//-------------------------------------------------------------------- to_str()
 
 
     template<typename T>
@@ -94,7 +94,10 @@ public:
     }
 
     template<typename T>
-    static typename std::enable_if<std::is_base_of<ISerializable, T>::value, string2>::type
+    static typename std::enable_if<
+        std::is_base_of<ISerializable, T>::value, 
+        string2
+    >::type
     to_str(const T* const o) {
         ObjArchive ar;
         o->save(ar);
@@ -111,7 +114,7 @@ public:
     string2 to_str() const;
     static string2 to_str(const string2* const o);
 
-//-------------------------------------------------------------------------------------- from_str()
+//------------------------------------------------------------------ from_str()
 
 
     template<typename T>
@@ -123,7 +126,10 @@ public:
     }
 
     template<typename T>
-    static typename std::enable_if<std::is_base_of<ISerializable, T>::value, void>::type
+    static typename std::enable_if<
+        std::is_base_of<ISerializable, T>::value, 
+        void
+    >::type
     from_str(const string2& s, T* o) {
         ObjArchive ar;
         ar.from_str(s);
@@ -131,7 +137,10 @@ public:
     }
 
     template<typename T>
-    static typename std::enable_if<std::is_base_of<ISerializable, T>::value, void>::type
+    static typename std::enable_if<
+        std::is_base_of<ISerializable, T>::value,
+        void
+    >::type
     from_str(const string2& s, std::vector<T>* o) {
         ObjArchive ar;
         ar.from_str(s);
@@ -145,7 +154,7 @@ public:
     static void from_str(const string2& s, string2* o);
     void from_str(const string2& s);
 
-//------------------------------------------------------------------------------------------- other
+//----------------------------------------------------------------------- other
 
     // Merge 2 ObjArchives. 
     // If overlapping keys, `other`-s value overrides.
@@ -166,7 +175,8 @@ public:
     void str_to_map(const string2& s);
     int infer_type_from_str(const string2& s);
     enum { TYPE_LITERAL, TYPE_ARRAY, TYPE_MAP, TYPE_ERROR };
-    enum { ERR_NONE, ERR_BRACE_MISMATCH, ERR_BRACKET_MISMATCH, ERR_BAD_KEYVAL_COUNT };
+    enum { ERR_NONE, ERR_BRACE_MISMATCH, ERR_BRACKET_MISMATCH, 
+        ERR_BAD_KEYVAL_COUNT };
 
     int get_type() const;
     int get_err() const;
