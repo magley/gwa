@@ -147,6 +147,13 @@ public:
 
 //------------------------------------------------------------------------------------------- other
 
+    // Merge 2 ObjArchives. 
+    // If overlapping keys, `other`-s value overrides.
+    // Does nothing for non-maps.
+    ObjArchive cascade(const ObjArchive& other) const;
+
+    bool has(const string2& key) const;
+
     void save(ObjArchive& ar) const;
     void load(const ObjArchive& ar);
 
@@ -163,6 +170,7 @@ public:
 
     int get_type() const;
     int get_err() const;
+    int count() const;
 private:
     int type = TYPE_LITERAL;
     int err = ERR_NONE;

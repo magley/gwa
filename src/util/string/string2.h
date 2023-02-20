@@ -45,6 +45,7 @@ public:
     string2 trim() const;
     std::vector<string2> split(string2 delimiter, bool include_empty_tokens = true) const;
     std::vector<string2> split_unless_between(string2 delimiter, const std::vector<string2>& pairs, bool include_empty_tokens = true) const;
+    std::vector<string2> split_by_tags() const;
     string2 replace(const string2& from, const string2& to) const;
     static string2 join(const std::vector<string2>& parts, string2 joiner);
     string2 upper() const;
