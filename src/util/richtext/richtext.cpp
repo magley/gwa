@@ -1,6 +1,27 @@
 #include "richtext.h"
 #include <cassert>
 
+
+struct RichTextNode {
+    string2 text;
+    RichTextStyle style;
+    enum {RICH_TEXT_NODE_TEXT, RICH_TEXT_NODE_TAG};
+    int type = RICH_TEXT_NODE_TEXT;
+
+    RichTextNode();
+    RichTextNode(const string2& text);
+    RichTextNode(const RichTextStyle& style_delta);
+
+    bool is_text() const { return type == RICH_TEXT_NODE_TEXT; }
+    bool is_style() const { return type == RICH_TEXT_NODE_TAG; }
+};
+
+static RichTextNode build_node(const string2& s, std::vector<RichTextStyle>& style_stack, RichTextStyles* styles);
+static RichTextNode build_node_text(const string2& s, std::vector<RichTextStyle>& style_stack, RichTextStyles* styles);
+static RichTextNode build_node_tag(const string2& s, std::vector<RichTextStyle>& style_stack, RichTextStyles* styles);
+static bool is_tag(const string2& s);
+
+
 RichTextStyles::RichTextStyles() {
 }
 
@@ -45,7 +66,7 @@ void RichText::make(const string2& xml) {
     std::vector<RichTextStyle> style_stack;
 
     for (const string2& s : xml.split_by_tags()) {
-        const RichTextNode node = build_node(s, style_stack);
+        const RichTextNode node = build_node(s, style_stack, &styles);
 
         if (node.is_text()) {
             text += node.text;
@@ -56,19 +77,19 @@ void RichText::make(const string2& xml) {
     }
 }
 
-RichTextNode RichText::build_node(const string2& s, std::vector<RichTextStyle>& style_stack) const {
+static RichTextNode build_node(const string2& s, std::vector<RichTextStyle>& style_stack, RichTextStyles* styles) {
     if (is_tag(s)) {
-        return build_node_tag(s, style_stack);
+        return build_node_tag(s, style_stack, styles);
     }
-    return build_node_text(s, style_stack);
+    return build_node_text(s, style_stack, styles);
 }
 
-RichTextNode RichText::build_node_text(const string2& s, std::vector<RichTextStyle>& style_stack) const {
+static RichTextNode build_node_text(const string2& s, std::vector<RichTextStyle>& style_stack, RichTextStyles* styles) {
     return RichTextNode(s);
 }
 
-RichTextNode RichText::build_node_tag(const string2& s, std::vector<RichTextStyle>& style_stack) const {
-    if (styles.count() == 0) {
+static RichTextNode build_node_tag(const string2& s, std::vector<RichTextStyle>& style_stack, RichTextStyles* styles) {
+    if (styles->count() == 0) {
         return RichTextNode(RichTextStyle());
     }
 
@@ -82,7 +103,7 @@ RichTextNode RichText::build_node_tag(const string2& s, std::vector<RichTextStyl
             return RichTextNode(RichTextStyle());
         }
     } else {
-        RichTextStyle style = styles[s.slice(1, -2)];
+        RichTextStyle style = (*styles)[s.slice(1, -2)];
         if (style_stack.size() > 0) {
             style = style_stack[style_stack.size() - 1].cascade(style);
         }
@@ -92,7 +113,7 @@ RichTextNode RichText::build_node_tag(const string2& s, std::vector<RichTextStyl
     }
 }
 
-bool RichText::is_tag(const string2& s) const {
+static bool is_tag(const string2& s) {
     return (s[0] == '<' && s[-1] == '>');
 }
 

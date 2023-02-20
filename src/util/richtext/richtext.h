@@ -9,7 +9,6 @@ public:
     RichTextStyles(const string2& styles);
 };
 
-
 struct RichTextChar {
     char c;
     const RichTextStyle& style;
@@ -30,10 +29,6 @@ private:
     std::vector<RichTextStyle> style_list;
     std::vector<int> style_invchmap;
 
-    bool is_tag(const string2& s) const;
-    RichTextNode build_node(const string2& s, std::vector<RichTextStyle>& style_stack) const;
-    RichTextNode build_node_text(const string2& s, std::vector<RichTextStyle>& style_stack) const;
-    RichTextNode build_node_tag(const string2& s, std::vector<RichTextStyle>& style_stack) const;
     void make(const string2& xml);
 public:
     RichText();
