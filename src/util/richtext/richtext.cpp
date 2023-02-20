@@ -75,6 +75,8 @@ void RichText::make(const string2& xml) {
             style_invchmap.push_back(text.size());
         }
     }
+
+    text = text.replace("&lt;", "<").replace("&gt;", ">");
 }
 
 static RichTextNode build_node(const string2& s, std::vector<RichTextStyle>& style_stack, RichTextStyles* styles) {

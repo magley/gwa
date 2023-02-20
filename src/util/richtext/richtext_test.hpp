@@ -9,6 +9,7 @@ class richtext_Test : public test2::Test2 {
 
         EXECUTE_TEST(should_properly_contain_the_text);
         EXECUTE_TEST(should_not_crash_if_styles_missing);
+        EXECUTE_TEST(should_convert_escape_chars);
     }
 
     void example() {
@@ -69,5 +70,12 @@ class richtext_Test : public test2::Test2 {
         RichText rt(text_xml);
 
         ASSERT2_EQ(text_just_text, rt.get_text());
+    }
+
+    void should_convert_escape_chars() {
+        const string2 text_xml = "2 &lt; 5 &gt; 3";
+        RichText rt(text_xml);
+
+        ASSERT2_EQ(string2("2 < 5 > 3"), rt.get_text());
     }
 };
