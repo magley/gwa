@@ -2,6 +2,10 @@ Files not included to reduce noise. List of files:
 
 libSDL2.a
 libSDL2main.a
+libSDL2_image.a
 SDL2.dll
+SDL2_image.dll
+libpng16-16.dll
+zlib1.dll
 
 Don't forget to move SDL2.dll to where the .exe is!

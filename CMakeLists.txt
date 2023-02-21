@@ -17,4 +17,7 @@ target_link_libraries(${PROJECT_NAME}
     -lmingw32 
     ${LIB_DIR}/SDL2/libSDL2main.a 
     ${LIB_DIR}/SDL2/SDL2.dll
+    ${LIB_DIR}/SDL2/zlib1.dll
+    ${LIB_DIR}/SDL2/libpng16-16.dll
+    ${LIB_DIR}/SDL2/SDL2_image.dll
 )
