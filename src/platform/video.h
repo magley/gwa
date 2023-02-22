@@ -20,5 +20,8 @@ public:
     Renderer(SDL_Renderer* rend);
     int clear(unsigned char r, unsigned char g, unsigned char b) const;
     void flip() const;
-    void draw(const Texture& tex, float x, float y) const;
+    void draw(const Texture& tex, float x, float y, float ang = 0) const;
+    void draw_ext(const Texture& tex, float x, float y, float ang = 0,
+                  bool flipx = false, bool flipy = false, int sx = 0, 
+                  int sy = 0, int sw = -1, int sh = -1) const;
 };

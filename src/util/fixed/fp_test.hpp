@@ -1,3 +1,5 @@
+#pragma once
+
 #include "fp.h"
 #include "util/test/test2.h"
 

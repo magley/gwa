@@ -1,10 +1,15 @@
 #include <assert.h>
 #include <stdio.h>
+#include <vector>
 
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_image.h>
 #include "platform/input.h"
 #include "platform/video.h"
+
+#include "entity/entity_test.hpp"
+#include "entity/entity.h"
+
 
 void print_err(const char* prefix, const char* msg, const char* suffix) {
     printf("\033[0;37m%s\033[0;31m%s\033[0;37m%s", prefix, msg, suffix);
@@ -21,6 +26,9 @@ void handle_sdl_error() {
 }
 
 int main(int argc, char** argv) {
+    Entity_Test et;
+    et.run();
+
     int status = SDL_Init(SDL_INIT_VIDEO);
     if (status != 0) {
         handle_sdl_error();
@@ -30,8 +38,6 @@ int main(int argc, char** argv) {
     if (status == 0) {
         handle_sdl_error();
     }
-
-    Input input;
 
     const int view_w = 640;
     const int view_h = 480;
@@ -55,13 +61,14 @@ int main(int argc, char** argv) {
     }
     SDL_RenderSetLogicalSize(sdl_renderer, view_w, view_h);
 
+    Input input;
     Renderer rend = Renderer(sdl_renderer);
 
     Texture tex = Texture(sdl_renderer, "../res/img.png");
 
-    int x = 0;
-    int y = 0;
-
+    EntityManager em;
+    EntityID e = em.add();
+    transform_c* t = em.transform(e);
     SDL_Event event;
     bool is_running = true;
 
@@ -74,16 +81,18 @@ int main(int argc, char** argv) {
 
         input.update();
 
-        x += (input.down(SDL_SCANCODE_RIGHT) - input.down(SDL_SCANCODE_LEFT)) * 3;
-        y += (input.down(SDL_SCANCODE_DOWN) - input.down(SDL_SCANCODE_UP)) * 3;
+        t->angle += 6.0f;
+
+        t->x += (input.down(SDL_SCANCODE_RIGHT) - input.down(SDL_SCANCODE_LEFT)) * 3;
+        t->y += (input.down(SDL_SCANCODE_DOWN) - input.down(SDL_SCANCODE_UP)) * 3;
 
         status = rend.clear(128, 128, 128);
         if (status != 0) {
             handle_sdl_error();
         }
 
-        rend.draw(tex, x, y);
-        
+        rend.draw_ext(tex, (float)t->x, (float)t->y, (float)t->angle, true, false, 1, 1, 18, 24);
+
         rend.flip();
     }
 
