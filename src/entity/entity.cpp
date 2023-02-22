@@ -56,7 +56,7 @@ EntityID EntityManager::add() {
     } else {
         e = entity[free_id];
         e->reset_component_flags();
-        e->del = false;
+        e->del = 0;
     }
 
     return e->id;
@@ -71,7 +71,7 @@ EntityID EntityManager::get_empty_id() {
     return id;
 }
 
-EntityRefID EntityManager::add_ref(const EntityID& e) {
+EntityRefID EntityManager::make_ref(const EntityID& e) {
     EntityRef* ref = new EntityRef();
     ref->entity = e;
     ref->id = ref_cnt++;
@@ -81,44 +81,52 @@ EntityRefID EntityManager::add_ref(const EntityID& e) {
     return ref->id;
 }
 
-EntityRefData EntityManager::get_ref(const EntityRefID& refid) {
-    EntityRefData d;
+EntityRef EntityManager::get_ref(const EntityRefID& refid) {
+    EntityRef d;
 
     for (int i = 0; i < refs.size(); i++) {
         if (refs[i]->id == refid) {
-            d.entity = refs[i]->entity;
-            d.is_valid = refs[i]->valid;
-            return d;
+            return *refs[i];
         }
     }
 
-    d.is_valid = false;
+    d.valid = false;
     return d;
 }
 
 void EntityManager::cleanup() {
+    // "Delete" all entities marked for deletion.
     for (int i = 0; i < entity.size(); i++) {
-        if (entity[i]->del) {
-            for (int j = 0; j < refs.size(); j++) {
-                if (refs[j]->entity == entity[i]->id) {
-                    refs[j]->valid = false;
-                }
-            }
+        if (entity[i]->del == 1) {
+            entity[i]->del = 2;
+            empty_ids.push(i);
         }
     }
+
+    // Invalidate references whose pointing entities are deleted.
+    std::vector<EntityRef*> new_refs;
+    for (int i = 0; i < refs.size(); i++) {
+        if (entity[refs[i]->entity]->del == 2) {
+            refs[i]->valid = false;
+            delete refs[i];
+        } else {
+            new_refs.push_back(refs[i]);
+        }
+    }
+
+    refs = new_refs;
 }
 
 void EntityManager::rem(const EntityID& id) {
     assert(id < entity.size());
     if (!entity[id]->del) {
-        entity[id]->del = true;
-        empty_ids.push(id);
+        entity[id]->del = 1;
     }
 }
 
 bool EntityManager::is_rem(const EntityID& id) const {
     assert(id < entity.size());
-    return entity[id]->del;
+    return entity[id]->del > 0;
 }
 
 void EntityManager::add_c(const EntityID& id, int c) const {

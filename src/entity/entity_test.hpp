@@ -11,6 +11,7 @@ class Entity_Test : public test2::Test2 {
 
     void run_tests() {
         EXECUTE_TEST(addRemAdd__sameId_countEq1);
+        EXECUTE_TEST(addRemAdd__ifNoCleanupThenNewSlot);
         EXECUTE_TEST(addRem_flaggedForDeletion);
         EXECUTE_TEST(entityRef_follow);
     }
@@ -18,10 +19,21 @@ class Entity_Test : public test2::Test2 {
     void addRemAdd__sameId_countEq1() {
         EntityID e1 = em.add();
         em.rem(e1);
+        em.cleanup(); // e1 will go from "marked for removal" to "removed"
         EntityID e2 = em.add();
 
-        ASSERT2_EQ(e2, e1);
+        ASSERT2_EQ(e1, e2);
         ASSERT2_EQ(1, em.count());
+    }
+
+    void addRemAdd__ifNoCleanupThenNewSlot() {
+        EntityID e1 = em.add();
+        em.rem(e1);
+        // No em.cleanup() -> e2.del == 1  --> won't be overwritten
+        EntityID e2 = em.add();
+
+        ASSERT2(e1 != e2);
+        ASSERT2_EQ(2, em.count());
     }
 
     void addRem_flaggedForDeletion() {
@@ -49,7 +61,7 @@ class Entity_Test : public test2::Test2 {
         }
 
         // Create a reference to e1.
-        EntityRefID ref = em.add_ref(e1);
+        EntityRefID ref = em.make_ref(e1);
 
         // Mock game-loop
         for (int i = 0; i < 10; i++) 
@@ -59,8 +71,8 @@ class Entity_Test : public test2::Test2 {
 
             // Once e1 is destroyed, the reference is no longer valid.
             if (i > 5) {
-                EntityRefData refdata = em.get_ref(ref);
-                ASSERT2_EQ(false, refdata.is_valid);
+                EntityRef refdata = em.get_ref(ref);
+                ASSERT2_EQ(false, refdata.valid);
             }
 
             // Simulate e1 being destroyed for some reason. A new entity takes
@@ -79,18 +91,23 @@ class Entity_Test : public test2::Test2 {
                 // invalidated if such changes occurr.
                 // You can store an EntityRefID between frames and fetch the
                 // EntityID in each frame repeatedly.
-                EntityRefData refdata = em.get_ref(ref);
+                EntityRef refdata = em.get_ref(ref);
 
                 // If the reference is still valid
-                if (refdata.is_valid) {
+                if (refdata.valid) {
                     // do stuff with the other entity
 
                     transform_c* his_pos = em.transform(refdata.entity);
                     if (my_pos->x < his_pos->x) {
                         my_pos->x++;
                     }
+                } 
+                // We don't have to do this, but it's for our own sanity.
+                else {
+                    ref = -1;
                 }
             }
         }
     }
+
 };

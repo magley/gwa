@@ -23,17 +23,12 @@ struct EntityRef {
     bool valid;
 };
 
-struct EntityRefData {
-    EntityID entity;
-    bool is_valid;
-};
-
 struct Entity {
     E_DECL(transform);
     E_DECL(physics);
 
     EntityID id;
-    bool del = false;
+    int del = 0;
     bool c[count_COMPONENT] = {false};
 
     void add(int component);
@@ -46,11 +41,12 @@ class EntityManager {
     std::queue<EntityID> empty_ids;
     std::vector<Entity*> entity;
     std::vector<EntityRef*> refs;
-    EntityRefID ref_cnt = 0;
+    EntityRefID ref_cnt = 0; // EntityRef objects don't share slots in the array
+    // so their ID is not an array index. ref_cnt is an ID generator.
 public:
     EntityID add();
-    EntityRefID add_ref(const EntityID& e);
-    EntityRefData get_ref(const EntityRefID& refid);
+    EntityRefID make_ref(const EntityID& e);
+    EntityRef get_ref(const EntityRefID& refid);
     void cleanup();
 
     void rem(const EntityID& id);

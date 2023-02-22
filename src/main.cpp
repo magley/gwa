@@ -39,10 +39,10 @@ int main(int argc, char** argv) {
         handle_sdl_error();
     }
 
-    const int view_w = 640;
-    const int view_h = 480;
-    const int win_w = view_w * 1;
-    const int win_h = view_h * 1;
+    const int view_w = 480;
+    const int view_h = 360;
+    const int win_w = view_w * 2;
+    const int win_h = view_h * 2;
 
     SDL_Window* win = SDL_CreateWindow("gwa",
                                        SDL_WINDOWPOS_CENTERED,
