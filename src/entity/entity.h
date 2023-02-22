@@ -15,6 +15,18 @@ enum {
 };
 
 using EntityID = uint32_t;
+using EntityRefID = uint32_t;
+
+struct EntityRef {
+    EntityRefID id;
+    EntityID entity;
+    bool valid;
+};
+
+struct EntityRefData {
+    EntityID entity;
+    bool is_valid;
+};
 
 struct Entity {
     E_DECL(transform);
@@ -33,8 +45,12 @@ struct Entity {
 class EntityManager {
     std::queue<EntityID> empty_ids;
     std::vector<Entity*> entity;
+    std::vector<EntityRef*> refs;
+    EntityRefID ref_cnt = 0;
 public:
     EntityID add();
+    EntityRefID add_ref(const EntityID& e);
+    EntityRefData get_ref(const EntityRefID& refid);
     void cleanup();
 
     void rem(const EntityID& id);

@@ -33,7 +33,6 @@ void Entity::reset_component_flags() {
 }
 #define GET(cname)                                                \
 UNDERSCORE(cname, c)* EntityManager::cname(const EntityID& id) {  \
-    assert(!entity[id]->del);                                     \
     return entity[id]->cname;                                     \
 }
 
@@ -72,8 +71,41 @@ EntityID EntityManager::get_empty_id() {
     return id;
 }
 
-void EntityManager::cleanup() {
+EntityRefID EntityManager::add_ref(const EntityID& e) {
+    EntityRef* ref = new EntityRef();
+    ref->entity = e;
+    ref->id = ref_cnt++;
+    ref->valid = true;
 
+    refs.push_back(ref);
+    return ref->id;
+}
+
+EntityRefData EntityManager::get_ref(const EntityRefID& refid) {
+    EntityRefData d;
+
+    for (int i = 0; i < refs.size(); i++) {
+        if (refs[i]->id == refid) {
+            d.entity = refs[i]->entity;
+            d.is_valid = refs[i]->valid;
+            return d;
+        }
+    }
+
+    d.is_valid = false;
+    return d;
+}
+
+void EntityManager::cleanup() {
+    for (int i = 0; i < entity.size(); i++) {
+        if (entity[i]->del) {
+            for (int j = 0; j < refs.size(); j++) {
+                if (refs[j]->entity == entity[i]->id) {
+                    refs[j]->valid = false;
+                }
+            }
+        }
+    }
 }
 
 void EntityManager::rem(const EntityID& id) {

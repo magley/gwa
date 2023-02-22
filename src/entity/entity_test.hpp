@@ -12,6 +12,7 @@ class Entity_Test : public test2::Test2 {
     void run_tests() {
         EXECUTE_TEST(addRemAdd__sameId_countEq1);
         EXECUTE_TEST(addRem_flaggedForDeletion);
+        EXECUTE_TEST(entityRef_follow);
     }
 
     void addRemAdd__sameId_countEq1() {
@@ -28,5 +29,68 @@ class Entity_Test : public test2::Test2 {
         em.rem(e1);
 
         ASSERT2_EQ(true, em.is_rem(e1));
+    }
+
+    void entityRef_follow() {
+        // Create entities and initialize their positions.
+        EntityID e1, e2;
+        e1 = em.add();
+        e2 = em.add();
+        em.add_c(e1, TRANSFORM);
+        em.add_c(e2, TRANSFORM);
+        {
+            transform_c* t1 = em.transform(e1);
+            t1->x = 32;
+            t1->y = 128;
+
+            transform_c* t2 = em.transform(e2);
+            t2->x = 0;
+            t2->y = 0;
+        }
+
+        // Create a reference to e1.
+        EntityRefID ref = em.add_ref(e1);
+
+        // Mock game-loop
+        for (int i = 0; i < 10; i++) 
+        {
+            // Called before any other entity code.
+            em.cleanup();
+
+            // Once e1 is destroyed, the reference is no longer valid.
+            if (i > 5) {
+                EntityRefData refdata = em.get_ref(ref);
+                ASSERT2_EQ(false, refdata.is_valid);
+            }
+
+            // Simulate e1 being destroyed for some reason. A new entity takes
+            // its place, although this doesn't affect the 
+            if (i == 5) {
+                em.rem(e1);
+            }
+
+            // Logic for e2.
+            {
+                transform_c* my_pos = em.transform(e2);
+
+                // Since EntityID is volatile and recycled, it's not safe to
+                // store EntityIDs for entity references between frames. An
+                // EntityRef keeps track of major changes in an entity and gets
+                // invalidated if such changes occurr.
+                // You can store an EntityRefID between frames and fetch the
+                // EntityID in each frame repeatedly.
+                EntityRefData refdata = em.get_ref(ref);
+
+                // If the reference is still valid
+                if (refdata.is_valid) {
+                    // do stuff with the other entity
+
+                    transform_c* his_pos = em.transform(refdata.entity);
+                    if (my_pos->x < his_pos->x) {
+                        my_pos->x++;
+                    }
+                }
+            }
+        }
     }
 };
