@@ -41,8 +41,7 @@ class EntityManager {
     std::queue<EntityID> empty_ids;
     std::vector<Entity*> entity;
     std::vector<EntityRef*> refs;
-    EntityRefID ref_cnt = 0; // EntityRef objects don't share slots in the array
-    // so their ID is not an array index. ref_cnt is an ID generator.
+    EntityRefID ref_cnt = 0;
 public:
     EntityID add();
     EntityRefID make_ref(const EntityID& e);
@@ -57,10 +56,10 @@ public:
 
     EM_GET(transform);
     EM_GET(physics);
-    EntityID get_empty_id();
 
     int count() const { return entity.size(); }
 private:
+    EntityID get_empty_id();
     void init_components(Entity* e);
 };
 

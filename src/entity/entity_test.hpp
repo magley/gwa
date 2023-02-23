@@ -14,6 +14,7 @@ class Entity_Test : public test2::Test2 {
         EXECUTE_TEST(addRemAdd__ifNoCleanupThenNewSlot);
         EXECUTE_TEST(addRem_flaggedForDeletion);
         EXECUTE_TEST(entityRef_follow);
+        EXECUTE_TEST(entityRef_complex);
     }
 
     void addRemAdd__sameId_countEq1() {
@@ -108,6 +109,63 @@ class Entity_Test : public test2::Test2 {
                 }
             }
         }
+    }
+
+
+    struct B_c {
+        EntityRefID player_ref = -1;
+
+        EntityID find_player(EntityManager& em) {
+            // mock
+            if (em.is_rem(0)) {
+                return -1;
+            }
+            return 0;
+        }
+
+        void update(EntityManager& em, int& out_counter) {
+            // If stale reference, try to fetch it again.
+            if (player_ref == -1) {
+                EntityID player = find_player(em);
+                player_ref = em.make_ref(player);
+            }
+
+            // If reference is valid, use the entity it refers to.
+            EntityRef ref = em.get_ref(player_ref);
+            if (ref.valid) {
+                // Do something with the player.
+                out_counter++;
+            } else {
+                player_ref = -1;
+            }
+        }
+    };
+
+    void entityRef_complex() {
+        EntityID e1, e2;
+        e1 = em.add();
+        e2 = em.add();
+        int has_player_cnt = 0;
+        B_c e2_b; // pretend e2 has this component
+
+        // Frame
+        em.cleanup();
+        e2_b.update(em, has_player_cnt);
+
+        // Frame
+        em.cleanup();
+        e2_b.update(em, has_player_cnt);
+
+        // Frame
+        em.cleanup();
+        em.rem(e1);
+        e2_b.update(em, has_player_cnt); // ref is valid until next cleanup
+
+        // Frame
+        em.cleanup();
+        e2_b.update(em, has_player_cnt);
+
+        ASSERT2_EQ(3, has_player_cnt);
     }
 
 };

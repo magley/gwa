@@ -73,9 +73,16 @@ EntityID EntityManager::get_empty_id() {
 
 EntityRefID EntityManager::make_ref(const EntityID& e) {
     EntityRef* ref = new EntityRef();
-    ref->entity = e;
-    ref->id = ref_cnt++;
-    ref->valid = true;
+
+    if (e == -1) {
+        ref->entity = e;
+        ref->id = ref_cnt++;
+        ref->valid = false;
+    } else {
+        ref->entity = e;
+        ref->id = ref_cnt++;
+        ref->valid = true;
+    }
 
     refs.push_back(ref);
     return ref->id;
@@ -106,7 +113,10 @@ void EntityManager::cleanup() {
     // Invalidate references whose pointing entities are deleted.
     std::vector<EntityRef*> new_refs;
     for (int i = 0; i < refs.size(); i++) {
-        if (entity[refs[i]->entity]->del == 2) {
+        if (refs[i]->entity == -1) {
+            refs[i]->valid = false;
+            delete refs[i];             
+        } else if (entity[refs[i]->entity]->del == 2) {
             refs[i]->valid = false;
             delete refs[i];
         } else {
