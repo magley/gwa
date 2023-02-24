@@ -63,6 +63,11 @@ public:
     double to_d() const;
     float to_f() const;
 
+    static string2 from(int i);
+    static string2 from(long l);
+    static string2 from(double d);
+    static string2 from(float f);
+
     using iterator = std::string::iterator;
     using const_iterator = std::string::const_iterator;
 

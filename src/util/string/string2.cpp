@@ -1,5 +1,7 @@
 #include "string2.h"
 
+#include <sstream>
+
 static int index_of_strlist(std::vector<string2> strings, char c) {
     for (int i = 0; i < strings.size(); i++) {
         if (strings[i].contains(c)) {
@@ -234,7 +236,7 @@ std::vector<string2> string2::split_unless_between(
     string2 token;
 
     int pair_sum = 0;
-    int symm_pair[pairs.size()] = {0};
+    std::vector<int> symm_pair(pairs.size(), 0);
 
     int i = -1;
     while (i < size() - 1) {
@@ -382,6 +384,22 @@ double string2::to_d() const {
 
 float string2::to_f() const {
     return std::stof(str());
+}
+
+string2 string2::from(int i) {
+    return std::to_string(i);
+}
+
+string2 string2::from(long l) {
+    return std::to_string(l);
+}
+
+string2 string2::from(double d) {
+    return std::to_string(d);
+}
+
+string2 string2::from(float f) {
+    return std::to_string(f);
 }
 
 string2::iterator string2::begin() {

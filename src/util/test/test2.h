@@ -11,7 +11,7 @@ namespace test2 {
 
 #define ASSERT2(...)                                \
 {                                                   \
-    if (!assert(__VA_ARGS__, #__VA_ARGS__)) return; \
+    if (!fassert(__VA_ARGS__, #__VA_ARGS__)) return; \
 }
 
 #define ASSERT2_EQ(expected, result)                \
@@ -37,13 +37,13 @@ namespace test2 {
 
 #define PASS()              \
 {                           \
-    assert(true, "[pass]"); \
+    fassert(true, "[pass]"); \
     return;                 \
 }
 
 #define FAIL()                  \
 {                               \
-    assert(false, "[fail]");    \
+    fassert(false, "[fail]");    \
     return;                     \
 }
 
@@ -86,7 +86,7 @@ protected:
     virtual void after_all();
     virtual void before_each();
     virtual void after_each();
-    bool assert(bool expression, std::string details);
+    bool fassert(bool expression, std::string details);
 
     template<typename T>
     bool assert_eq(T expected, T result) {
@@ -97,7 +97,7 @@ protected:
             ss << "Expected:\n\t" << expected << "\n\tResult:\n\t" << result;
             details = ss.str();
         }
-        return assert(eq, details);
+        return fassert(eq, details);
     }
 
     template<typename T>
@@ -157,7 +157,7 @@ protected:
         }
         #undef WRITE_RESULT_ELEMENT
         #undef WRITE_EXPECTED_ELEMENT
-        return assert(eq, details);
+        return fassert(eq, details);
     }
     std::string current_test_name = "!no test!";
 private:

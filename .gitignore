@@ -1,2 +1,8 @@
 build/
 .vscode/
+
+include/SDL2/*
+!include/SDL2/README
+
+lib/SDL2/*
+!lib/SDL2/README

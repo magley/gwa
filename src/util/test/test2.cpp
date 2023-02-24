@@ -9,7 +9,7 @@ void Test2::run() {
     report();
 }
 
-bool Test2::assert(bool expression, std::string details) {
+bool Test2::fassert(bool expression, std::string details) {
     const Test2Data result = Test2Data(current_test_name, expression, details);
     for (auto& res : results) {
         if (res.name == current_test_name) {
