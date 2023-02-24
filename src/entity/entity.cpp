@@ -65,19 +65,19 @@ EntityRef EntityManager::get_ref(EntityRefID ref) {
     return *(it->second);
 }
 
-void EntityManager::add(EntityID id, uint64_t components) {
+void EntityManager::add(EntityID id, ComponentBit components) {
     entity[id]->c |= components;
 }
 
-void EntityManager::rem(EntityID id, uint64_t components) {
+void EntityManager::rem(EntityID id, ComponentBit components) {
     entity[id]->c = entity[id]->c & ~components;
 }
 
-bool EntityManager::has(EntityID id, uint64_t components) {
+bool EntityManager::has(EntityID id, ComponentBit components) {
     return (entity[id]->c & components) == components;
 }
 
-std::vector<EntityID> EntityManager::get_all(uint64_t components) {
+std::vector<EntityID> EntityManager::get_all(ComponentBit components) {
     std::vector<EntityID> result;
     for (Entity* e : entity) {
         if (destroyed(e->id)) {
@@ -109,6 +109,10 @@ body_c* EntityManager::body(EntityID id) const {
 
 phys_c* EntityManager::phys(EntityID id) const {
     return &entity[id]->phys;
+}
+
+cld_c* EntityManager::cld(EntityID id) const {
+    return &entity[id]->cld;
 }
 
 //-----------------------------------------------------------------------------

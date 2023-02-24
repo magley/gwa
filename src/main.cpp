@@ -71,6 +71,8 @@ int main(int argc, char** argv) {
     EntityID e1 = em.create();
     body_c* b = em.body(e1);
 
+    printf("%d\n", sizeof(Entity));
+
     while (is_running) {
         while (SDL_PollEvent(&event) == 1) {
             if (event.type == SDL_QUIT) {

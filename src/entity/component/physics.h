@@ -1,8 +1,8 @@
 #pragma once
 
-#include "util/fixed/fp.h"
+#include "util/geometry/vec2.h"
 
 struct phys_c {
-    fp6 vx, vy;
+    vec2 v;
     fp6 angvel;
 };
