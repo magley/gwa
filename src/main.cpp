@@ -53,9 +53,9 @@ int main(int argc, char** argv) {
     }
 
     SDL_Renderer* sdl_renderer = SDL_CreateRenderer(win, 
-                                            -1, 
-                                            SDL_RENDERER_ACCELERATED | 
-                                            SDL_RENDERER_PRESENTVSYNC);
+                                                    -1, 
+                                                    SDL_RENDERER_ACCELERATED | 
+                                                    SDL_RENDERER_PRESENTVSYNC);
     if (sdl_renderer == NULL) {
         handle_sdl_error();
     }
