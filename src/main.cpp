@@ -60,17 +60,16 @@ int main(int argc, char** argv) {
         handle_sdl_error();
     }
     SDL_RenderSetLogicalSize(sdl_renderer, view_w, view_h);
-
-    Input input;
-    Renderer rend = Renderer(sdl_renderer);
-
-    Texture tex = Texture(sdl_renderer, "../res/img.png");
-
-    EntityManager em;
-    EntityID e = em.add();
-    transform_c* t = em.transform(e);
     SDL_Event event;
     bool is_running = true;
+
+    Input input;
+    Texture tex = Texture(sdl_renderer, "../res/img.png");
+    Renderer rend = Renderer(sdl_renderer);
+    EntityManager em;
+
+    EntityID e1 = em.create();
+    body_c* b = em.body(e1);
 
     while (is_running) {
         while (SDL_PollEvent(&event) == 1) {
@@ -81,17 +80,18 @@ int main(int argc, char** argv) {
 
         input.update();
 
-        t->angle += 6.0f;
+        em.cleanup();
 
-        t->x += (input.down(SDL_SCANCODE_RIGHT) - input.down(SDL_SCANCODE_LEFT)) * 3;
-        t->y += (input.down(SDL_SCANCODE_DOWN) - input.down(SDL_SCANCODE_UP)) * 3;
+        b->ang += 5;
+        b->x += (input.down(SDL_SCANCODE_RIGHT) - input.down(SDL_SCANCODE_LEFT)) * 3;
+        b->y += (input.down(SDL_SCANCODE_DOWN) - input.down(SDL_SCANCODE_UP)) * 3;
 
         status = rend.clear(128, 128, 128);
         if (status != 0) {
             handle_sdl_error();
         }
 
-        rend.draw_ext(tex, (float)t->x, (float)t->y, (float)t->angle, true, false, 1, 1, 18, 24);
+        rend.draw_ext(tex, (float)b->x, (float)b->y, (float)b->ang, true, false, 1, 1, 18, 24);
 
         rend.flip();
     }

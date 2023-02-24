@@ -2,159 +2,103 @@
 #include <assert.h>
 #include <cstring>
 
-//-----------------------------------------------------------------------------
-// Entity
-//-----------------------------------------------------------------------------
-
-void Entity::add(int component) { 
-    c[component] = true; 
-}
-
-void Entity::rem(int component) { 
-    c[component] = false; 
-}
-
-bool Entity::get(int component) const { 
-    return c[component]; 
-}
-
-void Entity::reset_component_flags() { 
-    memset(c, false, count_COMPONENT); 
+EntityManager::EntityManager() {
+    // NOTE: First element is always there. Never used because of ENTITY_NULL.
+    create();
 }
 
 //-----------------------------------------------------------------------------
-// EntityManager
+// High-level methods. For external use.
 //-----------------------------------------------------------------------------
 
-#define UNDERSCORE(a, b) a ## _ ## b
-#define INIT(cname)                                             \
-{                                                               \
-    e->cname = new UNDERSCORE(cname, c)();                      \
-}
-#define GET(cname)                                                \
-UNDERSCORE(cname, c)* EntityManager::cname(const EntityID& id) {  \
-    return entity[id]->cname;                                     \
-}
-
-GET(transform);
-GET(physics);
-
-void EntityManager::init_components(Entity* e) {
-    INIT(transform);
-    INIT(physics);
-}
-
-EntityID EntityManager::add() {
+EntityID EntityManager::create() {
     Entity* e;
-
-    const EntityID free_id = get_empty_id();
-    if (free_id == -1) {
+    
+    if (entity_slots.empty()) {
         e = new Entity();
         e->id = entity.size();
+
         entity.push_back(e);
-        init_components(e);
+
     } else {
-        e = entity[free_id];
-        e->reset_component_flags();
-        e->del = 0;
+        e = entity[entity_slots.front()];
+        entity_slots.pop();
+        set_destroy_flag(e, ALIVE);
     }
 
     return e->id;
 }
 
-EntityID EntityManager::get_empty_id() {
-    if (empty_ids.empty()) {
-        return -1;
-    }
-    EntityID id = empty_ids.front();
-    empty_ids.pop();
-    return id;
+void EntityManager::destroy(EntityID id) {
+    set_destroy_flag(entity[id], TO_DESTROY);
 }
 
-EntityRefID EntityManager::make_ref(const EntityID& e) {
-    EntityRef* ref = new EntityRef();
-
-    if (e == -1) {
-        ref->entity = e;
-        ref->id = ref_cnt++;
-        ref->valid = false;
-    } else {
-        ref->entity = e;
-        ref->id = ref_cnt++;
-        ref->valid = true;
-    }
-
-    refs.push_back(ref);
-    return ref->id;
+bool EntityManager::destroyed(EntityID id) {
+    return !has_destroy_flag(entity[id], ALIVE);
 }
 
-EntityRef EntityManager::get_ref(const EntityRefID& refid) {
-    EntityRef d;
+void EntityManager::add(EntityID id, uint64_t components) {
+    entity[id]->c |= components;
+}
 
-    for (int i = 0; i < refs.size(); i++) {
-        if (refs[i]->id == refid) {
-            return *refs[i];
+void EntityManager::rem(EntityID id, uint64_t components) {
+    entity[id]->c = entity[id]->c & ~components;
+}
+
+bool EntityManager::has(EntityID id, uint64_t components) {
+    return (entity[id]->c & components) == components;
+}
+
+std::vector<EntityID> EntityManager::get_all(uint64_t components) {
+    std::vector<EntityID> result;
+    for (Entity* e : entity) {
+        if ((e->c & components) == components) {
+            result.push_back(e->id);
         }
     }
-
-    d.valid = false;
-    return d;
+    return result;
 }
 
 void EntityManager::cleanup() {
-    // "Delete" all entities marked for deletion.
-    for (int i = 0; i < entity.size(); i++) {
-        if (entity[i]->del == 1) {
-            entity[i]->del = 2;
-            empty_ids.push(i);
+    for (uint32_t i = 0; i < entity.size(); i++) {
+        if (has_destroy_flag(entity[i], TO_DESTROY)) {
+            set_destroy_flag(entity[i], DESTROYED);
+            entity_slots.push(i);
         }
     }
-
-    // Invalidate references whose pointing entities are deleted.
-    std::vector<EntityRef*> new_refs;
-    for (int i = 0; i < refs.size(); i++) {
-        if (refs[i]->entity == -1) {
-            refs[i]->valid = false;
-            delete refs[i];             
-        } else if (entity[refs[i]->entity]->del == 2) {
-            refs[i]->valid = false;
-            delete refs[i];
-        } else {
-            new_refs.push_back(refs[i]);
-        }
-    }
-
-    refs = new_refs;
 }
 
-void EntityManager::rem(const EntityID& id) {
-    assert(id < entity.size());
-    if (!entity[id]->del) {
-        entity[id]->del = 1;
-    }
+//-----------------------------------------------------------------------------
+// Component methods.
+//-----------------------------------------------------------------------------
+
+body_c* EntityManager::body(EntityID id) const {
+    return &entity[id]->body;
 }
 
-bool EntityManager::is_rem(const EntityID& id) const {
-    assert(id < entity.size());
-    return entity[id]->del > 0;
+phys_c* EntityManager::phys(EntityID id) const {
+    return &entity[id]->phys;
 }
 
-void EntityManager::add_c(const EntityID& id, int c) const {
-    assert(id < entity.size());
-    entity[id]->add(c);
+//-----------------------------------------------------------------------------
+// Low-level methods. For internal use.
+//-----------------------------------------------------------------------------
+
+#define RIGHTMOST_0(n) (((~0 >> n) << n))
+#define RIGHTMOST_1(n) ~RIGHTMOST_0(n)
+
+void EntityManager::set_destroy_flag(Entity* e, uint32_t destroy_flag) {
+    uint32_t f = e->flags;
+    f &= RIGHTMOST_0(2);
+    f |= destroy_flag;
+    e->flags = f;
 }
 
-void EntityManager::rem_c(const EntityID& id, int c) const {
-    assert(id < entity.size());
-    entity[id]->rem(c);
+bool EntityManager::has_destroy_flag(Entity* e, uint32_t destroy_flag) {
+    uint32_t f = e->flags; 
+    f &= RIGHTMOST_1(2);
+    return f == destroy_flag;
 }
 
-bool EntityManager::get_c(const EntityID& id, int c) const {
-    assert(id < entity.size());
-    return entity[id]->get(c);
-}
-
-
-#undef GET
-#undef INIT
-#undef UNDERSCORE
+#undef RIGHTMOST_1
+#undef RIGHTMOST_0

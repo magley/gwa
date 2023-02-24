@@ -4,64 +4,45 @@
 #include <queue>
 #include "component/EVERYTHING.h"
 
-#define UNDERSCORE(a, b) a ## _ ## b
-#define EM_GET(cname) UNDERSCORE(cname, c)* cname(const EntityID& id);
-#define E_DECL(cname) UNDERSCORE(cname, c)* cname;
+using EntityID = uint32_t;
+#define ENTITY_NULL 0
 
-enum {
-    TRANSFORM,
-    PHYS,
-    count_COMPONENT,
+enum : uint64_t {
+    PHYS = 1
 };
 
-using EntityID = uint32_t;
-using EntityRefID = uint32_t;
-
-struct EntityRef {
-    EntityRefID id;
-    EntityID entity;
-    bool valid;
+enum : uint32_t {
+    ALIVE = 0,
+    TO_DESTROY = 1,
+    DESTROYED = 2,
 };
 
 struct Entity {
-    E_DECL(transform);
-    E_DECL(physics);
-
     EntityID id;
-    int del = 0;
-    bool c[count_COMPONENT] = {false};
+    uint64_t c;
+    uint32_t flags;
 
-    void add(int component);
-    void rem(int component);
-    bool get(int component) const;
-    void reset_component_flags();
+    body_c body; // Always present.
+    phys_c phys;
 };
 
-class EntityManager {
-    std::queue<EntityID> empty_ids;
+struct EntityManager {
+    std::queue<uint32_t> entity_slots;
     std::vector<Entity*> entity;
-    std::vector<EntityRef*> refs;
-    EntityRefID ref_cnt = 0;
-public:
-    EntityID add();
-    EntityRefID make_ref(const EntityID& e);
-    EntityRef get_ref(const EntityRefID& refid);
+
+    EntityManager();
+    EntityID create();
+    void destroy(EntityID id);
+    bool destroyed(EntityID id);
+    void add(EntityID id, uint64_t components);
+    void rem(EntityID id, uint64_t components);
+    bool has(EntityID id, uint64_t components);
+    std::vector<EntityID> get_all(uint64_t components);
     void cleanup();
 
-    void rem(const EntityID& id);
-    bool is_rem(const EntityID& id) const;
-    void add_c(const EntityID& id, int c) const;
-    void rem_c(const EntityID& id, int c) const;
-    bool get_c(const EntityID& id, int c) const;
+    body_c* body(EntityID id) const;
+    phys_c* phys(EntityID id) const;
 
-    EM_GET(transform);
-    EM_GET(physics);
-
-    int count() const { return entity.size(); }
-private:
-    EntityID get_empty_id();
-    void init_components(Entity* e);
+    void set_destroy_flag(Entity* e, uint32_t destroy_flag);
+    bool has_destroy_flag(Entity* e, uint32_t destroy_flag);
 };
-
-#undef GET
-#undef UNDERSCORE
