@@ -3,6 +3,9 @@
 #include <SDL2/SDL_image.h>
 #include <SDL2/SDL_render.h>
 
+#include "util/geometry/bbox.h"
+#include "util/geometry/vec2.h"
+
 //-----------------------------------------------------------------------------
 // Texture
 //-----------------------------------------------------------------------------
@@ -90,4 +93,19 @@ void Renderer::draw_ext(
 
     SDL_RenderCopyExF(rend, tex.texture, &src_rect, &dest_rect, ang, NULL, 
                       (SDL_RendererFlip )flip);
+}
+
+void Renderer::draw_rect(float x, float y, float w, float h) const {
+    SDL_FRect r;
+    r.x = x;
+    r.y = y;
+    r.w = w;
+    r.h = h;
+    SDL_SetRenderDrawColor(rend, 255, 0, 0, 255);
+    SDL_RenderDrawRectF(rend, &r);
+}
+
+void Renderer::draw_rect(const BBox& bbox) const {
+    const vec2 sz = bbox.size();
+    draw_rect((float)bbox.l, (float)bbox.u, (float)sz.x, (float)sz.y);
 }

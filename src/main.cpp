@@ -69,9 +69,12 @@ int main(int argc, char** argv) {
     EntityManager em;
 
     EntityID e1 = em.create();
+    em.add(e1, PHYS | CLD);
     body_c* b = em.body(e1);
+    phys_c* p = em.phys(e1);
+    cld_c* c = em.cld(e1);
 
-    printf("%d\n", sizeof(Entity));
+    c->bbox = BBox::from(vec2(), vec2(64, 32));
 
     while (is_running) {
         while (SDL_PollEvent(&event) == 1) {
@@ -84,7 +87,6 @@ int main(int argc, char** argv) {
 
         em.cleanup();
 
-        b->ang += 5;
         b->x += (input.down(SDL_SCANCODE_RIGHT) - input.down(SDL_SCANCODE_LEFT)) * 3;
         b->y += (input.down(SDL_SCANCODE_DOWN) - input.down(SDL_SCANCODE_UP)) * 3;
 
@@ -93,6 +95,7 @@ int main(int argc, char** argv) {
             handle_sdl_error();
         }
 
+        rend.draw_rect(c->bbox + vec2(b->x, b->y));
         rend.draw_ext(tex, (float)b->x, (float)b->y, (float)b->ang, true, false, 1, 1, 18, 24);
 
         rend.flip();

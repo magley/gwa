@@ -10,7 +10,7 @@ using EntityRefID = uint32_t;
 using ComponentBit = uint32_t;
 #define ENTITY_NULL 0
 
-enum : uint64_t {
+enum : ComponentBit {
     PHYS = 0b0001,
     CLD  = 0b0010,
 };
@@ -66,5 +66,4 @@ struct EntityManager {
     void deal_with_entities_marked_for_destruction();
     uint32_t invalidate_refs_to_destroyed_entities();
     void remove_invalid_refs();
-
 };

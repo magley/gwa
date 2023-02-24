@@ -50,17 +50,17 @@ vec2 BBox::size() const {
 
 BBox BBox::operator+(const vec2& v) const {
     BBox bbox = *this;
-    bbox.l -= v.x;
+    bbox.l += v.x;
     bbox.r += v.x;
-    bbox.u -= v.y;
+    bbox.u += v.y;
     bbox.d += v.y;
     return bbox;
 }
     
 BBox& BBox::operator+=(const vec2& v) {
-    l -= v.x;
+    l += v.x;
     r += v.x;
-    u -= v.y;
+    u += v.y;
     d += v.y;
     return *this;
 }
