@@ -73,9 +73,10 @@ int main(int argc, char** argv) {
     //
 
     EntityID e1 = em.create();
-    em.add(e1, CLD);
+    em.add(e1, CLD | PHYS);
     body_c* b = em.body(e1);
     cld_c* c = em.cld(e1);
+    phys_c* p = em.phys(e1);
     c->bbox = BBox::from(vec2(), vec2(64, 32));
 
     EntityID e2 = em.create();
@@ -97,19 +98,28 @@ int main(int argc, char** argv) {
 
         input.update();
 
+        if (input.press(SDL_SCANCODE_ESCAPE)) {
+            is_running = false;
+        }
+
         em.cleanup();
 
         //---------------------------------------------------------------------
         //
         //
-    
+
+        p->v.x = (input.down(SDL_SCANCODE_RIGHT) - input.down(SDL_SCANCODE_LEFT));
+        p->v.y = (input.down(SDL_SCANCODE_DOWN) - input.down(SDL_SCANCODE_UP));
+
         for (EntityID e : em.get_all(CLD)) {
             cld_c* cld = em.cld(e);
             cld->build_other(em, e);
         }
 
-        b->p.x += (input.down(SDL_SCANCODE_RIGHT) - input.down(SDL_SCANCODE_LEFT)) * 3;
-        b->p.y += (input.down(SDL_SCANCODE_DOWN) - input.down(SDL_SCANCODE_UP)) * 3;
+        for (EntityID e : em.get_all(PHYS)) {
+            phys_c* phys = em.phys(e);
+            phys->move(em, e);
+        }
 
         //
         //
