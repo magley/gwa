@@ -30,6 +30,14 @@ BBox BBox::from(const vec2& pos, const vec2& size) {
     return b;
 }
 
+bool BBox::cld_h_exc(const BBox& other) const {
+    return (l < other.r && r > other.l);
+}
+
+bool BBox::cld_v_exc(const BBox& other) const {
+    return (u < other.d && d > other.u);
+}
+
 bool BBox::cld_h(const BBox& other) const {
     return (l <= other.r && r >= other.l);
 }

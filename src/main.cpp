@@ -77,16 +77,29 @@ int main(int argc, char** argv) {
     body_c* b = em.body(e1);
     cld_c* c = em.cld(e1);
     phys_c* p = em.phys(e1);
-    b->p = vec2(128, 0);
-    c->bbox = BBox::from(vec2(), vec2(64, 32));
+    b->p = vec2(128, 32);
+    p->flags |= phys_c::CLD_SOLID;
+    c->bbox = BBox::from(vec2(), vec2(16, 32));
 
     EntityID e2 = em.create();
-    em.add(e2, CLD);
+    em.add(e2, CLD | PHYS);
     body_c* b2 = em.body(e2);
     cld_c* c2 = em.cld(e2);
+    phys_c* p2 = em.phys(e2);
     b2->p = vec2(128, 128);
     c2->flags = cld_c::SOLID;
-    c2->bbox = BBox::from(vec2(), vec2(15, 27));
+    c2->bbox = BBox::from(vec2(), vec2(64, 64));
+
+    EntityID e3 = em.create();
+    em.add(e3, CLD | PHYS);
+    body_c* b3 = em.body(e3);
+    cld_c* c3 = em.cld(e3);
+    phys_c* p3 = em.phys(e3);
+    b3->p = vec2(192, 128);
+    c3->flags = cld_c::SOLID;
+    c3->bbox = BBox::from(vec2(), vec2(64, 64));
+
+    fp6 move_em = 0;
 
     //
     //
@@ -111,17 +124,31 @@ int main(int argc, char** argv) {
         //
         //
 
+        if (input.press(SDL_SCANCODE_SPACE)) {
+            move_em += 1;
+            if (move_em > 1) {
+                move_em = -1;
+            }
+        }
+
+        p2->v.y = -0.2 * move_em;
+        p3->v.y = -0.25 * move_em;
+        p2->v.x = -0.3 * move_em;
+        p3->v.x = -0.127 * move_em;
+        
         p->v.x = (input.down(SDL_SCANCODE_RIGHT) - input.down(SDL_SCANCODE_LEFT)) * (input.down(SDL_SCANCODE_Z) ? 2.5f : 1);
         p->v.y = (input.down(SDL_SCANCODE_DOWN) - input.down(SDL_SCANCODE_UP)) * (input.down(SDL_SCANCODE_Z) ? 2.5f : 1);
 
-        for (EntityID e : em.get_all(CLD)) {
+        for (EntityID e : em.get_all(CLD | PHYS)) {
             cld_c* cld = em.cld(e);
             cld->build_other(em, e);
         }
 
         for (EntityID e : em.get_all(PHYS)) {
             phys_c* phys = em.phys(e);
-            phys->cld_solid(em, e);
+            if ((phys->flags & phys_c::CLD_SOLID) == phys_c::CLD_SOLID) {
+                phys->cld_solid(em, e);
+            }
         }
 
         for (EntityID e : em.get_all(PHYS)) {
@@ -133,7 +160,7 @@ int main(int argc, char** argv) {
         //
         //---------------------------------------------------------------------
 
-        status = rend.clear(128, 128, 128);
+        status = rend.clear(96, 96, 96);
         if (status != 0) {
             handle_sdl_error();
         }
@@ -150,9 +177,8 @@ int main(int argc, char** argv) {
                 if (cld->other.size() == 0) {
                     rend.draw_rect(cld->bbox + body->p, {180, 180, 180, 255});
                 } else {
-                    rend.draw_rect(cld->bbox + body->p, {255, 0, 0, 255});
-                }
-                
+                    rend.draw_rect(cld->bbox + body->p, {80, 196, 170, 255});
+                }   
             }
         }
 
