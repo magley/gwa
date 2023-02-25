@@ -77,12 +77,15 @@ int main(int argc, char** argv) {
     body_c* b = em.body(e1);
     cld_c* c = em.cld(e1);
     phys_c* p = em.phys(e1);
+    b->p = vec2(128, 0);
     c->bbox = BBox::from(vec2(), vec2(64, 32));
 
     EntityID e2 = em.create();
     em.add(e2, CLD);
     body_c* b2 = em.body(e2);
     cld_c* c2 = em.cld(e2);
+    b2->p = vec2(128, 128);
+    c2->flags = cld_c::SOLID;
     c2->bbox = BBox::from(vec2(), vec2(15, 27));
 
     //
@@ -108,12 +111,17 @@ int main(int argc, char** argv) {
         //
         //
 
-        p->v.x = (input.down(SDL_SCANCODE_RIGHT) - input.down(SDL_SCANCODE_LEFT));
-        p->v.y = (input.down(SDL_SCANCODE_DOWN) - input.down(SDL_SCANCODE_UP));
+        p->v.x = (input.down(SDL_SCANCODE_RIGHT) - input.down(SDL_SCANCODE_LEFT)) * (input.down(SDL_SCANCODE_Z) ? 2.5f : 1);
+        p->v.y = (input.down(SDL_SCANCODE_DOWN) - input.down(SDL_SCANCODE_UP)) * (input.down(SDL_SCANCODE_Z) ? 2.5f : 1);
 
         for (EntityID e : em.get_all(CLD)) {
             cld_c* cld = em.cld(e);
             cld->build_other(em, e);
+        }
+
+        for (EntityID e : em.get_all(PHYS)) {
+            phys_c* phys = em.phys(e);
+            phys->cld_solid(em, e);
         }
 
         for (EntityID e : em.get_all(PHYS)) {
@@ -147,8 +155,6 @@ int main(int argc, char** argv) {
                 
             }
         }
-        rend.draw_ext(tex, (float)b->p.x, (float)b->p.y, (float)b->ang, true, false, 1, 1, 18, 24);
-
 
         //
         //

@@ -1,6 +1,10 @@
 #include "collider.h"
 #include "entity/entity.h"
 
+void cld_c::solve(fp6 curr, fp6 desired, fp6* in) const {
+    *in += desired - curr;
+}
+
 void cld_c::build_other(EntityManager& em, EntityID self) {
     other.clear();
 

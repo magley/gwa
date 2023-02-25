@@ -8,4 +8,7 @@ struct phys_c {
     fp6 angvel;
 
     void move(EntityManager& em, EntityID self);
+    void cld_solid(EntityManager& em, EntityID self);
+
+    
 };
