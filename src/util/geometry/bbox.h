@@ -20,4 +20,5 @@ struct BBox {
 
     BBox operator+(const vec2& v) const;
     BBox& operator+=(const vec2& v);
+    BBox exp(const vec2& v) const;
 };

@@ -13,6 +13,14 @@ fp6::fp6(long long i) : _v(i << _FP_N) {}
 fp6::fp6(float i) : _v(roundf(i * (1 << _FP_N))) {}
 fp6::fp6(double i) : _v(round(i * (1 << _FP_N))) {}
 fp6::fp6(const fp6& i) : _v(i._v) {}
+
+fp6 fp6::abs() const {
+    if (_v < 0) {
+        return raw(-_v);
+    }
+    return *this;
+}
+
 inline fp6 fp6::raw(int raw_val) {
     fp6 r;
     r._v = raw_val;

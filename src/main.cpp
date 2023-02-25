@@ -68,13 +68,25 @@ int main(int argc, char** argv) {
     Renderer rend = Renderer(sdl_renderer);
     EntityManager em;
 
-    EntityID e1 = em.create();
-    em.add(e1, PHYS | CLD);
-    body_c* b = em.body(e1);
-    phys_c* p = em.phys(e1);
-    cld_c* c = em.cld(e1);
+    //-------------------------------------------------------------------------
+    //
+    //
 
+    EntityID e1 = em.create();
+    em.add(e1, CLD);
+    body_c* b = em.body(e1);
+    cld_c* c = em.cld(e1);
     c->bbox = BBox::from(vec2(), vec2(64, 32));
+
+    EntityID e2 = em.create();
+    em.add(e2, CLD);
+    body_c* b2 = em.body(e2);
+    cld_c* c2 = em.cld(e2);
+    c2->bbox = BBox::from(vec2(), vec2(15, 27));
+
+    //
+    //
+    //-------------------------------------------------------------------------
 
     while (is_running) {
         while (SDL_PollEvent(&event) == 1) {
@@ -87,16 +99,50 @@ int main(int argc, char** argv) {
 
         em.cleanup();
 
-        b->x += (input.down(SDL_SCANCODE_RIGHT) - input.down(SDL_SCANCODE_LEFT)) * 3;
-        b->y += (input.down(SDL_SCANCODE_DOWN) - input.down(SDL_SCANCODE_UP)) * 3;
+        //---------------------------------------------------------------------
+        //
+        //
+    
+        for (EntityID e : em.get_all(CLD)) {
+            cld_c* cld = em.cld(e);
+            cld->build_other(em, e);
+        }
+
+        b->p.x += (input.down(SDL_SCANCODE_RIGHT) - input.down(SDL_SCANCODE_LEFT)) * 3;
+        b->p.y += (input.down(SDL_SCANCODE_DOWN) - input.down(SDL_SCANCODE_UP)) * 3;
+
+        //
+        //
+        //---------------------------------------------------------------------
 
         status = rend.clear(128, 128, 128);
         if (status != 0) {
             handle_sdl_error();
         }
 
-        rend.draw_rect(c->bbox + vec2(b->x, b->y));
-        rend.draw_ext(tex, (float)b->x, (float)b->y, (float)b->ang, true, false, 1, 1, 18, 24);
+        //---------------------------------------------------------------------
+        //
+        //
+
+        for (EntityID e : em.get_all(0)) {
+            if (em.has(e, CLD)) {
+                body_c* body = em.body(e);
+                cld_c* cld = em.cld(e);
+
+                if (cld->other.size() == 0) {
+                    rend.draw_rect(cld->bbox + body->p, {180, 180, 180, 255});
+                } else {
+                    rend.draw_rect(cld->bbox + body->p, {255, 0, 0, 255});
+                }
+                
+            }
+        }
+        rend.draw_ext(tex, (float)b->p.x, (float)b->p.y, (float)b->ang, true, false, 1, 1, 18, 24);
+
+
+        //
+        //
+        //---------------------------------------------------------------------
 
         rend.flip();
     }

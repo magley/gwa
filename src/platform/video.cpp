@@ -101,11 +101,11 @@ void Renderer::draw_rect(float x, float y, float w, float h) const {
     r.y = y;
     r.w = w;
     r.h = h;
-    SDL_SetRenderDrawColor(rend, 255, 0, 0, 255);
     SDL_RenderDrawRectF(rend, &r);
 }
 
-void Renderer::draw_rect(const BBox& bbox) const {
+void Renderer::draw_rect(const BBox& bbox, SDL_Color col) const {
     const vec2 sz = bbox.size();
+    SDL_SetRenderDrawColor(rend, col.r, col.g, col.b, col.a);
     draw_rect((float)bbox.l, (float)bbox.u, (float)sz.x, (float)sz.y);
 }

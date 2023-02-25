@@ -31,13 +31,11 @@ BBox BBox::from(const vec2& pos, const vec2& size) {
 }
 
 bool BBox::cld_h(const BBox& other) const {
-    return (l >= other.l && l <= other.r)
-    || (r >= other.l && r <= other.r);
+    return (l <= other.r && r >= other.l);
 }
 
 bool BBox::cld_v(const BBox& other) const {
-    return (u >= other.u && u <= other.d)
-    || (d >= other.u && d <= other.d);
+    return (u <= other.d && d >= other.u);
 }
 
 bool BBox::cld(const BBox& other) const {
@@ -63,4 +61,13 @@ BBox& BBox::operator+=(const vec2& v) {
     u += v.y;
     d += v.y;
     return *this;
+}
+
+BBox BBox::exp(const vec2& v) const {
+    BBox bbox = *this;
+    bbox.l -= v.x;
+    bbox.r += v.x;
+    bbox.u -= v.y;
+    bbox.d += v.y;
+    return bbox;
 }

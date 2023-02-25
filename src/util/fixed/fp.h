@@ -18,6 +18,7 @@ public:
     fp6(double i);
     fp6(const fp6& i);
     inline static fp6 raw(int raw_val);
+    fp6 abs() const;
 
     friend std::ostream& operator<<(std::ostream& other, const fp6& p);
     friend std::istream& operator>>(std::istream& other, fp6& p);

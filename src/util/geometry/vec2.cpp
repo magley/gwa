@@ -12,6 +12,10 @@ vec2::vec2() {
 
 }
 
+vec2 vec2::abs() const {
+    return vec2(x.abs(), y.abs());
+}
+
 bool vec2::operator==(const vec2& v) const {
     return x == v.x && y == v.y;
 }

@@ -5,10 +5,7 @@
 #include "component/EVERYTHING.h"
 #include <unordered_map>
 
-using EntityID = uint32_t;
-using EntityRefID = uint32_t;
-using ComponentBit = uint32_t;
-#define ENTITY_NULL 0
+#include "typedef.h"
 
 enum : ComponentBit {
     PHYS = 0b0001,

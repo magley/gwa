@@ -2,6 +2,7 @@
 
 struct SDL_Texture;
 struct SDL_Renderer;
+struct SDL_Color;
 
 struct BBox;
 
@@ -27,5 +28,5 @@ public:
                   bool flipx = false, bool flipy = false, int sx = 0, 
                   int sy = 0, int sw = -1, int sh = -1) const;
     void draw_rect(float x, float y, float w, float h) const;
-    void draw_rect(const BBox& bbox) const;
+    void draw_rect(const BBox& bbox, SDL_Color col) const;
 };
