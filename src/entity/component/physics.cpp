@@ -19,8 +19,7 @@ struct cld_bundle {
     EntityID other = ENTITY_NULL;
 
     cld_bundle(bool use_smaller): cmp_dir(use_smaller ? 1 : -1) {
-        val = use_smaller ? 1000000 : -1000000;
-        // TODO: What is the min/max value for FP?
+        val = use_smaller ? FP6_MAX : FP6_MIN;      
     }
 
     void send(fp6 newval, fp6 o_vel, EntityID o, vec2 o_vel_full) {
@@ -62,7 +61,7 @@ void phys_c::cld_solid(EntityManager& em, EntityID self) {
         const fp6 target_pos = obbox.u;
 
         const vec2 ov = em.has(o, PHYS) ? ophys->v : vec2(0, 0);
-        if (!(bbox + (v - ov)).cld_h_exc((obbox).exp(vec2(0, -1)))) {
+        if (!(bbox/* + (v - ov)*/).cld_h_exc((obbox).exp(vec2(0, -1)))) {
             continue;
         }
 
@@ -71,7 +70,7 @@ void phys_c::cld_solid(EntityManager& em, EntityID self) {
 
         if (
             bbox.d <= target_pos && (
-                (bbox.d + dv >= target_pos) ||
+                (dv >= 0 && bbox.d + dv >= target_pos) ||
                 (dv < 0 && ov.y > 0 && (bbox.d + dv - target_pos >= -dmov_sicky))
             )
         ) {
@@ -100,13 +99,13 @@ void phys_c::cld_solid(EntityManager& em, EntityID self) {
         const fp6 target_pos = obbox.d;
 
         const vec2 ov = em.has(o, PHYS) ? ophys->v : vec2(0, 0);
-        if (!(bbox + (v - ov)).cld_h_exc((obbox).exp(vec2(0, -1)))) {
+        if (!(bbox/* + (v - ov)*/).cld_h_exc((obbox).exp(vec2(0, -1)))) {
             continue;
         }
 
         const fp6 dv = v.y - ov.y;
 
-        if (bbox.u >= target_pos && bbox.u + dv <= target_pos) {
+        if (dv <= 0 && bbox.u >= target_pos && bbox.u + dv <= target_pos) {
             cb_d.send(target_pos, ov.y, o, ov);
         }
     }
@@ -138,7 +137,7 @@ void phys_c::cld_solid(EntityManager& em, EntityID self) {
 
         const fp6 dv = v.x - ov.x;
 
-        if (bbox.r <= target_pos && bbox.r + dv >= target_pos) {
+        if (dv >= 0 && bbox.r <= target_pos && bbox.r + dv >= target_pos) {
             cb_l.send(target_pos, ov.x, o, ov);
         }
     }
@@ -177,7 +176,7 @@ void phys_c::cld_solid(EntityManager& em, EntityID self) {
 
         const fp6 dv = v.x - ov.x;
 
-        if (bbox.l >= target_pos && bbox.l + dv <= target_pos) {
+        if (dv <= 0 && bbox.l >= target_pos && bbox.l + dv <= target_pos) {
             cb_r.send(target_pos, ov.x, o, ov);
         }
     }

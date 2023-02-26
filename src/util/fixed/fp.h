@@ -5,8 +5,12 @@
 
 #define _FP_N 6
 
+static constexpr int FP6_MAX = (1 << (32 - _FP_N - 1)) - 1;
+static constexpr int FP6_MIN = -(1 << (32 - _FP_N - 1)) + 1;
+
 class fp6 {
 public:
+    
     int32_t _v;
     fp6();
     fp6(char i);
@@ -19,6 +23,8 @@ public:
     fp6(const fp6& i);
     inline static fp6 raw(int raw_val);
     fp6 abs() const;
+    int sgn() const;
+    fp6 clamp(const fp6& mini, const fp6& maxi) const;
 
     friend std::ostream& operator<<(std::ostream& other, const fp6& p);
     friend std::istream& operator>>(std::istream& other, fp6& p);
@@ -303,3 +309,6 @@ fp6 operator^(int i, const fp6& f);
 int& operator&=(int& i, const fp6& f);
 int& operator|=(int& i, const fp6& f);
 int& operator^=(int& i, const fp6& f);
+
+fp6 min(const fp6& a, const fp6& b);
+fp6 max(const fp6& a, const fp6& b);
