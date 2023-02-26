@@ -4,13 +4,13 @@
     cld 0 0 32 16 0
 },
 {
-    body 192 128 0
+    body 192 96 0
     phys 0 0 0 0
-    cld 0 0 64 64 1
+    cld 0 0 32 32 1
 },
 {
     // Moving platform
-    body 96 148 0
-    phys 0.2 0.0 0 0
+    body 96 128 0
+    phys 0.2 -0.15 0 0
     cld 0 0 64 64 1
 },

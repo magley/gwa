@@ -16,7 +16,7 @@ void cld_c::build_other(EntityManager& em, EntityID self) {
         abs_vel = phys->v.abs();
     }
 
-    const BBox bbox_self = (bbox + body->p).exp(abs_vel);
+    const BBox bbox_self = (bbox + body->p).exp(abs_vel).exp(vec2(1, 1));
 
     for (EntityID e : em.get_all(CLD)) {
         cld_c* ocld = em.cld(e);
