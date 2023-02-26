@@ -10,9 +10,7 @@
 #include "platform/input.h"
 #include "platform/video.h"
 
-#include "entity/entity_test.hpp"
 #include "entity/entity.h"
-
 
 void print_err(const char* prefix, const char* msg, const char* suffix) {
     printf("\033[0;37m%s\033[0;31m%s\033[0;37m%s", prefix, msg, suffix);
@@ -37,9 +35,6 @@ string2 from_file(const char* file) {
 }
 
 int main(int argc, char** argv) {
-    Entity_Test et;
-    et.run();
-
     int status = SDL_Init(SDL_INIT_VIDEO);
     if (status != 0) {
         handle_sdl_error();

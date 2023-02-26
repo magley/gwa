@@ -135,7 +135,7 @@ void phys_c::cld_solid(EntityManager& em, EntityID self) {
             continue;
         }
 
-        const fp6 dv = v.x - ov.x;
+        const fp6 dv = v.x + im.x - ov.x;
 
         if (dv >= 0 && bbox.r <= target_pos && bbox.r + dv >= target_pos) {
             cb_l.send(target_pos, ov.x, o, ov);
