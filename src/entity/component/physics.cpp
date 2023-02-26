@@ -61,7 +61,7 @@ void phys_c::cld_solid(EntityManager& em, EntityID self) {
         const fp6 target_pos = obbox.u;
 
         const vec2 ov = em.has(o, PHYS) ? ophys->v : vec2(0, 0);
-        if (!(bbox/* + (v - ov)*/).cld_h_exc((obbox).exp(vec2(0, -1)))) {
+        if (!(bbox).cld_h_exc((obbox).exp(vec2(0, -1)))) {
             continue;
         }
 
@@ -99,7 +99,7 @@ void phys_c::cld_solid(EntityManager& em, EntityID self) {
         const fp6 target_pos = obbox.d;
 
         const vec2 ov = em.has(o, PHYS) ? ophys->v : vec2(0, 0);
-        if (!(bbox/* + (v - ov)*/).cld_h_exc((obbox).exp(vec2(0, -1)))) {
+        if (!(bbox).cld_h_exc((obbox).exp(vec2(0, -1)))) {
             continue;
         }
 

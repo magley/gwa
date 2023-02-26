@@ -1,6 +1,9 @@
 #include <assert.h>
 #include <stdio.h>
 #include <vector>
+#include <fstream>
+#include <sstream>
+#include "util/string/string2.h"
 
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_image.h>
@@ -25,6 +28,14 @@ void handle_sdl_error() {
     exit(1);
 }
 
+string2 from_file(const char* file) {
+    std::ifstream ff(file);
+    std::stringstream ss;
+    ss << ff.rdbuf();
+    string2 s = ss.str();
+    return s;
+}
+
 int main(int argc, char** argv) {
     Entity_Test et;
     et.run();
@@ -38,6 +49,8 @@ int main(int argc, char** argv) {
     if (status == 0) {
         handle_sdl_error();
     }
+
+
 
     const int view_w = 480;
     const int view_h = 360;
@@ -72,34 +85,12 @@ int main(int argc, char** argv) {
     //
     //
 
-    EntityID e1 = em.create();
-    em.add(e1, CLD | PHYS);
-    body_c* b = em.body(e1);
-    cld_c* c = em.cld(e1);
-    phys_c* p = em.phys(e1);
-    b->p = vec2(128, 32);
-    p->flags |= phys_c::CLD_SOLID;
-    c->bbox = BBox::from(vec2(), vec2(16, 32));
+    string2 data = from_file("../res/data1.txt");
+    em.load(data);
 
-    EntityID e2 = em.create();
-    em.add(e2, CLD | PHYS);
-    body_c* b2 = em.body(e2);
-    cld_c* c2 = em.cld(e2);
-    phys_c* p2 = em.phys(e2);
-    b2->p = vec2(128, 128);
-    c2->flags = cld_c::SOLID;
-    c2->bbox = BBox::from(vec2(), vec2(64, 64));
-
-    EntityID e3 = em.create();
-    em.add(e3, CLD | PHYS);
-    body_c* b3 = em.body(e3);
-    cld_c* c3 = em.cld(e3);
-    phys_c* p3 = em.phys(e3);
-    b3->p = vec2(192, 128);
-    c3->flags = cld_c::SOLID;
-    c3->bbox = BBox::from(vec2(), vec2(64, 64));
-
-    fp6 move_em = 0;
+    EntityID player = 0;
+    phys_c* p = em.phys(player);
+    body_c* b = em.body(player);
 
     //
     //
@@ -124,18 +115,6 @@ int main(int argc, char** argv) {
         //
         //
 
-        if (input.press(SDL_SCANCODE_SPACE)) {
-            move_em += 1;
-            if (move_em > 1) {
-                move_em = -1;
-            }
-        }
-
-        p2->v.y = -0.2 * move_em;
-        p3->v.y = -0.25 * move_em;
-        p2->v.x = -0.3 * move_em;
-        p3->v.x = -0.127 * move_em;
-        
         p->v.x = (input.down(SDL_SCANCODE_RIGHT) - input.down(SDL_SCANCODE_LEFT)) * (input.down(SDL_SCANCODE_Z) ? 2.5f : 1);
         p->v.y = (input.down(SDL_SCANCODE_DOWN) - input.down(SDL_SCANCODE_UP)) * (input.down(SDL_SCANCODE_Z) ? 2.5f : 1);
 

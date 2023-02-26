@@ -5,6 +5,8 @@
 #include "component/EVERYTHING.h"
 #include <unordered_map>
 
+struct string2;
+
 #include "typedef.h"
 
 enum : ComponentBit {
@@ -26,6 +28,9 @@ struct Entity {
     body_c body; // Always present.
     phys_c phys;
     cld_c  cld;
+
+    string2 save() const;
+    void load(const string2& s);
 };
 
 struct EntityRef {
@@ -63,4 +68,7 @@ struct EntityManager {
     void deal_with_entities_marked_for_destruction();
     uint32_t invalidate_refs_to_destroyed_entities();
     void remove_invalid_refs();
+
+    string2 save() const;
+    void load(const string2& s);
 };
