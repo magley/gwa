@@ -15,10 +15,8 @@ struct cld_c {
         SOLID_R = 0b1000, // right wall (my right)
         SOLID = 0b1111,
     };
-    
     uint8_t flags;
 
     void solve(fp6 curr, fp6 desired, fp6* in) const;
-
     void build_other(EntityManager& em, EntityID self);
 };

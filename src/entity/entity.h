@@ -10,8 +10,10 @@ struct string2;
 #include "typedef.h"
 
 enum : ComponentBit {
-    PHYS = 0b0001,
-    CLD  = 0b0010,
+    PHYS    = 0b0001,
+    CLD     = 0b0010,
+    ITEM    = 0b0100,
+    PLAYER  = 0b1000,
 };
 
 enum : uint32_t {
@@ -25,9 +27,11 @@ struct Entity {
     ComponentBit c;
     uint32_t flags;
 
-    body_c body; // Always present.
-    phys_c phys;
-    cld_c  cld;
+    body_c   body; // Always present.
+    phys_c   phys;
+    cld_c    cld;
+    item_c   item;
+    player_c player;
 
     string2 save() const;
     void load(const string2& s);
@@ -59,9 +63,11 @@ struct EntityManager {
     bool has(EntityID id, ComponentBit components);
     std::vector<EntityID> get_all(ComponentBit components);
 
-    body_c* body(EntityID id) const;
-    phys_c* phys(EntityID id) const;
-    cld_c*  cld(EntityID id) const;
+    body_c*   body(EntityID id) const;
+    phys_c*   phys(EntityID id) const;
+    cld_c*    cld(EntityID id) const;
+    item_c*   item(EntityID id) const;
+    player_c* player(EntityID id) const;
 
     void set_destroy_flag(Entity* e, uint32_t destroy_flag);
     bool has_destroy_flag(Entity* e, uint32_t destroy_flag);

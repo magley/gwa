@@ -60,4 +60,10 @@ void Entity::load(const string2& s) {
         cld.bbox = BBox::from(u, l, d, r);
         cld.flags = flags;
     }
+    if ((it = map.find("item")), it != map.end()) {
+        c |= ITEM;
+    }
+    if ((it = map.find("player")), it != map.end()) {
+        c |= PLAYER;
+    }
 }

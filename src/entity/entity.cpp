@@ -111,6 +111,14 @@ cld_c* EntityManager::cld(EntityID id) const {
     return &entity[id]->cld;
 }
 
+item_c* EntityManager::item(EntityID id) const {
+    return &entity[id]->item;
+}
+
+player_c* EntityManager::player(EntityID id) const {
+    return &entity[id]->player;
+}
+
 //-----------------------------------------------------------------------------
 // Low-level methods. For internal use.
 //-----------------------------------------------------------------------------

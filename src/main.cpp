@@ -132,6 +132,16 @@ int main(int argc, char** argv) {
             phys->move(em, e);
         }
 
+        for (EntityID e : em.get_all(PLAYER)) {
+            player_c* player = em.player(e);
+            player->collect_items(em, e);
+        }
+
+        for (EntityID e : em.get_all(ITEM)) {
+            item_c* item = em.item(e);
+            item->update(em, e);
+        }
+
         //
         //
         //---------------------------------------------------------------------

@@ -1,4 +1,5 @@
 #pragma once
+#include <stdint.h>
 
 using EntityID = uint32_t;
 using EntityRefID = uint32_t;
