@@ -33,8 +33,8 @@ struct Entity {
     item_c   item;
     player_c player;
 
-    string2 save() const;
-    void load(const string2& s);
+    string2 save(const EntityManager& em) const;
+    void load(EntityManager& em, const string2& s);
 };
 
 struct EntityRef {
@@ -60,7 +60,7 @@ struct EntityManager {
     int count() const;
     void add(EntityID id, ComponentBit components);
     void rem(EntityID id, ComponentBit components);
-    bool has(EntityID id, ComponentBit components);
+    bool has(EntityID id, ComponentBit components) const;
     std::vector<EntityID> get_all(ComponentBit components);
 
     body_c*   body(EntityID id) const;

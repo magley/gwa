@@ -35,6 +35,11 @@ string2 from_file(const char* file) {
     return s;
 }
 
+void to_file(const char* file, const string2& str) {
+    std::ofstream ff(file);
+    ff.write(str.c_str(), str.size());
+}
+
 int main(int argc, char** argv) {
     Entity_Test et;
     et.run();
@@ -88,6 +93,10 @@ int main(int argc, char** argv) {
     EntityID player = 0;
     phys_c* p = em.phys(player);
     body_c* b = em.body(player);
+
+    string2 data2 = em.save();
+    to_file("../res/data2.txt", data2);
+
 
     //
     //
@@ -146,7 +155,7 @@ int main(int argc, char** argv) {
         //
         //---------------------------------------------------------------------
 
-        status = rend.clear(96, 96, 96);
+        status = rend.clear(64, 64, 64);
         if (status != 0) {
             handle_sdl_error();
         }

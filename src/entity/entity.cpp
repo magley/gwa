@@ -69,7 +69,7 @@ void EntityManager::rem(EntityID id, ComponentBit components) {
     entity[id]->c = entity[id]->c & ~components;
 }
 
-bool EntityManager::has(EntityID id, ComponentBit components) {
+bool EntityManager::has(EntityID id, ComponentBit components) const {
     return (entity[id]->c & components) == components;
 }
 

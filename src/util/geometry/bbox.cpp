@@ -56,7 +56,7 @@ bool BBox::cld(const BBox& other) const {
 
 vec2 BBox::size() const {
     return vec2(r - l, d - u);
-}    
+}
 
 BBox BBox::operator+(const vec2& v) const {
     BBox bbox = *this;
@@ -66,7 +66,7 @@ BBox BBox::operator+(const vec2& v) const {
     bbox.d += v.y;
     return bbox;
 }
-    
+
 BBox& BBox::operator+=(const vec2& v) {
     l += v.x;
     r += v.x;
