@@ -19,20 +19,20 @@ class Entity_Test : public test2::Test2 {
         EntityID e1, e2, e3;
 
         e1 = em.create();
-        ASSERT2_EQ(1U, e1);
+        ASSERT2_EQ(0U, e1);
 
         em.destroy(e1);
         ASSERT2(em.destroyed(e1));
         ASSERT2_EQ(1, em.count());
 
         e2 = em.create();
-        ASSERT2_EQ(2U, e2);
+        ASSERT2_EQ(1U, e2);
 
         em.cleanup();
         ASSERT2_EQ(1, em.count());
 
         e3 = em.create();
-        ASSERT2_EQ(1U, e3);
+        ASSERT2_EQ(0U, e3);
         ASSERT2(!em.destroyed(e2));
         ASSERT2_EQ(2, em.count());
     }

@@ -3,10 +3,6 @@
 #include <cstring>
 
 EntityManager::EntityManager() {
-    // NOTE: First element is always there. Never used because of ENTITY_NULL.
-    EntityID eblank = create();
-    set_destroy_flag(entity[eblank], DESTROYED);
-    entity_count--;
 }
 
 //-----------------------------------------------------------------------------

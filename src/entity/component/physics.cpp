@@ -19,7 +19,7 @@ struct cld_bundle {
     EntityID other = ENTITY_NULL;
 
     cld_bundle(bool use_smaller): cmp_dir(use_smaller ? 1 : -1) {
-        val = use_smaller ? FP6_MAX : FP6_MIN;      
+        val = use_smaller ? FP6_MAX : FP6_MIN;
     }
 
     void send(fp6 newval, fp6 o_vel, EntityID o, vec2 o_vel_full) {
@@ -66,12 +66,12 @@ void phys_c::cld_solid(EntityManager& em, EntityID self) {
         }
 
         const fp6 dv = v.y - ov.y;
-        const fp6 dmov_sicky = 1.5;
+        const fp6 dp_sicky = 1.5;
 
         if (
             bbox.d <= target_pos && (
                 (dv >= 0 && bbox.d + dv >= target_pos) ||
-                (dv < 0 && ov.y > 0 && (bbox.d + dv - target_pos >= -dmov_sicky))
+                (dv < 0 && ov.y > 0 && (bbox.d + dv - target_pos >= -dp_sicky))
             )
         ) {
             cb_u.send(target_pos, ov.y, o, ov);
