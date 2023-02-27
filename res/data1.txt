@@ -6,7 +6,7 @@
 {
     body 192 96 0
     phys 0 0 0 0
-    cld 0 0 32 32 1
+    cld 0 0 32 32 15
 },
 {
     // Moving platform

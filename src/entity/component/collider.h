@@ -9,7 +9,11 @@ struct cld_c {
     std::vector<EntityID> other; // Others collided with during this frame.
     enum : uint8_t {
         NONE = 0b0000,
-        SOLID = 0b0001,
+        SOLID_F = 0b0001, // floor
+        SOLID_C = 0b0010, // ceiling
+        SOLID_L = 0b0100, // left wall (my left)
+        SOLID_R = 0b1000, // right wall (my right)
+        SOLID = 0b1111,
     };
     
     uint8_t flags;

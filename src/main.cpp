@@ -49,8 +49,6 @@ int main(int argc, char** argv) {
         handle_sdl_error();
     }
 
-
-
     const int view_w = 480;
     const int view_h = 360;
     const int win_w = view_w * 2;

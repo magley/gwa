@@ -10,8 +10,6 @@ string2 EntityManager::save() const {
 
 void EntityManager::load(const string2& s) {
     entity.clear();
-    // TODO: Instead of using a blank entity to shift all IDs by one, just have
-    // create() add +1, because this entity.clear() will mess things up.
 
     auto entity_parts = s.split_unless_between(",", {"{}"}, false);
     for (const auto& s : entity_parts) {

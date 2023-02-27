@@ -51,7 +51,7 @@ void phys_c::cld_solid(EntityManager& em, EntityID self) {
     bbox = cld->bbox + body->p;
     for (EntityID o : cld->other) {
         cld_c* ocld = em.cld(o);
-        if ((ocld->flags & cld_c::SOLID) != cld_c::SOLID) {
+        if ((ocld->flags & cld_c::SOLID_F) != cld_c::SOLID_F) {
             continue;
         }
 
@@ -89,7 +89,7 @@ void phys_c::cld_solid(EntityManager& em, EntityID self) {
     bbox = cld->bbox + body->p;
     for (EntityID o : cld->other) {
         cld_c* ocld = em.cld(o);
-        if ((ocld->flags & cld_c::SOLID) != cld_c::SOLID) {
+        if ((ocld->flags & cld_c::SOLID_C) != cld_c::SOLID_C) {
             continue;
         }
 
@@ -121,7 +121,7 @@ void phys_c::cld_solid(EntityManager& em, EntityID self) {
     bbox = cld->bbox + body->p;
     for (EntityID o : cld->other) {
         cld_c* ocld = em.cld(o);
-        if ((ocld->flags & cld_c::SOLID) != cld_c::SOLID) {
+        if ((ocld->flags & cld_c::SOLID_R) != cld_c::SOLID_R) {
             continue;
         }
 
@@ -160,7 +160,7 @@ void phys_c::cld_solid(EntityManager& em, EntityID self) {
     bbox = cld->bbox + body->p;
     for (EntityID o : cld->other) {
         cld_c* ocld = em.cld(o);
-        if ((ocld->flags & cld_c::SOLID) != cld_c::SOLID) {
+        if ((ocld->flags & cld_c::SOLID_L) != cld_c::SOLID_L) {
             continue;
         }
 
