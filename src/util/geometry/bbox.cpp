@@ -38,6 +38,10 @@ bool BBox::cld_v_exc(const BBox& other) const {
     return (u < other.d && d > other.u);
 }
 
+bool BBox::cld_exc(const BBox& other) const {
+    return cld_h_exc(other) && cld_v_exc(other);
+}
+
 bool BBox::cld_h(const BBox& other) const {
     return (l <= other.r && r >= other.l);
 }

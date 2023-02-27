@@ -14,7 +14,13 @@ void player_c::collect_items(EntityManager& em, EntityID self) {
             continue;
         }
 
+        cld_c* ocld = em.cld(o);
         item_c* oitem = em.item(o);
-        oitem->collect();
+
+        bool true_collision = cld->collision_excl(em, self, o);
+
+        if (true_collision) {
+            oitem->collect();
+        }
     }
 }

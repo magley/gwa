@@ -14,6 +14,7 @@ struct BBox {
 
     bool cld_h_exc(const BBox& other) const;
     bool cld_v_exc(const BBox& other) const;
+    bool cld_exc(const BBox& other) const;
 
     bool cld_h(const BBox& other) const;
     bool cld_v(const BBox& other) const;

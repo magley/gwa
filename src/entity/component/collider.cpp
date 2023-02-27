@@ -39,3 +39,25 @@ void cld_c::build_other(EntityManager& em, EntityID self) {
         }
     }
 }
+
+bool cld_c::collision(EntityManager& em, EntityID self, EntityID other) {
+    body_c* body = em.body(self);
+    body_c* obody = em.body(other);
+    cld_c* ocld = em.cld(other);
+
+    BBox b1 = bbox + body->p;
+    BBox b2 = ocld->bbox + obody->p;
+
+    return b1.cld(b2);
+}
+
+bool cld_c::collision_excl(EntityManager& em, EntityID self, EntityID other) {
+    body_c* body = em.body(self);
+    body_c* obody = em.body(other);
+    cld_c* ocld = em.cld(other);
+
+    BBox b1 = bbox + body->p;
+    BBox b2 = ocld->bbox + obody->p;
+
+    return b1.cld_exc(b2);
+}

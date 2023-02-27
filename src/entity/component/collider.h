@@ -17,6 +17,14 @@ struct cld_c {
     };
     uint8_t flags;
 
+    // Use this instead of bbox.cld() because this takes position into account.
+    // Will not check if other has a cld.
+    // See also collision_excl().
+    bool collision(EntityManager& em, EntityID self, EntityID other);
+
+    // Exclusive version of collision() where edge intersection does not pass.
+    bool collision_excl(EntityManager& em, EntityID self, EntityID other);
+
     void solve(fp6 curr, fp6 desired, fp6* in) const;
     void build_other(EntityManager& em, EntityID self);
 };
