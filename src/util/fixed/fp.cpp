@@ -705,6 +705,10 @@ fp6& fp6::operator>>=(int i) {
     return *this;
 }
 
+fp6::operator bool() const {
+    return _v > 0;
+}
+
 fp6::operator char() const {
     return _v >> _FP_N;
 }

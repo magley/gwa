@@ -208,6 +208,7 @@ public:
     fp6& operator&=(const fp6& i);
     fp6& operator|=(const fp6& i);
 
+    operator bool() const;
     explicit operator char() const;
     explicit operator short() const;
     explicit operator int() const;

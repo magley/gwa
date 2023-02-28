@@ -90,13 +90,8 @@ int main(int argc, char** argv) {
     string2 data = from_file("../res/data1.txt");
     em.load(data);
 
-    EntityID player = 0;
-    phys_c* p = em.phys(player);
-    body_c* b = em.body(player);
-
     string2 data2 = em.save();
     to_file("../res/data2.txt", data2);
-
 
     //
     //
@@ -121,8 +116,10 @@ int main(int argc, char** argv) {
         //
         //
 
-        p->v.x = (input.down(SDL_SCANCODE_RIGHT) - input.down(SDL_SCANCODE_LEFT)) * (input.down(SDL_SCANCODE_Z) ? 2.5f : 1);
-        p->v.y = (input.down(SDL_SCANCODE_DOWN) - input.down(SDL_SCANCODE_UP)) * (input.down(SDL_SCANCODE_Z) ? 2.5f : 1);
+        for (EntityID e : em.get_all(PLAYER)) {
+            player_c* player = em.player(e);
+            player->move(em, e, input);
+        }
 
         for (EntityID e : em.get_all(CLD | PHYS)) {
             cld_c* cld = em.cld(e);

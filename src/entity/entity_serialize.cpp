@@ -27,8 +27,11 @@ string2 EntityManager::save() const {
 void EntityManager::load(const string2& s) {
     entity.clear();
 
-    auto entity_parts = s.split_unless_between(",", {"{}"}, false);
+    auto entity_parts = s.split_unless_between(",", {"{}"});
     for (const auto& s : entity_parts) {
+        if (s.trim().empty()) {
+            continue;
+        }
         EntityID e_id = create();
         Entity* e = entity[e_id];
         e->load(*this, s);

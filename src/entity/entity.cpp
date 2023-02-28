@@ -86,6 +86,18 @@ std::vector<EntityID> EntityManager::get_all(ComponentBit components) {
     return result;
 }
 
+EntityID EntityManager::get_first(ComponentBit components) {
+    for (Entity* e : entity) {
+        if (destroyed(e->id)) {
+            continue;
+        }
+        if (has(e->id, components)) {
+            return e->id;
+        }
+    }
+    return ENTITY_NULL;
+}
+
 void EntityManager::cleanup() {
     deal_with_entities_marked_for_destruction();
     uint32_t invalid_refs = invalidate_refs_to_destroyed_entities();

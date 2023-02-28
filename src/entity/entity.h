@@ -62,6 +62,7 @@ struct EntityManager {
     void rem(EntityID id, ComponentBit components);
     bool has(EntityID id, ComponentBit components) const;
     std::vector<EntityID> get_all(ComponentBit components);
+    EntityID get_first(ComponentBit components);
 
     body_c*   body(EntityID id) const;
     phys_c*   phys(EntityID id) const;
