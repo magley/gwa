@@ -5,6 +5,9 @@ struct SDL_Renderer;
 struct SDL_Color;
 
 struct BBox;
+struct vec2;
+
+#include "resource/fwdecl.h"
 
 class Texture {
     void free_mem();
@@ -19,14 +22,36 @@ public:
 
 class Renderer {
     SDL_Renderer* rend = 0;
+    ResMng* res_mng = 0;
 public:
-    Renderer(SDL_Renderer* rend);
+    Renderer(SDL_Renderer* rend, ResMng* res_mng);
     int clear(unsigned char r, unsigned char g, unsigned char b) const;
-    void flip() const;
-    void draw(const Texture& tex, float x, float y, float ang = 0) const;
-    void draw_ext(const Texture& tex, float x, float y, float ang = 0,
-                  bool flipx = false, bool flipy = false, int sx = 0, 
-                  int sy = 0, int sw = -1, int sh = -1) const;
-    void draw_rect(float x, float y, float w, float h) const;
-    void draw_rect(const BBox& bbox, SDL_Color col) const;
+    void swap_buffers() const;
+
+    void tex(TextureH texture, 
+             const vec2& p, 
+             float ang, 
+             const BBox& src, 
+             const BBox& dest,
+             const vec2& flip) const;
+    void tex(TextureH texture,
+             const vec2& p,
+             float ang,
+             const BBox& src) const;
+    void tex(TextureH texture,
+             const vec2& p,
+             float ang) const;
+
+    void tex_sized(TextureH texture,
+                   const vec2& p,
+                   float ang,
+                   const BBox& src,
+                   const vec2& scale) const;
+    void tex_sized(TextureH texture,
+                   const vec2& p,
+                   float ang,
+                   const vec2& scale) const;
+
+    void rect(const BBox& bbox, SDL_Color col) const;
+    void rectf(const BBox& bbox, SDL_Color col) const;
 };

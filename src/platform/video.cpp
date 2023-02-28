@@ -6,6 +6,8 @@
 #include "util/geometry/bbox.h"
 #include "util/geometry/vec2.h"
 
+#include "resource/res_mng.h"
+
 //-----------------------------------------------------------------------------
 // Texture
 //-----------------------------------------------------------------------------
@@ -35,8 +37,7 @@ void Texture::free_mem() {
 // Renderer
 //-----------------------------------------------------------------------------
 
-Renderer::Renderer(SDL_Renderer* rend): rend(rend) {
-
+Renderer::Renderer(SDL_Renderer* rend, ResMng* rm): rend(rend), res_mng(rm) {
 }
 
 int Renderer::clear(unsigned char r, unsigned char g, unsigned char b) const {
@@ -49,63 +50,94 @@ int Renderer::clear(unsigned char r, unsigned char g, unsigned char b) const {
     return result;
 }
 
-void Renderer::flip() const {
+void Renderer::swap_buffers() const {
     SDL_RenderPresent(rend);
 }
 
-void Renderer::draw(const Texture& tex, float x, float y, float ang) const {
-    SDL_FRect dest;
-    dest.x = x;
-    dest.y = y;
-    dest.w = tex.w;
-    dest.h = tex.h;
-    SDL_RenderCopyExF(rend, tex.texture, NULL, &dest, ang, NULL, SDL_FLIP_NONE);
-}
+//=============================================================================
+// New render API.
+//=============================================================================
 
-void Renderer::draw_ext(
-    const Texture& tex, 
-    float x, 
-    float y, 
-    float ang,
-    bool flipx, 
-    bool flipy, 
-    int sx, 
-    int sy, 
-    int sw, 
-    int sh) const 
+void Renderer::tex(TextureH texture, 
+                   const vec2& p, 
+                   float ang, 
+                   const BBox& src, 
+                   const BBox& dest,
+                   const vec2& flip) const
 {
-    if (sw < 0) {
-        sw = tex.w;
+    Texture* t = res_mng->texture(texture);
+
+    const SDL_Rect s = {
+        (int)src.l, (int)src.u, (int)src.size().x, (int)src.size().y
+    };
+    const SDL_FRect d = {
+        (float)dest.l, (float)dest.u, (float)dest.size().x, (float)dest.size().y
+    };
+
+    int f = SDL_FLIP_NONE;
+    if (flip.x < 0) {
+        f |= SDL_FLIP_HORIZONTAL;
     }
-    if (sh < 0) {
-        sh = tex.h;
-    }
-    SDL_Rect src_rect = {sx, sy, sw, sh};
-    SDL_FRect dest_rect = {(float)x, (float)y, (float)sw, (float)sh};
-    int flip = SDL_FLIP_NONE;
-    if (flipx) {
-        flip |= SDL_FLIP_HORIZONTAL;
+    if (flip.y < 0) {
+        f |= SDL_FLIP_VERTICAL;
     }
 
-    if (flipy) {
-        flip |= SDL_FLIP_VERTICAL;
-    }
-
-    SDL_RenderCopyExF(rend, tex.texture, &src_rect, &dest_rect, ang, NULL, 
-                      (SDL_RendererFlip )flip);
+    SDL_RenderCopyExF(rend, t->texture, &s, &d, ang, NULL, (SDL_RendererFlip)f);
 }
 
-void Renderer::draw_rect(float x, float y, float w, float h) const {
+void Renderer::tex(TextureH texture, 
+                   const vec2& p, 
+                   float ang, 
+                   const BBox& src) const
+{
+    tex(texture, p, ang, src, 
+        BBox::from(vec2(0, 0), src.size()) + p, vec2(1, 1)
+    );
+}
+
+void Renderer::tex(TextureH texture, 
+                   const vec2& p, 
+                   float ang) const 
+{
+    const Texture* const t = res_mng->texture(texture);
+    tex(texture, p, ang, BBox::from(0, 0, t->h, t->w));
+}
+
+
+void Renderer::tex_sized(TextureH texture,
+                         const vec2& p,
+                         float ang,
+                         const BBox& src,
+                         const vec2& scale) const
+{
+    tex(texture, p, ang, src, 
+        BBox::from(vec2(0, 0), scale.abs()) + p, scale
+    );
+}
+void Renderer::tex_sized(TextureH texture,
+                         const vec2& p,
+                         float ang,
+                         const vec2& scale) const
+{
+    const Texture* const t = res_mng->texture(texture);
+    tex_sized(texture, p, ang, BBox::from(0, 0, t->h, t->w), scale);
+}
+
+void Renderer::rect(const BBox& bbox, SDL_Color col) const {
+    SDL_SetRenderDrawColor(rend, col.r, col.g, col.b, col.a);
     SDL_FRect r;
-    r.x = x;
-    r.y = y;
-    r.w = w;
-    r.h = h;
+    r.x = (float)bbox.l;
+    r.y = (float)bbox.u;
+    r.w = (float)bbox.size().x;
+    r.h = (float)bbox.size().y;
     SDL_RenderDrawRectF(rend, &r);
 }
-
-void Renderer::draw_rect(const BBox& bbox, SDL_Color col) const {
-    const vec2 sz = bbox.size();
+void Renderer::rectf(const BBox& bbox, SDL_Color col) const {
     SDL_SetRenderDrawColor(rend, col.r, col.g, col.b, col.a);
-    draw_rect((float)bbox.l, (float)bbox.u, (float)sz.x, (float)sz.y);
+    SDL_FRect r;
+    r.x = (float)bbox.l;
+    r.y = (float)bbox.u;
+    r.w = (float)bbox.size().x;
+    r.h = (float)bbox.size().y;
+    SDL_RenderFillRectF(rend, &r);
 }
