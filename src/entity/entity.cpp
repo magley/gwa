@@ -3,10 +3,6 @@
 #include <cstring>
 
 EntityManager::EntityManager() {
-    // NOTE: First element is always there. Never used because of ENTITY_NULL.
-    EntityID eblank = create();
-    set_destroy_flag(entity[eblank], DESTROYED);
-    entity_count--;
 }
 
 //-----------------------------------------------------------------------------
@@ -65,19 +61,19 @@ EntityRef EntityManager::get_ref(EntityRefID ref) {
     return *(it->second);
 }
 
-void EntityManager::add(EntityID id, uint64_t components) {
+void EntityManager::add(EntityID id, ComponentBit components) {
     entity[id]->c |= components;
 }
 
-void EntityManager::rem(EntityID id, uint64_t components) {
+void EntityManager::rem(EntityID id, ComponentBit components) {
     entity[id]->c = entity[id]->c & ~components;
 }
 
-bool EntityManager::has(EntityID id, uint64_t components) {
+bool EntityManager::has(EntityID id, ComponentBit components) const {
     return (entity[id]->c & components) == components;
 }
 
-std::vector<EntityID> EntityManager::get_all(uint64_t components) {
+std::vector<EntityID> EntityManager::get_all(ComponentBit components) {
     std::vector<EntityID> result;
     for (Entity* e : entity) {
         if (destroyed(e->id)) {
@@ -88,6 +84,18 @@ std::vector<EntityID> EntityManager::get_all(uint64_t components) {
         }
     }
     return result;
+}
+
+EntityID EntityManager::get_first(ComponentBit components) {
+    for (Entity* e : entity) {
+        if (destroyed(e->id)) {
+            continue;
+        }
+        if (has(e->id, components)) {
+            return e->id;
+        }
+    }
+    return ENTITY_NULL;
 }
 
 void EntityManager::cleanup() {
@@ -109,6 +117,18 @@ body_c* EntityManager::body(EntityID id) const {
 
 phys_c* EntityManager::phys(EntityID id) const {
     return &entity[id]->phys;
+}
+
+cld_c* EntityManager::cld(EntityID id) const {
+    return &entity[id]->cld;
+}
+
+item_c* EntityManager::item(EntityID id) const {
+    return &entity[id]->item;
+}
+
+player_c* EntityManager::player(EntityID id) const {
+    return &entity[id]->player;
 }
 
 //-----------------------------------------------------------------------------

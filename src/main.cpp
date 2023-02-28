@@ -1,15 +1,17 @@
 #include <assert.h>
 #include <stdio.h>
 #include <vector>
+#include <fstream>
+#include <sstream>
+#include "util/string/string2.h"
 
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_image.h>
 #include "platform/input.h"
 #include "platform/video.h"
 
-#include "entity/entity_test.hpp"
 #include "entity/entity.h"
-
+#include "entity/entity_test.hpp"
 
 void print_err(const char* prefix, const char* msg, const char* suffix) {
     printf("\033[0;37m%s\033[0;31m%s\033[0;37m%s", prefix, msg, suffix);
@@ -23,6 +25,19 @@ void print_sdl_error() {
 void handle_sdl_error() {
     print_sdl_error();
     exit(1);
+}
+
+string2 from_file(const char* file) {
+    std::ifstream ff(file);
+    std::stringstream ss;
+    ss << ff.rdbuf();
+    string2 s = ss.str();
+    return s;
+}
+
+void to_file(const char* file, const string2& str) {
+    std::ofstream ff(file);
+    ff.write(str.c_str(), str.size());
 }
 
 int main(int argc, char** argv) {
@@ -68,8 +83,19 @@ int main(int argc, char** argv) {
     Renderer rend = Renderer(sdl_renderer);
     EntityManager em;
 
-    EntityID e1 = em.create();
-    body_c* b = em.body(e1);
+    //-------------------------------------------------------------------------
+    //
+    //
+
+    string2 data = from_file("../res/data1.txt");
+    em.load(data);
+
+    string2 data2 = em.save();
+    to_file("../res/data2.txt", data2);
+
+    //
+    //
+    //-------------------------------------------------------------------------
 
     while (is_running) {
         while (SDL_PollEvent(&event) == 1) {
@@ -80,18 +106,77 @@ int main(int argc, char** argv) {
 
         input.update();
 
+        if (input.press(SDL_SCANCODE_ESCAPE)) {
+            is_running = false;
+        }
+
         em.cleanup();
 
-        b->ang += 5;
-        b->x += (input.down(SDL_SCANCODE_RIGHT) - input.down(SDL_SCANCODE_LEFT)) * 3;
-        b->y += (input.down(SDL_SCANCODE_DOWN) - input.down(SDL_SCANCODE_UP)) * 3;
+        //---------------------------------------------------------------------
+        //
+        //
 
-        status = rend.clear(128, 128, 128);
+        for (EntityID e : em.get_all(PLAYER)) {
+            player_c* player = em.player(e);
+            player->move(em, e, input);
+        }
+
+        for (EntityID e : em.get_all(CLD | PHYS)) {
+            cld_c* cld = em.cld(e);
+            cld->build_other(em, e);
+        }
+
+        for (EntityID e : em.get_all(PHYS)) {
+            phys_c* phys = em.phys(e);
+            if ((phys->flags & phys_c::CLD_SOLID) == phys_c::CLD_SOLID) {
+                phys->cld_solid(em, e);
+            }
+        }
+
+        for (EntityID e : em.get_all(PHYS)) {
+            phys_c* phys = em.phys(e);
+            phys->move(em, e);
+        }
+
+        for (EntityID e : em.get_all(PLAYER)) {
+            player_c* player = em.player(e);
+            player->collect_items(em, e);
+        }
+
+        for (EntityID e : em.get_all(ITEM)) {
+            item_c* item = em.item(e);
+            item->update(em, e);
+        }
+
+        //
+        //
+        //---------------------------------------------------------------------
+
+        status = rend.clear(64, 64, 64);
         if (status != 0) {
             handle_sdl_error();
         }
 
-        rend.draw_ext(tex, (float)b->x, (float)b->y, (float)b->ang, true, false, 1, 1, 18, 24);
+        //---------------------------------------------------------------------
+        //
+        //
+
+        for (EntityID e : em.get_all(0)) {
+            if (em.has(e, CLD)) {
+                body_c* body = em.body(e);
+                cld_c* cld = em.cld(e);
+
+                if (cld->other.size() == 0) {
+                    rend.draw_rect(cld->bbox + body->p, {180, 180, 180, 255});
+                } else {
+                    rend.draw_rect(cld->bbox + body->p, {80, 196, 170, 255});
+                }   
+            }
+        }
+
+        //
+        //
+        //---------------------------------------------------------------------
 
         rend.flip();
     }

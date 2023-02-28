@@ -2,8 +2,8 @@
 
 class Input {
 private:
-    const unsigned char* kb_curr = kb_prev;  // Note the initialization.
-    unsigned char kb_prev[255];
+    unsigned char* kb_curr;
+    unsigned char* kb_prev;
     int m_x_curr, m_y_curr;
     int m_x_prev, m_y_prev;
     unsigned int m_curr, m_prev;
@@ -11,6 +11,7 @@ private:
     void update(const unsigned char* kbdat, unsigned int mdat, int mx, int my);
 
 public:
+    Input();
     void update();
     bool down(unsigned char scancode) const;
     bool press(unsigned char scancode) const;

@@ -13,6 +13,30 @@ fp6::fp6(long long i) : _v(i << _FP_N) {}
 fp6::fp6(float i) : _v(roundf(i * (1 << _FP_N))) {}
 fp6::fp6(double i) : _v(round(i * (1 << _FP_N))) {}
 fp6::fp6(const fp6& i) : _v(i._v) {}
+
+fp6 min(const fp6& a, const fp6& b) {
+    return a <= b ? a : b;
+}
+
+fp6 max(const fp6& a, const fp6& b) {
+    return a >= b ? a : b;
+}
+
+fp6 fp6::abs() const {
+    if (_v < 0) {
+        return raw(-_v);
+    }
+    return *this;
+}
+
+int fp6::sgn() const {
+    return _v > 0 ? 1 : (_v < 0 ? -1 : 0);
+}
+
+fp6 fp6::clamp(const fp6& mini, const fp6& maxi) const {
+    return min(max(mini, *this), maxi);
+}
+
 inline fp6 fp6::raw(int raw_val) {
     fp6 r;
     r._v = raw_val;
@@ -679,6 +703,10 @@ fp6& fp6::operator<<=(int i) {
 fp6& fp6::operator>>=(int i) {
     _v >>= i;
     return *this;
+}
+
+fp6::operator bool() const {
+    return _v > 0;
 }
 
 fp6::operator char() const {

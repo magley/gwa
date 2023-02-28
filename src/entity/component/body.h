@@ -1,7 +1,8 @@
 #pragma once
 
-#include "util/fixed/fp.h"
+#include "util/geometry/vec2.h"
 
 struct body_c {
-    fp6 x, y, ang;
+    vec2 p;
+    fp6 ang;
 };

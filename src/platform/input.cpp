@@ -3,14 +3,19 @@
 #include <SDL2/SDL_keyboard.h>
 #include <SDL2/SDL_mouse.h>
 
+Input::Input() {
+    kb_curr = new unsigned char[255];
+    kb_prev = new unsigned char[255];
+}
+
 void Input::update(const unsigned char* kb_data,
                    unsigned int m_data,
                    int mx,
                    int my) {
     for (int i = 0; i < 255; i++) {
         kb_prev[i] = kb_curr[i];
+        kb_curr[i] = kb_data[i];
     }
-    kb_curr = kb_data;
 
     m_prev = m_curr;
     m_curr = m_data;

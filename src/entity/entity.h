@@ -5,12 +5,15 @@
 #include "component/EVERYTHING.h"
 #include <unordered_map>
 
-using EntityID = uint32_t;
-using EntityRefID = uint32_t;
-#define ENTITY_NULL 0
+struct string2;
 
-enum : uint64_t {
-    PHYS = 1
+#include "typedef.h"
+
+enum : ComponentBit {
+    PHYS    = 0b0001,
+    CLD     = 0b0010,
+    ITEM    = 0b0100,
+    PLAYER  = 0b1000,
 };
 
 enum : uint32_t {
@@ -21,11 +24,17 @@ enum : uint32_t {
 
 struct Entity {
     EntityID id;
-    uint64_t c;
+    ComponentBit c;
     uint32_t flags;
 
-    body_c body; // Always present.
-    phys_c phys;
+    body_c   body; // Always present.
+    phys_c   phys;
+    cld_c    cld;
+    item_c   item;
+    player_c player;
+
+    string2 save(const EntityManager& em) const;
+    void load(EntityManager& em, const string2& s);
 };
 
 struct EntityRef {
@@ -49,13 +58,17 @@ struct EntityManager {
     EntityRef get_ref(EntityRefID ref);
     void cleanup();
     int count() const;
-    void add(EntityID id, uint64_t components);
-    void rem(EntityID id, uint64_t components);
-    bool has(EntityID id, uint64_t components);
-    std::vector<EntityID> get_all(uint64_t components);
+    void add(EntityID id, ComponentBit components);
+    void rem(EntityID id, ComponentBit components);
+    bool has(EntityID id, ComponentBit components) const;
+    std::vector<EntityID> get_all(ComponentBit components);
+    EntityID get_first(ComponentBit components);
 
-    body_c* body(EntityID id) const;
-    phys_c* phys(EntityID id) const;
+    body_c*   body(EntityID id) const;
+    phys_c*   phys(EntityID id) const;
+    cld_c*    cld(EntityID id) const;
+    item_c*   item(EntityID id) const;
+    player_c* player(EntityID id) const;
 
     void set_destroy_flag(Entity* e, uint32_t destroy_flag);
     bool has_destroy_flag(Entity* e, uint32_t destroy_flag);
@@ -63,4 +76,6 @@ struct EntityManager {
     uint32_t invalidate_refs_to_destroyed_entities();
     void remove_invalid_refs();
 
+    string2 save() const;
+    void load(const string2& s);
 };
