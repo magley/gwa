@@ -2,29 +2,32 @@
 #include "util/string/string2.h"
 #include "stdio.h"
 #include "unordered_map"
+#include "resource/res_mng.h"
 
 static void body_from(std::vector<string2>& m, Entity* e);
 static void phys_from(std::vector<string2>& m, Entity* e);
 static void cld_from(std::vector<string2>& m, Entity* e);
 static void item_from(std::vector<string2>& m, Entity* e);
 static void player_from(std::vector<string2>& m, Entity* e);
+static void spr_from(std::vector<string2>& m, Entity* e, ResMng& rm);
 
 static void body_to(string2& s, const Entity* e);
 static void phys_to(string2& s, const Entity* e);
 static void cld_to(string2& s, const Entity* e);
 static void item_to(string2& s, const Entity* e);
 static void player_to(string2& s, const Entity* e);
+static void spr_to(string2& s, const Entity* e, ResMng& rm);
 
 
-string2 EntityManager::save() const {
+string2 EntityManager::save(ResMng& rm) const {
     string2 s;
     for (const auto& e : entity) {
-        s += e->save(*this);
+        s += e->save(*this, rm);
     }
     return s;
 }
 
-void EntityManager::load(const string2& s) {
+void EntityManager::load(const string2& s, ResMng& rm) {
     entity.clear();
 
     auto entity_parts = s.split_unless_between(",", {"{}"});
@@ -34,11 +37,11 @@ void EntityManager::load(const string2& s) {
         }
         EntityID e_id = create();
         Entity* e = entity[e_id];
-        e->load(*this, s);
+        e->load(*this, s, rm);
     }
 }
 
-string2 Entity::save(const EntityManager& em) const {
+string2 Entity::save(const EntityManager& em, ResMng& rm) const {
     string2 s;
     s += "{\n";
 
@@ -56,12 +59,15 @@ string2 Entity::save(const EntityManager& em) const {
     if (em.has(id, PLAYER)) {
         player_to(s, this);
     }
+    if (em.has(id, SPR)) {
+        spr_to(s, this, rm);
+    }
 
     s += "},\n";
     return s;
 }
 
-void Entity::load(EntityManager& em, const string2& s) {
+void Entity::load(EntityManager& em, const string2& s, ResMng& rm) {
     auto decls = s.slice(1, -2).split("\n", false);
     std::unordered_map<string2, std::vector<string2>> map;
     for (const auto& decl : decls) {
@@ -84,6 +90,9 @@ void Entity::load(EntityManager& em, const string2& s) {
     }
     if ((it = map.find("player")), it != map.end()) {
         player_from(it->second, this);
+    }
+    if ((it = map.find("spr")), it != map.end()) {
+        spr_from(it->second, this, rm);
     }
 }
 
@@ -129,6 +138,12 @@ static void player_from(std::vector<string2>& m, Entity* e) {
     e->c |= PLAYER;
 }
 
+static void spr_from(std::vector<string2>& m, Entity* e, ResMng& rm) {
+    const char* fname = m[1].c_str();
+    e->c |= SPR;
+    e->spr.tex = rm.texture(fname);
+}
+
 //=============================================================================
 // Internal helper functions - TO
 //=============================================================================
@@ -170,5 +185,12 @@ static void item_to(string2& s, const Entity* e) {
 
 static void player_to(string2& s, const Entity* e) {
     s += "player ";
+    s += "\n";
+}
+
+static void spr_to(string2& s, const Entity* e, ResMng& rm) {
+    s += "spr ";
+    string2 res_path = rm.texture_rev(e->spr.tex);
+    s += string2::join({res_path}, " ");
     s += "\n";
 }

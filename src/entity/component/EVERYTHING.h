@@ -5,3 +5,4 @@
 #include "collider.h"
 #include "item.h"
 #include "player.h"
+#include "spr.h"

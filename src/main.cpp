@@ -13,6 +13,8 @@
 #include "entity/entity.h"
 #include "entity/entity_test.hpp"
 
+#include "resource/res_mng.h"
+
 void print_err(const char* prefix, const char* msg, const char* suffix) {
     printf("\033[0;37m%s\033[0;31m%s\033[0;37m%s", prefix, msg, suffix);
 }
@@ -74,23 +76,27 @@ int main(int argc, char** argv) {
     if (sdl_renderer == NULL) {
         handle_sdl_error();
     }
+    SDL_SetRenderDrawBlendMode(sdl_renderer, SDL_BLENDMODE_BLEND);
     SDL_RenderSetLogicalSize(sdl_renderer, view_w, view_h);
     SDL_Event event;
     bool is_running = true;
 
     Input input;
-    Texture tex = Texture(sdl_renderer, "../res/img.png");
-    Renderer rend = Renderer(sdl_renderer);
     EntityManager em;
+    ResMng res_mng = ResMng(sdl_renderer);
+    Renderer rend = Renderer(sdl_renderer, &res_mng);
+
+    // TextureH tex_test = res_mng.texture("../res/img.png");
+    
 
     //-------------------------------------------------------------------------
     //
     //
 
     string2 data = from_file("../res/data1.txt");
-    em.load(data);
+    em.load(data, res_mng);
 
-    string2 data2 = em.save();
+    string2 data2 = em.save(res_mng);
     to_file("../res/data2.txt", data2);
 
     //
@@ -148,6 +154,7 @@ int main(int argc, char** argv) {
             item->update(em, e);
         }
 
+
         //
         //
         //---------------------------------------------------------------------
@@ -166,11 +173,24 @@ int main(int argc, char** argv) {
                 body_c* body = em.body(e);
                 cld_c* cld = em.cld(e);
 
+                rend.rect(cld->bbox + body->p, {180, 180, 180, 255});
                 if (cld->other.size() == 0) {
-                    rend.draw_rect(cld->bbox + body->p, {180, 180, 180, 255});
                 } else {
-                    rend.draw_rect(cld->bbox + body->p, {80, 196, 170, 255});
-                }   
+                    rend.rectf(cld->bbox + body->p, {32, 255, 96, 96});
+                }
+            }
+
+            if (em.has(e, SPR)) {
+                body_c* body = em.body(e);
+                spr_c* spr = em.spr(e);
+                TextureH tex = spr->tex;
+
+                if (em.has(e, CLD)) {
+                    cld_c* cld = em.cld(e);
+                    rend.tex_sized(tex, body->p, 0, cld->bbox.size());
+                } else {
+                    rend.tex(tex, body->p, 0);
+                }
             }
         }
 
@@ -178,7 +198,7 @@ int main(int argc, char** argv) {
         //
         //---------------------------------------------------------------------
 
-        rend.flip();
+        rend.swap_buffers();
     }
 
     SDL_Quit();

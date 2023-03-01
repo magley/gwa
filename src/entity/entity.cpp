@@ -131,6 +131,10 @@ player_c* EntityManager::player(EntityID id) const {
     return &entity[id]->player;
 }
 
+spr_c* EntityManager::spr(EntityID id) const {
+    return &entity[id]->spr;
+}
+
 //-----------------------------------------------------------------------------
 // Low-level methods. For internal use.
 //-----------------------------------------------------------------------------
