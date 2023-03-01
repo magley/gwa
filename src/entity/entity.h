@@ -4,16 +4,18 @@
 #include <queue>
 #include "component/EVERYTHING.h"
 #include <unordered_map>
+#include "resource/fwdecl.h"
 
 struct string2;
 
 #include "typedef.h"
 
 enum : ComponentBit {
-    PHYS    = 0b0001,
-    CLD     = 0b0010,
-    ITEM    = 0b0100,
-    PLAYER  = 0b1000,
+    PHYS    = 0b00001,
+    CLD     = 0b00010,
+    ITEM    = 0b00100,
+    PLAYER  = 0b01000,
+    SPR     = 0b10000,
 };
 
 enum : uint32_t {
@@ -32,9 +34,10 @@ struct Entity {
     cld_c    cld;
     item_c   item;
     player_c player;
+    spr_c    spr;
 
-    string2 save(const EntityManager& em) const;
-    void load(EntityManager& em, const string2& s);
+    string2 save(const EntityManager& em, ResMng& rm) const;
+    void load(EntityManager& em, const string2& s, ResMng& rm);
 };
 
 struct EntityRef {
@@ -69,6 +72,7 @@ struct EntityManager {
     cld_c*    cld(EntityID id) const;
     item_c*   item(EntityID id) const;
     player_c* player(EntityID id) const;
+    spr_c*    spr(EntityID id) const;
 
     void set_destroy_flag(Entity* e, uint32_t destroy_flag);
     bool has_destroy_flag(Entity* e, uint32_t destroy_flag);
@@ -76,6 +80,6 @@ struct EntityManager {
     uint32_t invalidate_refs_to_destroyed_entities();
     void remove_invalid_refs();
 
-    string2 save() const;
-    void load(const string2& s);
+    string2 save(ResMng& rm) const;
+    void load(const string2& s, ResMng& rm);
 };

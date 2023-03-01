@@ -86,7 +86,7 @@ int main(int argc, char** argv) {
     ResMng res_mng = ResMng(sdl_renderer);
     Renderer rend = Renderer(sdl_renderer, &res_mng);
 
-    TextureH tex_test = res_mng.texture("../res/img.png");
+    // TextureH tex_test = res_mng.texture("../res/img.png");
     
 
     //-------------------------------------------------------------------------
@@ -94,9 +94,9 @@ int main(int argc, char** argv) {
     //
 
     string2 data = from_file("../res/data1.txt");
-    em.load(data);
+    em.load(data, res_mng);
 
-    string2 data2 = em.save();
+    string2 data2 = em.save(res_mng);
     to_file("../res/data2.txt", data2);
 
     //
@@ -154,6 +154,7 @@ int main(int argc, char** argv) {
             item->update(em, e);
         }
 
+
         //
         //
         //---------------------------------------------------------------------
@@ -179,12 +180,17 @@ int main(int argc, char** argv) {
                 }
             }
 
-            if (em.has(e, PLAYER | CLD)) {
+            if (em.has(e, SPR)) {
                 body_c* body = em.body(e);
-                cld_c* cld = em.cld(e);
+                spr_c* spr = em.spr(e);
+                TextureH tex = spr->tex;
 
-                const Texture* const t = res_mng.texture(tex_test);
-                rend.tex_sized(tex_test, body->p, 0, cld->bbox.size());
+                if (em.has(e, CLD)) {
+                    cld_c* cld = em.cld(e);
+                    rend.tex_sized(tex, body->p, 0, cld->bbox.size());
+                } else {
+                    rend.tex(tex, body->p, 0);
+                }
             }
         }
 
