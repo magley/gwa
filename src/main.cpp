@@ -15,6 +15,8 @@
 
 #include "resource/res_mng.h"
 
+#include "tile/tile.h"
+
 void print_err(const char* prefix, const char* msg, const char* suffix) {
     printf("\033[0;37m%s\033[0;31m%s\033[0;37m%s", prefix, msg, suffix);
 }
@@ -85,6 +87,13 @@ int main(int argc, char** argv) {
     EntityManager em;
     ResMng res_mng = ResMng(sdl_renderer);
     Renderer rend = Renderer(sdl_renderer, &res_mng);
+    TileMap tm;
+
+    tm.sz = vec2(16, 16);
+    tm.map = std::vector<std::vector<uint16_t>>(32);
+    for (auto e : tm.map) {
+        e = std::vector<uint16_t>(32);
+    }
 
     // TextureH tex_test = res_mng.texture("../res/img.png");
     
@@ -168,7 +177,25 @@ int main(int argc, char** argv) {
         //
         //
 
+        for (fp6 yy = 0; yy < win_h; yy += tm.sz.y) {
+            rend.line(vec2(0, yy), vec2(win_w, yy), {64, 0, 64, 255});
+        }
+
+        for (fp6 xx = 0; xx < win_w; xx += tm.sz.x) {
+            rend.line(vec2(xx, 0), vec2(xx, win_h), {64, 0, 64, 255});
+        }
+
         for (EntityID e : em.get_all(0)) {
+            if (em.has(e, CLD | PLAYER)) {
+                const BBox bbox = em.cld(e)->bbox + em.body(e)->p;
+                auto tiles_touching = tm.touching(bbox);
+
+                for (auto& t : tiles_touching) {
+                    BBox rect = BBox::from(vec2(t.x * tm.sz.x, t.y * tm.sz.y), tm.sz);
+                    rend.rectf(rect, {96, 0, 96, 255});
+                }
+            }
+
             if (em.has(e, CLD)) {
                 body_c* body = em.body(e);
                 cld_c* cld = em.cld(e);
