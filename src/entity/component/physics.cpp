@@ -1,5 +1,6 @@
 #include "physics.h"
 #include "entity/entity.h"
+#include "tile/tile.h"
 
 void phys_c::move(EntityManager& em, EntityID self) {
     body_c* body = em.body(self);
@@ -43,7 +44,7 @@ struct CldAgent {
     vec2 v;
 };
 
-void phys_c::cld_solid(EntityManager& em, EntityID self) {
+void phys_c::cld_solid(EntityManager& em, EntityID self, const TileMap& tm) {
     body_c* body = em.body(self);
     cld_c* cld = em.cld(self);
     BBox bbox;
@@ -59,6 +60,15 @@ void phys_c::cld_solid(EntityManager& em, EntityID self) {
         a.flags = em.cld(o)->flags;
         a.bbox = em.cld(o)->bbox + em.body(o)->p;
         a.v = em.has(o, PHYS) ? em.phys(o)->v : vec2(0, 0);
+
+        other.push_back(a);
+    }
+    for (const TilePos& tp : tm.decompress(cld->tilemap_range)) {
+        const uint16_t tile_val = tm.map[tp.y][tp.x];
+        CldAgent a;
+        a.bbox = BBox::from(vec2(tp.x * tm.sz.x, tp.y * tm.sz.y), tm.sz); 
+        a.flags = tm.tileset[tile_val].v;
+        a.v = vec2(0, 0);
 
         other.push_back(a);
     }

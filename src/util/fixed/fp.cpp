@@ -13,6 +13,7 @@ fp6::fp6(long long i) : _v(i << _FP_N) {}
 fp6::fp6(float i) : _v(roundf(i * (1 << _FP_N))) {}
 fp6::fp6(double i) : _v(round(i * (1 << _FP_N))) {}
 fp6::fp6(const fp6& i) : _v(i._v) {}
+fp6::fp6(unsigned i) : _v(i << _FP_N) {}
 
 fp6 min(const fp6& a, const fp6& b) {
     return a <= b ? a : b;

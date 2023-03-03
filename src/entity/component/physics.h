@@ -2,6 +2,7 @@
 
 #include "util/geometry/vec2.h"
 #include "entity/typedef.h"
+#include "tile/fdecl.h"
 
 struct phys_c {
     vec2 v;
@@ -15,5 +16,5 @@ struct phys_c {
     uint8_t flags;
 
     void move(EntityManager& em, EntityID self);
-    void cld_solid(EntityManager& em, EntityID self);
+    void cld_solid(EntityManager& em, EntityID self, const TileMap& tm);
 };

@@ -3,6 +3,7 @@
 #include "util/geometry/bbox.h"
 #include <vector>
 #include "entity/typedef.h"
+#include "tile/fdecl.h"
 
 struct cld_c {
     BBox bbox;
@@ -11,6 +12,7 @@ struct cld_c {
     // false-positives because of how build_other() works, so perform additional
     // collision checks when constructing collision responses.
     std::vector<EntityID> other;
+    BBoxDiscrete tilemap_range;
     enum : uint8_t {
         NONE = 0b0000,
         SOLID_F = 0b0001, // floor
@@ -35,4 +37,6 @@ struct cld_c {
 
     // Find candidates for collision. Bounding boxes are expanded for precision.
     void build_other(EntityManager& em, EntityID self);
+
+    void build_tilemap_range(EntityManager& em, EntityID self, const TileMap& tm);
 };

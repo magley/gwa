@@ -90,9 +90,16 @@ int main(int argc, char** argv) {
     TileMap tm;
 
     tm.sz = vec2(16, 16);
+    tm.tileset = { Tile(0), Tile(cld_c::SOLID), Tile(cld_c::SOLID_F), Tile(cld_c::SOLID_L) };
     tm.map = std::vector<std::vector<uint16_t>>(32);
     for (auto& e : tm.map) {
         e = std::vector<uint16_t>(32);
+    }
+
+    for (int y = 0; y < tm.map.size(); y += 3) {
+        for (int x = 0; x < tm.map[y].size(); x += 3) {
+            tm.map[y][x] = (y / 3 + x / 3) % 4;
+        }
     }
 
     // TextureH tex_test = res_mng.texture("../res/img.png");
@@ -138,12 +145,13 @@ int main(int argc, char** argv) {
         for (EntityID e : em.get_all(CLD | PHYS)) {
             cld_c* cld = em.cld(e);
             cld->build_other(em, e);
+            cld->build_tilemap_range(em, e, tm);
         }
 
         for (EntityID e : em.get_all(PHYS)) {
             phys_c* phys = em.phys(e);
             if ((phys->flags & phys_c::CLD_SOLID) == phys_c::CLD_SOLID) {
-                phys->cld_solid(em, e);
+                phys->cld_solid(em, e, tm);
             }
         }
 
@@ -167,7 +175,7 @@ int main(int argc, char** argv) {
         //
         //---------------------------------------------------------------------
 
-        status = rend.clear(64, 64, 64);
+        status = rend.clear(128, 128, 128);
         if (status != 0) {
             handle_sdl_error();
         }
@@ -177,11 +185,32 @@ int main(int argc, char** argv) {
         //
 
         for (fp6 yy = 0; yy < win_h; yy += tm.sz.y) {
-            rend.line(vec2(0, yy), vec2(win_w, yy), {64, 0, 64, 255});
+            rend.line(vec2(0, yy), vec2(win_w, yy), {96, 96, 96, 255});
         }
 
         for (fp6 xx = 0; xx < win_w; xx += tm.sz.x) {
-            rend.line(vec2(xx, 0), vec2(xx, win_h), {64, 0, 64, 255});
+            rend.line(vec2(xx, 0), vec2(xx, win_h), {96, 96, 96, 255});
+        }
+
+        for (uint16_t y = 0; y < tm.map.size(); y++) {
+            for (uint16_t x = 0; x < tm.map[y].size(); x++) {
+                const uint16_t tindex = tm.map[y][x];
+                const Tile t = tm.tileset[tindex];
+                const uint8_t v = t.v;
+
+                if ((v & cld_c::SOLID_F) == cld_c::SOLID_F) {
+                    rend.rectf(BBox::from(vec2(x * tm.sz.x, y * tm.sz.y), vec2(tm.sz.x, 2)), {255, 0, 0, 255});
+                }
+                if ((v & cld_c::SOLID_C) == cld_c::SOLID_C) {
+                    rend.rectf(BBox::from(vec2(x * tm.sz.x, y * tm.sz.y + tm.sz.y - 2), vec2(tm.sz.x, 2)), {255, 0, 0, 255});
+                }
+                if ((v & cld_c::SOLID_L) == cld_c::SOLID_L) {
+                    rend.rectf(BBox::from(vec2(x * tm.sz.x + tm.sz.x - 2, y * tm.sz.y), vec2(2, tm.sz.y)), {255, 0, 0, 255});
+                }
+                if ((v & cld_c::SOLID_R) == cld_c::SOLID_R) {
+                    rend.rectf(BBox::from(vec2(x * tm.sz.x, y * tm.sz.y), vec2(2, tm.sz.y)), {255, 0, 0, 255});
+                }
+            }
         }
 
         for (EntityID e : em.get_all(0)) {
@@ -191,7 +220,7 @@ int main(int argc, char** argv) {
 
                 for (auto& t : tiles_touching) {
                     BBox rect = BBox::from(vec2(t.x * tm.sz.x, t.y * tm.sz.y), tm.sz);
-                    rend.rectf(rect, {96, 0, 96, 255});
+                    rend.rectf(rect, {64, 64, 64, 96});
                 }
             }
 

@@ -1,5 +1,6 @@
 #include "collider.h"
 #include "entity/entity.h"
+#include "tile/tile.h"
 
 void cld_c::solve(fp6 curr, fp6 desired, fp6* in) const {
     *in += desired - curr;
@@ -38,6 +39,18 @@ void cld_c::build_other(EntityManager& em, EntityID self) {
             other.push_back(e);
         }
     }
+}
+
+void cld_c::build_tilemap_range(EntityManager& em, EntityID self, const TileMap& tm) {
+    body_c* body = em.body(self);
+    phys_c* phys = em.phys(self);
+    vec2 abs_vel = vec2();
+    if (em.has(self, PHYS)) {
+        abs_vel = phys->v.abs();
+    }
+    
+    const BBox bbox_self = (bbox + body->p).exp(abs_vel).exp(vec2(1, 1));
+    tilemap_range = tm.touching_compressed(bbox_self);
 }
 
 bool cld_c::collision(EntityManager& em, EntityID self, EntityID other) {

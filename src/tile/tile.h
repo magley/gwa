@@ -2,11 +2,13 @@
 #include <stdint.h>
 #include <vector>
 #include "util/geometry/vec2.h"
+#include "fdecl.h"
 
 struct BBox;
 
 struct Tile {
-    int8_t v;
+    uint8_t v;
+    Tile(uint8_t v): v(v) {};
 };
 
 struct TilePos {
@@ -23,4 +25,6 @@ struct TileMap {
     TileMap();
 
     std::vector<TilePos> touching(const BBox& bbox) const;
+    BBoxDiscrete touching_compressed(const BBox& bbox) const;
+    std::vector<TilePos> decompress(const BBoxDiscrete& bbox) const;
 };
