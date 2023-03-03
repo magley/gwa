@@ -216,6 +216,8 @@ public:
     explicit operator long long() const;
     explicit operator float() const;
     explicit operator double() const;
+    explicit operator unsigned() const;
+    explicit operator uint16_t() const;
 };
 
 bool operator==(char i, const fp6& f);

@@ -91,12 +91,11 @@ int main(int argc, char** argv) {
 
     tm.sz = vec2(16, 16);
     tm.map = std::vector<std::vector<uint16_t>>(32);
-    for (auto e : tm.map) {
+    for (auto& e : tm.map) {
         e = std::vector<uint16_t>(32);
     }
 
     // TextureH tex_test = res_mng.texture("../res/img.png");
-    
 
     //-------------------------------------------------------------------------
     //

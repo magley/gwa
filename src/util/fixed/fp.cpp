@@ -721,6 +721,14 @@ fp6::operator int() const {
     return _v >> _FP_N;
 }
 
+fp6::operator unsigned() const {
+    return _v >> _FP_N;
+}
+
+fp6::operator uint16_t() const {
+    return _v >> _FP_N;
+}
+
 fp6::operator long() const {
     return (long)_v >> _FP_N;
 }
