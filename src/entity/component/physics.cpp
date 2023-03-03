@@ -16,24 +16,31 @@ struct cld_bundle {
     fp6 ovel;
     vec2 ovel_full;
     int cmp_dir;
-    EntityID other = ENTITY_NULL;
+    bool did_found = false;
+    //EntityID other = ENTITY_NULL;
 
     cld_bundle(bool use_smaller): cmp_dir(use_smaller ? 1 : -1) {
         val = use_smaller ? FP6_MAX : FP6_MIN;
     }
 
-    void send(fp6 newval, fp6 o_vel, EntityID o, vec2 o_vel_full) {
+    void send(fp6 newval, fp6 o_vel, vec2 o_vel_full) {
         if ((newval + o_vel) * cmp_dir <= val * cmp_dir) {
             val = newval;
-            other = o;
+            did_found = true;
             ovel = o_vel;
             ovel_full = o_vel_full;
         }
     }
 
     bool found() const {
-        return other != ENTITY_NULL;
+        return did_found;
     }
+};
+
+struct CldAgent {
+    uint8_t flags;
+    BBox bbox;
+    vec2 v;
 };
 
 void phys_c::cld_solid(EntityManager& em, EntityID self) {
@@ -46,21 +53,28 @@ void phys_c::cld_solid(EntityManager& em, EntityID self) {
     cld_bundle cb_l(true);
     cld_bundle cb_r(false);
 
+    std::vector<CldAgent> other;
+    for (EntityID o : cld->other) {
+        CldAgent a;
+        a.flags = em.cld(o)->flags;
+        a.bbox = em.cld(o)->bbox + em.body(o)->p;
+        a.v = em.has(o, PHYS) ? em.phys(o)->v : vec2(0, 0);
+
+        other.push_back(a);
+    }
+
     // Floor
 
     bbox = cld->bbox + body->p;
-    for (EntityID o : cld->other) {
-        cld_c* ocld = em.cld(o);
-        if ((ocld->flags & cld_c::SOLID_F) != cld_c::SOLID_F) {
+    for (const CldAgent& a : other) {
+        if ((a.flags & cld_c::SOLID_F) != cld_c::SOLID_F) {
             continue;
         }
 
-        body_c* obody = em.body(o);
-        phys_c* ophys = em.phys(o);
-        const BBox obbox = ocld->bbox + obody->p;
+        const BBox obbox = a.bbox;
         const fp6 target_pos = obbox.u;
 
-        const vec2 ov = em.has(o, PHYS) ? ophys->v : vec2(0, 0);
+        const vec2 ov = a.v;
         if (!(bbox).cld_h_exc((obbox).exp(vec2(0, -1)))) {
             continue;
         }
@@ -74,7 +88,7 @@ void phys_c::cld_solid(EntityManager& em, EntityID self) {
                 (dv < 0 && ov.y > 0 && (bbox.d + dv - target_pos >= -dp_sicky))
             )
         ) {
-            cb_u.send(target_pos, ov.y, o, ov);
+            cb_u.send(target_pos, ov.y, ov);
         }
     }
 
@@ -87,18 +101,15 @@ void phys_c::cld_solid(EntityManager& em, EntityID self) {
     // Ceiling
 
     bbox = cld->bbox + body->p;
-    for (EntityID o : cld->other) {
-        cld_c* ocld = em.cld(o);
-        if ((ocld->flags & cld_c::SOLID_C) != cld_c::SOLID_C) {
+    for (const CldAgent& a : other) {
+        if ((a.flags & cld_c::SOLID_C) != cld_c::SOLID_C) {
             continue;
         }
 
-        body_c* obody = em.body(o);
-        phys_c* ophys = em.phys(o);
-        const BBox obbox = ocld->bbox + obody->p;
+        const BBox obbox = a.bbox;
         const fp6 target_pos = obbox.d;
 
-        const vec2 ov = em.has(o, PHYS) ? ophys->v : vec2(0, 0);
+        const vec2 ov = a.v;
         if (!(bbox).cld_h_exc((obbox).exp(vec2(0, -1)))) {
             continue;
         }
@@ -106,7 +117,7 @@ void phys_c::cld_solid(EntityManager& em, EntityID self) {
         const fp6 dv = v.y - ov.y;
 
         if (dv <= 0 && bbox.u >= target_pos && bbox.u + dv <= target_pos) {
-            cb_d.send(target_pos, ov.y, o, ov);
+            cb_d.send(target_pos, ov.y, ov);
         }
     }
 
@@ -119,18 +130,15 @@ void phys_c::cld_solid(EntityManager& em, EntityID self) {
     // Rwall
 
     bbox = cld->bbox + body->p;
-    for (EntityID o : cld->other) {
-        cld_c* ocld = em.cld(o);
-        if ((ocld->flags & cld_c::SOLID_R) != cld_c::SOLID_R) {
+    for (const CldAgent& a : other) {
+        if ((a.flags & cld_c::SOLID_R) != cld_c::SOLID_R) {
             continue;
         }
 
-        body_c* obody = em.body(o);
-        phys_c* ophys = em.phys(o);
-        const BBox obbox = ocld->bbox + obody->p;
+        const BBox obbox = a.bbox;
         const fp6 target_pos = obbox.l;
 
-        const vec2 ov = em.has(o, PHYS) ? ophys->v : vec2(0, 0);
+        const vec2 ov = a.v;
         if (!(bbox + (v + im - ov)).cld_v_exc((obbox).exp(vec2(0, 0)))) {
             continue;
         }
@@ -138,7 +146,7 @@ void phys_c::cld_solid(EntityManager& em, EntityID self) {
         const fp6 dv = v.x + im.x - ov.x;
 
         if (dv >= 0 && bbox.r <= target_pos && bbox.r + dv >= target_pos) {
-            cb_l.send(target_pos, ov.x, o, ov);
+            cb_l.send(target_pos, ov.x, ov);
         }
     }
 
@@ -158,18 +166,15 @@ void phys_c::cld_solid(EntityManager& em, EntityID self) {
     // Lwall
 
     bbox = cld->bbox + body->p;
-    for (EntityID o : cld->other) {
-        cld_c* ocld = em.cld(o);
-        if ((ocld->flags & cld_c::SOLID_L) != cld_c::SOLID_L) {
+    for (const CldAgent& a : other) {
+        if ((a.flags & cld_c::SOLID_L) != cld_c::SOLID_L) {
             continue;
         }
 
-        body_c* obody = em.body(o);
-        phys_c* ophys = em.phys(o);
-        const BBox obbox = ocld->bbox + obody->p;
+        const BBox obbox = a.bbox;
         const fp6 target_pos = obbox.r;
 
-        const vec2 ov = em.has(o, PHYS) ? ophys->v : vec2(0, 0);
+        const vec2 ov = a.v;
         if (!(bbox + (v + im - ov)).cld_v_exc((obbox).exp(vec2(-1, 0)))) {
             continue;
         }
@@ -177,7 +182,7 @@ void phys_c::cld_solid(EntityManager& em, EntityID self) {
         const fp6 dv = v.x - ov.x;
 
         if (dv <= 0 && bbox.l >= target_pos && bbox.l + dv <= target_pos) {
-            cb_r.send(target_pos, ov.x, o, ov);
+            cb_r.send(target_pos, ov.x, ov);
         }
     }
 
