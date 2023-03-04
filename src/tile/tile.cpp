@@ -27,18 +27,24 @@ BBoxDiscrete TileMap::touching_compressed(const BBox& bbox) const {
 }
 
 std::vector<TilePos> TileMap::decompress(const BBoxDiscrete& bbox) const {
-    const uint16_t y_min = (uint16_t)max(0, bbox.u);
-    const uint16_t y_max = (uint16_t)min((int)map.size(), bbox.d);
-    const uint16_t x_min = (uint16_t)max(0, bbox.l);
-    const uint16_t x_max = (uint16_t)min((int)map[0].size(), bbox.r);
+    int16_t y_min = (int16_t)bbox.u.clamp(-1, (int)map.size());
+    int16_t y_max = (int16_t)bbox.d.clamp(-1, (int)map.size());
+    int16_t x_min = (int16_t)bbox.l.clamp(-1, (int)map[0].size());
+    int16_t x_max = (int16_t)bbox.r.clamp(-1, (int)map[0].size());
 
     std::vector<TilePos> res;
-    for (uint16_t y = y_min; y <= y_max; y++) {
-        if (y > map.size()) {
+    for (int16_t y = y_min; y <= y_max; y++) {
+        if (y < 0) {
+            continue;
+        }
+        if (y >= map.size()) {
             break;
         }
-        for (uint16_t x = x_min; x <= x_max; x++) {
-            if (x > map[y].size()) {
+        for (int16_t x = x_min; x <= x_max; x++) {
+            if (x < 0) {
+                continue;
+            }
+            if (x >= map[y].size()) {
                 break;
             }
             res.push_back(TilePos(x, y));

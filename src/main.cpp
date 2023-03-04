@@ -59,9 +59,9 @@ int main(int argc, char** argv) {
     }
 
     const int view_w = 480;
-    const int view_h = 360;
-    const int win_w = view_w * 2;
-    const int win_h = view_h * 2;
+    const int view_h = 270;
+    const int win_w = view_w * 3;
+    const int win_h = view_h * 3;
 
     SDL_Window* win = SDL_CreateWindow("gwa",
                                        SDL_WINDOWPOS_CENTERED,
@@ -91,18 +91,17 @@ int main(int argc, char** argv) {
 
     tm.sz = vec2(16, 16);
     tm.tileset = { Tile(0), Tile(cld_c::SOLID), Tile(cld_c::SOLID_F), Tile(cld_c::SOLID_L) };
-    tm.map = std::vector<std::vector<uint16_t>>(32);
+    tm.map = std::vector<std::vector<uint16_t>>(17);
     for (auto& e : tm.map) {
-        e = std::vector<uint16_t>(32);
+        e = std::vector<uint16_t>(30);
     }
 
+    int k = 0;
     for (int y = 0; y < tm.map.size(); y += 3) {
         for (int x = 0; x < tm.map[y].size(); x += 3) {
-            tm.map[y][x] = (y / 3 + x / 3) % 4;
+            tm.map[y][x] = (k++) % 4;
         }
     }
-
-    // TextureH tex_test = res_mng.texture("../res/img.png");
 
     //-------------------------------------------------------------------------
     //
@@ -113,6 +112,15 @@ int main(int argc, char** argv) {
 
     string2 data2 = em.save(res_mng);
     to_file("../res/data2.txt", data2);
+
+    string2 tile_data2 = tm.save();
+    to_file("../res/lvl_test.tile", tile_data2);
+
+    string2 tile_data = from_file("../res/lvl_test.tile");
+    tm.load(tile_data);
+
+    string2 tile_data3 = tm.save();
+    to_file("../res/lvl_test2.tile", tile_data3);
 
     //
     //
