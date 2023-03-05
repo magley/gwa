@@ -67,7 +67,7 @@ void phys_c::cld_solid(EntityManager& em, EntityID self, const TileMap& tm) {
         const uint16_t tile_val = tm.map[tp.y][tp.x];
         CldAgent a;
         a.bbox = BBox::from(vec2(tp.x * tm.sz.x, tp.y * tm.sz.y), tm.sz); 
-        a.flags = tm.tileset[tile_val].v;
+        a.flags = tm.tileset.tiles[tile_val].v;
         a.v = vec2(0, 0);
 
         other.push_back(a);

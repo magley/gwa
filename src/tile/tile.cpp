@@ -53,3 +53,8 @@ std::vector<TilePos> TileMap::decompress(const BBoxDiscrete& bbox) const {
 
     return res; 
 }
+
+void TileSet::clear() {
+    tiles.clear();
+    tex = -1;
+}

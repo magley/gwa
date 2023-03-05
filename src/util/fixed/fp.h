@@ -210,15 +210,15 @@ public:
     fp6& operator|=(const fp6& i);
 
     operator bool() const;
-    explicit operator char() const;
-    explicit operator short() const;
-    explicit operator int() const;
-    explicit operator long() const;
-    explicit operator long long() const;
-    explicit operator float() const;
-    explicit operator double() const;
-    explicit operator unsigned() const;
-    explicit operator uint16_t() const;
+    operator char() const;
+    operator short() const;
+    operator int() const;
+    operator long() const;
+    operator long long() const;
+    operator float() const;
+    operator double() const;
+    operator unsigned() const;
+    operator uint16_t() const;
 };
 
 bool operator==(char i, const fp6& f);

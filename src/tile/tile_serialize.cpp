@@ -1,33 +1,34 @@
 #include "tile.h"
 #include "unordered_map"
 #include "util/string/string2.h"
+#include "resource/res_mng.h"
 
 static string2 save_tile(const Tile& t);
 static void save_sz(string2& s, const TileMap* tm);
 static void save_wh(string2& s, const TileMap* tm);
-static void save_tileset(string2& s, const TileMap* tm);
+static void save_tileset(string2& s, const TileMap* tm, ResMng& rm);
 static void save_map(string2& s, const TileMap* tm);
 
 static void load_tile(const string2& s, Tile* t);
 static void load_sz(std::vector<string2>& m, TileMap* tm);
 static void load_wh(std::vector<string2>& m, int* w, int* h);
-static void load_tileset(std::vector<string2>& m, TileMap* tm);
+static void load_tileset(std::vector<string2>& m, TileMap* tm, ResMng& rm);
 static void load_map(std::vector<string2>& m, TileMap* tm, int w, int h);
 
-string2 TileMap::save() const {
+string2 TileMap::save(ResMng& rm) const {
     string2 s;
     s += "{\n";
 
     save_sz(s, this);
     save_wh(s, this);
-    save_tileset(s, this);
+    save_tileset(s, this, rm);
     save_map(s, this);
 
     s += "},\n";
     return s;
 }
 
-void TileMap::load(const string2& s) {
+void TileMap::load(const string2& s, ResMng& rm) {
     // TODO: One .tile file is a collection of all tilemaps. Right now, we just
     // override data. Later when we have a ctx object, implement support for 
     // multiple tilemaps per level.
@@ -52,7 +53,7 @@ void TileMap::load(const string2& s) {
         int w, h;
         load_sz(map.find("sz")->second, this);
         load_wh(map.find("wh")->second, &w, &h);
-        load_tileset(map.find("tileset")->second, this);
+        load_tileset(map.find("tileset")->second, this, rm);
         load_map(map.find("map")->second, this, w, h);
     }
 }
@@ -83,11 +84,12 @@ static void save_wh(string2& s, const TileMap* tm) {
     s += "\n";
 }
 
-static void save_tileset(string2& s, const TileMap* tm) {
+static void save_tileset(string2& s, const TileMap* tm, ResMng& rm) {
     s += "tileset ";
 
-    for (int i = 0; i < tm->tileset.size(); i++) {
-        s += save_tile(tm->tileset[i]) + " ";
+    s += rm.texture_rev(tm->tileset.tex) + " ";
+    for (int i = 0; i < tm->tileset.tiles.size(); i++) {
+        s += save_tile(tm->tileset.tiles[i]) + " ";
     }
 
     s += "\n";
@@ -132,13 +134,15 @@ static void load_wh(std::vector<string2>& m, int* w, int* h) {
     *h = m[2].to_i();
 }
 
-static void load_tileset(std::vector<string2>& m, TileMap* tm) {
+static void load_tileset(std::vector<string2>& m, TileMap* tm, ResMng& rm) {
     tm->tileset.clear();
-    for (int i = 1; i < m.size(); i++) {
+
+    tm->tileset.tex = rm.texture(m[1]);
+    for (int i = 2; i < m.size(); i++) {
         Tile t(-1);
         load_tile(m[i], &t);
 
-        tm->tileset.push_back(t);
+        tm->tileset.tiles.push_back(t);
     }
 }
 
