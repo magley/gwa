@@ -75,6 +75,10 @@ void Tileset::load(GwaCtx& ctx, const string2& s) {
     for (int i = 1; i < tileset_vals_str.size(); i++) {
         tiles.push_back(tileset_vals_str[i].to_i());
     }
+
+    auto it = map.find("sz");
+    sz.x = it->second[1].to_d();
+    sz.y = it->second[2].to_d();
 }
 
 string2 Tileset::save(GwaCtx& ctx) const {
@@ -82,7 +86,7 @@ string2 Tileset::save(GwaCtx& ctx) const {
     s += "{\n";
 
     s += "tex " + ctx.rm->texture_rev(tex) + "\n";
-
+    s += "sz " + string2::from((int)sz.x) + " " + string2::from((int)sz.y) + "\n";
     s += "tiles ";
     for (const auto& t : tiles) {
         s += string2::from(t.v) + " ";

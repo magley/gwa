@@ -67,7 +67,8 @@ void phys_c::cld_solid(GwaCtx& ctx, EntityID self) {
     for (const TilePos& tp : ctx.tm->decompress(cld->tilemap_range)) {
         const uint16_t tile_val = ctx.tm->map[tp.y][tp.x];
         CldAgent a;
-        a.bbox = BBox::from(vec2(tp.x * ctx.tm->sz.x, tp.y * ctx.tm->sz.y), ctx.tm->sz); 
+        vec2 sz = ctx.rm->tileset(ctx.tm->tileset)->sz;
+        a.bbox = BBox::from(vec2(tp.x * ctx.tm->sz.x, tp.y * ctx.tm->sz.y), sz);
         a.flags = ctx.rm->tileset(ctx.tm->tileset)->tiles[tile_val].v;
         a.v = vec2(0, 0);
 

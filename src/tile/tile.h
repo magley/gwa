@@ -21,11 +21,13 @@ struct TilePos {
 };
 
 struct Tileset {
-    std::vector<Tile> tiles;
     TextureH tex;
+    std::vector<Tile> tiles;
+    vec2 sz;
 
     Tileset() {}
-    Tileset(TextureH tex, std::vector<Tile> tiles): tex(tex), tiles(tiles) {}
+    Tileset(TextureH tex, std::vector<Tile> tiles, vec2 sz): tex(tex), 
+        tiles(tiles), sz(sz) {}
 
     string2 save(GwaCtx& ctx) const;
     void load(GwaCtx& ctx, const string2& s);
@@ -34,7 +36,6 @@ struct Tileset {
 };
 
 struct TileMap {
-    //Tileset tileset;
     TilesetH tileset;
     std::vector<std::vector<uint16_t>> map;
     vec2 sz;

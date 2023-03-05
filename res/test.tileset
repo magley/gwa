@@ -1,4 +1,5 @@
 {
     tex ../res/tst_test.png
     tiles 0 15 1 4 8 2
+    sz 16 16
 }

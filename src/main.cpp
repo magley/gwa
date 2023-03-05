@@ -44,8 +44,8 @@ int main(int argc, char** argv) {
 
     const int view_w = 480;
     const int view_h = 270;
-    const int win_w = view_w * 2;
-    const int win_h = view_h * 2;
+    const int win_w = view_w * 3;
+    const int win_h = view_h * 3;
 
     SDL_Window* win = SDL_CreateWindow("gwa",
                                        SDL_WINDOWPOS_CENTERED,
@@ -182,10 +182,11 @@ int main(int argc, char** argv) {
 
         Tileset* tileset = res_mng.tileset(tm.tileset);
         const Texture* txt_tst = res_mng.texture(tileset->tex);
+        vec2 sz = tileset->sz;
         const int w = txt_tst->w;
         const int h = txt_tst->h;
-        const int wn = w / tm.sz.x;
-        const int hn = h / tm.sz.y;
+        const int wn = w / sz.x;
+        const int hn = h / sz.y;
 
         for (uint16_t y = 0; y < tm.map.size(); y++) {
             if ((y + tm.sz.y) * tm.sz.y < cam_extents.u) continue;
@@ -198,9 +199,9 @@ int main(int argc, char** argv) {
                 const Tile t = tileset->tiles[tindex];
                 const uint8_t v = t.v;
 
-                const fp6 xx = (tindex % wn) * tm.sz.x;
-                const fp6 yy = (tindex / hn) * tm.sz.y;
-                const BBox src = BBox::from(vec2(xx, yy), tm.sz);
+                const fp6 xx = (tindex % wn) * sz.x;
+                const fp6 yy = (tindex / hn) * sz.y;
+                const BBox src = BBox::from(vec2(xx, yy), sz);
                 rend.tex(tileset->tex, vec2(x * tm.sz.x, y * tm.sz.y) - cam, 0, src);
             }
         }
