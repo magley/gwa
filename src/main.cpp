@@ -89,7 +89,7 @@ int main(int argc, char** argv) {
     tm.tileset = { Tile(0), Tile(cld_c::SOLID), Tile(cld_c::SOLID_F), Tile(cld_c::SOLID_L) };
     tm.map = std::vector<std::vector<uint16_t>>(17);
     for (auto& e : tm.map) {
-        e = std::vector<uint16_t>(30);
+        e = std::vector<uint16_t>(40);
     }
 
     int k = 0;
@@ -100,6 +100,10 @@ int main(int argc, char** argv) {
     }
 
     TextureH txt_tst_test = res_mng.texture("../res/tst_test.png");
+
+    vec2 cam;
+    const vec2 cam_max = vec2((int)tm.map[0].size() * tm.sz.x, (int)tm.map.size() * tm.sz.y);
+    const vec2 view_sz = vec2(view_w, view_h);
 
     //-------------------------------------------------------------------------
     //
@@ -176,6 +180,13 @@ int main(int argc, char** argv) {
             item->update(em, e);
         }
 
+        for (EntityID e : em.get_all(PLAYER)) {
+            body_c* body = em.body(e);
+            cam = body->p - view_sz / 2;
+            cam.x = cam.x.clamp(0, cam_max.x - view_sz.x);
+            cam.y = cam.y.clamp(0, cam_max.y - view_sz.y);
+            break;
+        }
 
         //
         //
@@ -189,52 +200,37 @@ int main(int argc, char** argv) {
         //---------------------------------------------------------------------
         //
         //
+        const BBox cam_extents = BBox::from(cam, view_sz);
 
-        // for (fp6 yy = 0; yy < win_h; yy += tm.sz.y) {
-        //     rend.line(vec2(0, yy), vec2(win_w, yy), {96, 96, 96, 255});
-        // }
+        for (fp6 yy = 0; yy <= view_h + tm.sz.y; yy += tm.sz.y) {
+            const fp6 y_ = (int)((yy + cam.y) / tm.sz.y) * tm.sz.y;
+            rend.line(vec2(cam_extents.l, y_) - cam, vec2(cam_extents.r, y_) - cam, {96, 96, 96, 255});
+        }
 
-        // for (fp6 xx = 0; xx < win_w; xx += tm.sz.x) {
-        //     rend.line(vec2(xx, 0), vec2(xx, win_h), {96, 96, 96, 255});
-        // }
+        for (fp6 xx = 0; xx <= view_w + tm.sz.x; xx += tm.sz.x) {
+            const fp6 x_ = (int)((xx + cam.x) / tm.sz.x) * tm.sz.x;
+            rend.line(vec2(x_, cam_extents.u) - cam, vec2(x_, cam_extents.d) - cam, {96, 96, 96, 255});
+        }
 
-
-        ///
         const Texture* txt_tst = res_mng.texture(txt_tst_test);
         const int w = txt_tst->w;
         const int h = txt_tst->h;
 
         for (uint16_t y = 0; y < tm.map.size(); y++) {
-            if (y * tm.sz.y < 0 || (y + 1) * tm.sz.y >= view_h) {
-                break;
-            }
+            if ((y + tm.sz.y) * tm.sz.y < cam_extents.u) continue;
+            if (y * tm.sz.y > cam_extents.d) break;
             for (uint16_t x = 0; x < tm.map[y].size(); x++) {
-                if (x * tm.sz.x < 0 || (x + 1) * tm.sz.x >= view_w) {
-                    break;
-                }
+                if ((x + tm.sz.x) * tm.sz.x < cam_extents.l) continue;
+                if (x * tm.sz.x > cam_extents.r) break;
+
                 const uint16_t tindex = tm.map[y][x];
                 const Tile t = tm.tileset[tindex];
                 const uint8_t v = t.v;
 
-
-
                 const fp6 xx = (tindex % w) * tm.sz.x;
                 const fp6 yy = (tindex / w) * tm.sz.y;
                 const BBox src = BBox::from(vec2(xx, yy), tm.sz);
-                rend.tex(txt_tst_test, vec2(x * tm.sz.x, y * tm.sz.y), 0, src);
-
-                // if ((v & cld_c::SOLID_F) == cld_c::SOLID_F) {
-                //     rend.rectf(BBox::from(vec2(x * tm.sz.x, y * tm.sz.y), vec2(tm.sz.x, 2)), {255, 0, 0, 255});
-                // }
-                // if ((v & cld_c::SOLID_C) == cld_c::SOLID_C) {
-                //     rend.rectf(BBox::from(vec2(x * tm.sz.x, y * tm.sz.y + tm.sz.y - 2), vec2(tm.sz.x, 2)), {255, 0, 0, 255});
-                // }
-                // if ((v & cld_c::SOLID_L) == cld_c::SOLID_L) {
-                //     rend.rectf(BBox::from(vec2(x * tm.sz.x + tm.sz.x - 2, y * tm.sz.y), vec2(2, tm.sz.y)), {255, 0, 0, 255});
-                // }
-                // if ((v & cld_c::SOLID_R) == cld_c::SOLID_R) {
-                //     rend.rectf(BBox::from(vec2(x * tm.sz.x, y * tm.sz.y), vec2(2, tm.sz.y)), {255, 0, 0, 255});
-                // }
+                rend.tex(txt_tst_test, vec2(x * tm.sz.x, y * tm.sz.y) - cam, 0, src);
             }
         }
 
@@ -245,7 +241,7 @@ int main(int argc, char** argv) {
 
                 for (auto& t : tiles_touching) {
                     BBox rect = BBox::from(vec2(t.x * tm.sz.x, t.y * tm.sz.y), tm.sz);
-                    rend.rectf(rect, {64, 64, 64, 96});
+                    rend.rectf(rect + (-cam), {64, 64, 64, 96});
                 }
             }
 
@@ -253,10 +249,10 @@ int main(int argc, char** argv) {
                 body_c* body = em.body(e);
                 cld_c* cld = em.cld(e);
 
-                rend.rect(cld->bbox + body->p, {180, 180, 180, 255});
+                rend.rect(cld->bbox + (body->p - cam), {180, 180, 180, 255});
                 if (cld->other.size() == 0) {
                 } else {
-                    rend.rectf(cld->bbox + body->p, {32, 255, 96, 96});
+                    rend.rectf(cld->bbox + (body->p - cam), {32, 255, 96, 96});
                 }
             }
 
@@ -267,12 +263,14 @@ int main(int argc, char** argv) {
 
                 if (em.has(e, CLD)) {
                     cld_c* cld = em.cld(e);
-                    rend.tex_sized(tex, body->p, 0, cld->bbox.size());
+                    rend.tex_sized(tex, body->p - cam, 0, cld->bbox.size());
                 } else {
-                    rend.tex(tex, body->p, 0);
+                    rend.tex(tex, body->p - cam, 0);
                 }
             }
         }
+
+        rend.rect(BBox::from(vec2(0, 0) - cam, cam_max), {0, 255, 0, 255});
 
         //
         //
