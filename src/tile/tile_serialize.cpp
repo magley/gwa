@@ -2,6 +2,7 @@
 #include "unordered_map"
 #include "util/string/string2.h"
 #include "resource/res_mng.h"
+#include "ctx/ctx.h"
 
 static string2 save_tile(const Tile& t);
 static void save_sz(string2& s, const TileMap* tm);
@@ -15,20 +16,20 @@ static void load_wh(std::vector<string2>& m, int* w, int* h);
 static void load_tileset(std::vector<string2>& m, TileMap* tm, ResMng& rm);
 static void load_map(std::vector<string2>& m, TileMap* tm, int w, int h);
 
-string2 TileMap::save(ResMng& rm) const {
+string2 TileMap::save(GwaCtx& ctx) const {
     string2 s;
     s += "{\n";
 
     save_sz(s, this);
     save_wh(s, this);
-    save_tileset(s, this, rm);
+    save_tileset(s, this, *ctx.rm);
     save_map(s, this);
 
     s += "},\n";
     return s;
 }
 
-void TileMap::load(const string2& s, ResMng& rm) {
+void TileMap::load(GwaCtx& ctx, const string2& s) {
     // TODO: One .tile file is a collection of all tilemaps. Right now, we just
     // override data. Later when we have a ctx object, implement support for 
     // multiple tilemaps per level.
@@ -53,7 +54,7 @@ void TileMap::load(const string2& s, ResMng& rm) {
         int w, h;
         load_sz(map.find("sz")->second, this);
         load_wh(map.find("wh")->second, &w, &h);
-        load_tileset(map.find("tileset")->second, this, rm);
+        load_tileset(map.find("tileset")->second, this, *ctx.rm);
         load_map(map.find("map")->second, this, w, h);
     }
 }

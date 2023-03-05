@@ -4,6 +4,7 @@
 #include <vector>
 #include "entity/typedef.h"
 #include "tile/fdecl.h"
+#include "ctx/fdecl.h"
 
 struct cld_c {
     BBox bbox;
@@ -26,17 +27,17 @@ struct cld_c {
     // Use this instead of bbox.cld() because this takes position into account.
     // Will not check if other has a cld.
     // See also collision_excl().
-    bool collision(EntityManager& em, EntityID self, EntityID other);
+    bool collision(GwaCtx& ctx, EntityID self, EntityID other);
 
     // Exclusive version of collision() where edge intersection does not pass.
     // Will not check if other has a cld.
     // See also collision().
-    bool collision_excl(EntityManager& em, EntityID self, EntityID other);
+    bool collision_excl(GwaCtx& ctx, EntityID self, EntityID other);
 
     void solve(fp6 curr, fp6 desired, fp6* in) const;
 
     // Find candidates for collision. Bounding boxes are expanded for precision.
-    void build_other(EntityManager& em, EntityID self);
+    void build_other(GwaCtx& ctx, EntityID self);
 
-    void build_tilemap_range(EntityManager& em, EntityID self, const TileMap& tm);
+    void build_tilemap_range(GwaCtx& ctx, EntityID self);
 };

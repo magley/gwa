@@ -11,10 +11,10 @@
 #include "platform/video.h"
 
 #include "entity/entity.h"
-
 #include "resource/res_mng.h"
-
 #include "tile/tile.h"
+
+#include "ctx/ctx.h"
 
 void print_err(const char* prefix, const char* msg, const char* suffix) {
     printf("\033[0;37m%s\033[0;31m%s\033[0;37m%s", prefix, msg, suffix);
@@ -41,6 +41,28 @@ string2 from_file(const char* file) {
 void to_file(const char* file, const string2& str) {
     std::ofstream ff(file);
     ff.write(str.c_str(), str.size());
+}
+
+void dummy_init_tm(GwaCtx& ctx) {
+    TextureH txt_tst_test = ctx.rm->texture("../res/tst_test.png");
+
+    ctx.tm->sz = vec2(16, 16);
+    ctx.tm->tileset = TileSet(txt_tst_test, { 
+        Tile(0), Tile(cld_c::SOLID), Tile(cld_c::SOLID_F), Tile(cld_c::SOLID_L),
+        Tile(cld_c::SOLID_R), Tile(cld_c::SOLID_C)
+    });
+
+    ctx.tm->map = std::vector<std::vector<uint16_t>>(17);
+    for (auto& e : ctx.tm->map) {
+        e = std::vector<uint16_t>(40);
+    }
+
+    int k = 0;
+    for (int y = 0; y < ctx.tm->map.size(); y += 3) {
+        for (int x = 0; x < ctx.tm->map[y].size(); x += 3) {
+            ctx.tm->map[y][x] = (k++) % 6;
+        }
+    }
 }
 
 int main(int argc, char** argv) {
@@ -85,53 +107,18 @@ int main(int argc, char** argv) {
     Renderer rend = Renderer(sdl_renderer, &res_mng);
     TileMap tm;
 
-    TextureH txt_tst_test = res_mng.texture("../res/tst_test.png");
+    GwaCtx ctx(&input, &rend, &em, &res_mng, &tm);
 
-    tm.sz = vec2(16, 16);
-    tm.tileset = TileSet(txt_tst_test, { 
-        Tile(0), Tile(cld_c::SOLID), Tile(cld_c::SOLID_F), Tile(cld_c::SOLID_L),
-        Tile(cld_c::SOLID_R), Tile(cld_c::SOLID_C)
-    });
-    tm.map = std::vector<std::vector<uint16_t>>(17);
-    for (auto& e : tm.map) {
-        e = std::vector<uint16_t>(40);
-    }
-
-    int k = 0;
-    for (int y = 0; y < tm.map.size(); y += 3) {
-        for (int x = 0; x < tm.map[y].size(); x += 3) {
-            tm.map[y][x] = (k++) % 6;
-        }
-    }
+    em.load(ctx, from_file("../res/data1.txt"));
+    to_file("../res/data2.txt", em.save(ctx));
+    tm.load(ctx, from_file("../res/lvl_test.tile"));
+    to_file("../res/lvl_test2.tile", tm.save(ctx));
 
     TextureH bg_sky_gradient = res_mng.texture("../res/bg_skygrad.png");
 
     vec2 cam;
     const vec2 cam_max = vec2((int)tm.map[0].size() * tm.sz.x, (int)tm.map.size() * tm.sz.y);
     const vec2 view_sz = vec2(view_w, view_h);
-
-    //-------------------------------------------------------------------------
-    //
-    //
-
-    string2 data = from_file("../res/data1.txt");
-    em.load(data, res_mng);
-
-    string2 data2 = em.save(res_mng);
-    to_file("../res/data2.txt", data2);
-
-    string2 tile_data2 = tm.save(res_mng);
-    to_file("../res/lvl_test.tile", tile_data2);
-
-    string2 tile_data = from_file("../res/lvl_test.tile");
-    tm.load(tile_data, res_mng);
-
-    string2 tile_data3 = tm.save(res_mng);
-    to_file("../res/lvl_test2.tile", tile_data3);
-
-    //
-    //
-    //-------------------------------------------------------------------------
 
     bool rend_grid = true;
 
@@ -160,35 +147,35 @@ int main(int argc, char** argv) {
 
         for (EntityID e : em.get_all(PLAYER)) {
             player_c* player = em.player(e);
-            player->move(em, e, input);
+            player->move(ctx, e);
         }
 
         for (EntityID e : em.get_all(CLD | PHYS)) {
             cld_c* cld = em.cld(e);
-            cld->build_other(em, e);
-            cld->build_tilemap_range(em, e, tm);
+            cld->build_other(ctx, e);
+            cld->build_tilemap_range(ctx, e);
         }
 
         for (EntityID e : em.get_all(PHYS)) {
             phys_c* phys = em.phys(e);
             if ((phys->flags & phys_c::CLD_SOLID) == phys_c::CLD_SOLID) {
-                phys->cld_solid(em, e, tm);
+                phys->cld_solid(ctx, e);
             }
         }
 
         for (EntityID e : em.get_all(PHYS)) {
             phys_c* phys = em.phys(e);
-            phys->move(em, e);
+            phys->move(ctx, e);
         }
 
         for (EntityID e : em.get_all(PLAYER)) {
             player_c* player = em.player(e);
-            player->collect_items(em, e);
+            player->collect_items(ctx, e);
         }
 
         for (EntityID e : em.get_all(ITEM)) {
             item_c* item = em.item(e);
-            item->update(em, e);
+            item->update(ctx, e);
         }
 
         for (EntityID e : em.get_all(PLAYER)) {

@@ -1,9 +1,10 @@
 #include "physics.h"
 #include "entity/entity.h"
 #include "tile/tile.h"
+#include "ctx/ctx.h"
 
-void phys_c::move(EntityManager& em, EntityID self) {
-    body_c* body = em.body(self);
+void phys_c::move(GwaCtx& ctx, EntityID self) {
+    body_c* body = ctx.em->body(self);
 
     body->p += im;
     body->p += v;
@@ -44,9 +45,9 @@ struct CldAgent {
     vec2 v;
 };
 
-void phys_c::cld_solid(EntityManager& em, EntityID self, const TileMap& tm) {
-    body_c* body = em.body(self);
-    cld_c* cld = em.cld(self);
+void phys_c::cld_solid(GwaCtx& ctx, EntityID self) {
+    body_c* body = ctx.em->body(self);
+    cld_c* cld = ctx.em->cld(self);
     BBox bbox;
 
     cld_bundle cb_u(true);
@@ -57,17 +58,17 @@ void phys_c::cld_solid(EntityManager& em, EntityID self, const TileMap& tm) {
     std::vector<CldAgent> other;
     for (EntityID o : cld->other) {
         CldAgent a;
-        a.flags = em.cld(o)->flags;
-        a.bbox = em.cld(o)->bbox + em.body(o)->p;
-        a.v = em.has(o, PHYS) ? em.phys(o)->v : vec2(0, 0);
+        a.flags = ctx.em->cld(o)->flags;
+        a.bbox = ctx.em->cld(o)->bbox + ctx.em->body(o)->p;
+        a.v = ctx.em->has(o, PHYS) ? ctx.em->phys(o)->v : vec2(0, 0);
 
         other.push_back(a);
     }
-    for (const TilePos& tp : tm.decompress(cld->tilemap_range)) {
-        const uint16_t tile_val = tm.map[tp.y][tp.x];
+    for (const TilePos& tp : ctx.tm->decompress(cld->tilemap_range)) {
+        const uint16_t tile_val = ctx.tm->map[tp.y][tp.x];
         CldAgent a;
-        a.bbox = BBox::from(vec2(tp.x * tm.sz.x, tp.y * tm.sz.y), tm.sz); 
-        a.flags = tm.tileset.tiles[tile_val].v;
+        a.bbox = BBox::from(vec2(tp.x * ctx.tm->sz.x, tp.y * ctx.tm->sz.y), ctx.tm->sz); 
+        a.flags = ctx.tm->tileset.tiles[tile_val].v;
         a.v = vec2(0, 0);
 
         other.push_back(a);

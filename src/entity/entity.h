@@ -5,6 +5,7 @@
 #include "component/EVERYTHING.h"
 #include <unordered_map>
 #include "resource/fwdecl.h"
+#include "ctx/fdecl.h"
 
 struct string2;
 
@@ -36,8 +37,8 @@ struct Entity {
     player_c player;
     spr_c    spr;
 
-    string2 save(const EntityManager& em, ResMng& rm) const;
-    void load(EntityManager& em, const string2& s, ResMng& rm);
+    string2 save(GwaCtx& ctx) const;
+    void load(GwaCtx& ctx, const string2& s);
 };
 
 struct EntityRef {
@@ -80,6 +81,6 @@ struct EntityManager {
     uint32_t invalidate_refs_to_destroyed_entities();
     void remove_invalid_refs();
 
-    string2 save(ResMng& rm) const;
-    void load(const string2& s, ResMng& rm);
+    string2 save(GwaCtx& ctx) const;
+    void load(GwaCtx& ctx, const string2& s);
 };

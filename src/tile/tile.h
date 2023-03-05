@@ -4,6 +4,7 @@
 #include "util/geometry/vec2.h"
 #include "fdecl.h"
 #include "resource/fwdecl.h"
+#include "ctx/fdecl.h"
 
 struct string2;
 struct BBox;
@@ -40,6 +41,6 @@ struct TileMap {
     BBoxDiscrete touching_compressed(const BBox& bbox) const;
     std::vector<TilePos> decompress(const BBoxDiscrete& bbox) const;
 
-    string2 save(ResMng& rm) const;
-    void load(const string2& s, ResMng& rm);
+    string2 save(GwaCtx& ctx) const;
+    void load(GwaCtx& ctx, const string2& s);
 };
