@@ -15,6 +15,7 @@
 #include "tile/tile.h"
 
 #include "ctx/ctx.h"
+#include "util/file/futil.h"
 
 void print_err(const char* prefix, const char* msg, const char* suffix) {
     printf("\033[0;37m%s\033[0;31m%s\033[0;37m%s", prefix, msg, suffix);
@@ -28,41 +29,6 @@ void print_sdl_error() {
 void handle_sdl_error() {
     print_sdl_error();
     exit(1);
-}
-
-string2 from_file(const char* file) {
-    std::ifstream ff(file);
-    std::stringstream ss;
-    ss << ff.rdbuf();
-    string2 s = ss.str();
-    return s;
-}
-
-void to_file(const char* file, const string2& str) {
-    std::ofstream ff(file);
-    ff.write(str.c_str(), str.size());
-}
-
-void dummy_init_tm(GwaCtx& ctx) {
-    TextureH txt_tst_test = ctx.rm->texture("../res/tst_test.png");
-
-    ctx.tm->sz = vec2(16, 16);
-    ctx.tm->tileset = TileSet(txt_tst_test, { 
-        Tile(0), Tile(cld_c::SOLID), Tile(cld_c::SOLID_F), Tile(cld_c::SOLID_L),
-        Tile(cld_c::SOLID_R), Tile(cld_c::SOLID_C)
-    });
-
-    ctx.tm->map = std::vector<std::vector<uint16_t>>(17);
-    for (auto& e : ctx.tm->map) {
-        e = std::vector<uint16_t>(40);
-    }
-
-    int k = 0;
-    for (int y = 0; y < ctx.tm->map.size(); y += 3) {
-        for (int x = 0; x < ctx.tm->map[y].size(); x += 3) {
-            ctx.tm->map[y][x] = (k++) % 6;
-        }
-    }
 }
 
 int main(int argc, char** argv) {
@@ -101,6 +67,8 @@ int main(int argc, char** argv) {
     SDL_Event event;
     bool is_running = true;
 
+    //=========================================================================
+
     Input input;
     EntityManager em;
     ResMng res_mng = ResMng(sdl_renderer);
@@ -108,6 +76,9 @@ int main(int argc, char** argv) {
     TileMap tm;
 
     GwaCtx ctx(&input, &rend, &em, &res_mng, &tm);
+    res_mng.init_ctx(&ctx);
+
+    //=========================================================================
 
     em.load(ctx, from_file("../res/data1.txt"));
     to_file("../res/data2.txt", em.save(ctx));
@@ -141,9 +112,7 @@ int main(int argc, char** argv) {
 
         em.cleanup();
 
-        //---------------------------------------------------------------------
-        //
-        //
+        //=====================================================================
 
         for (EntityID e : em.get_all(PLAYER)) {
             player_c* player = em.player(e);
@@ -186,18 +155,15 @@ int main(int argc, char** argv) {
             break;
         }
 
-        //
-        //
-        //---------------------------------------------------------------------
+        //=====================================================================
 
         status = rend.clear(128, 128, 128);
         if (status != 0) {
             handle_sdl_error();
         }
 
-        //---------------------------------------------------------------------
-        //
-        //
+        //=====================================================================
+
         const BBox cam_extents = BBox::from(cam, view_sz);
 
         rend.tex(bg_sky_gradient, vec2(0, 0), 0);
@@ -214,7 +180,8 @@ int main(int argc, char** argv) {
             }
         }
 
-        const Texture* txt_tst = res_mng.texture(tm.tileset.tex);
+        Tileset* tileset = res_mng.tileset(tm.tileset);
+        const Texture* txt_tst = res_mng.texture(tileset->tex);
         const int w = txt_tst->w;
         const int h = txt_tst->h;
         const int wn = w / tm.sz.x;
@@ -228,13 +195,13 @@ int main(int argc, char** argv) {
                 if (x * tm.sz.x > cam_extents.r) break;
 
                 const uint16_t tindex = tm.map[y][x];
-                const Tile t = tm.tileset.tiles[tindex];
+                const Tile t = tileset->tiles[tindex];
                 const uint8_t v = t.v;
 
                 const fp6 xx = (tindex % wn) * tm.sz.x;
                 const fp6 yy = (tindex / hn) * tm.sz.y;
                 const BBox src = BBox::from(vec2(xx, yy), tm.sz);
-                rend.tex(tm.tileset.tex, vec2(x * tm.sz.x, y * tm.sz.y) - cam, 0, src);
+                rend.tex(tileset->tex, vec2(x * tm.sz.x, y * tm.sz.y) - cam, 0, src);
             }
         }
 
@@ -266,9 +233,7 @@ int main(int argc, char** argv) {
 
         rend.rect(BBox::from(vec2(0, 0) - cam, cam_max), {0, 255, 0, 255});
 
-        //
-        //
-        //---------------------------------------------------------------------
+        //=====================================================================
 
         rend.swap_buffers();
     }

@@ -6,5 +6,5 @@ using BBoxDiscrete = BBox;
 
 struct Tile;
 struct TilePos;
-struct TileSet;
+struct Tileset;
 struct TileMap;

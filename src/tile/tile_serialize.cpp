@@ -41,7 +41,7 @@ void TileMap::load(GwaCtx& ctx, const string2& s) {
         }
         
         map.clear();
-        tileset.clear();
+        tileset = -1;
 
         const auto decls = s.slice(1, -2).split_unless_between("\n", {"[]"}, false);
         std::unordered_map<string2, std::vector<string2>> map;
@@ -57,6 +57,40 @@ void TileMap::load(GwaCtx& ctx, const string2& s) {
         load_tileset(map.find("tileset")->second, this, *ctx.rm);
         load_map(map.find("map")->second, this, w, h);
     }
+}
+
+void Tileset::load(GwaCtx& ctx, const string2& s) {
+    tiles.clear();
+
+    const auto decls = s.slice(1, -2).split_unless_between("\n", {"[]"}, false);
+    std::unordered_map<string2, std::vector<string2>> map;
+    for (const auto& decl : decls) {
+        auto parts = decl.trim().split_unless_between(" ", {"\"\""}, false);
+        map.insert({parts[0], parts});
+    }
+
+    tex = ctx.rm->texture(map.find("tex")->second[1]);
+
+    auto tileset_vals_str = map.find("tiles")->second;
+    for (int i = 1; i < tileset_vals_str.size(); i++) {
+        tiles.push_back(tileset_vals_str[i].to_i());
+    }
+}
+
+string2 Tileset::save(GwaCtx& ctx) const {
+    string2 s;
+    s += "{\n";
+
+    s += "tex " + ctx.rm->texture_rev(tex) + "\n";
+
+    s += "tiles ";
+    for (const auto& t : tiles) {
+        s += string2::from(t.v) + " ";
+    }
+    s += "\n";
+
+    s += "}\n";
+    return s;
 }
 
 //=============================================================================
@@ -87,12 +121,7 @@ static void save_wh(string2& s, const TileMap* tm) {
 
 static void save_tileset(string2& s, const TileMap* tm, ResMng& rm) {
     s += "tileset ";
-
-    s += rm.texture_rev(tm->tileset.tex) + " ";
-    for (int i = 0; i < tm->tileset.tiles.size(); i++) {
-        s += save_tile(tm->tileset.tiles[i]) + " ";
-    }
-
+    s += rm.tileset_rev(tm->tileset);
     s += "\n";
 }
 
@@ -136,15 +165,7 @@ static void load_wh(std::vector<string2>& m, int* w, int* h) {
 }
 
 static void load_tileset(std::vector<string2>& m, TileMap* tm, ResMng& rm) {
-    tm->tileset.clear();
-
-    tm->tileset.tex = rm.texture(m[1]);
-    for (int i = 2; i < m.size(); i++) {
-        Tile t(-1);
-        load_tile(m[i], &t);
-
-        tm->tileset.tiles.push_back(t);
-    }
+    tm->tileset = rm.tileset(m[1]);
 }
 
 static void load_map(std::vector<string2>& m, TileMap* tm, int w, int h) {
