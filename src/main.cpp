@@ -11,7 +11,6 @@
 #include "platform/video.h"
 
 #include "entity/entity.h"
-#include "entity/entity_test.hpp"
 
 #include "resource/res_mng.h"
 
@@ -45,9 +44,6 @@ void to_file(const char* file, const string2& str) {
 }
 
 int main(int argc, char** argv) {
-    Entity_Test et;
-    et.run();
-
     int status = SDL_Init(SDL_INIT_VIDEO);
     if (status != 0) {
         handle_sdl_error();
@@ -102,6 +98,8 @@ int main(int argc, char** argv) {
             tm.map[y][x] = (k++) % 4;
         }
     }
+
+    TextureH txt_tst_test = res_mng.texture("../res/tst_test.png");
 
     //-------------------------------------------------------------------------
     //
@@ -192,32 +190,51 @@ int main(int argc, char** argv) {
         //
         //
 
-        for (fp6 yy = 0; yy < win_h; yy += tm.sz.y) {
-            rend.line(vec2(0, yy), vec2(win_w, yy), {96, 96, 96, 255});
-        }
+        // for (fp6 yy = 0; yy < win_h; yy += tm.sz.y) {
+        //     rend.line(vec2(0, yy), vec2(win_w, yy), {96, 96, 96, 255});
+        // }
 
-        for (fp6 xx = 0; xx < win_w; xx += tm.sz.x) {
-            rend.line(vec2(xx, 0), vec2(xx, win_h), {96, 96, 96, 255});
-        }
+        // for (fp6 xx = 0; xx < win_w; xx += tm.sz.x) {
+        //     rend.line(vec2(xx, 0), vec2(xx, win_h), {96, 96, 96, 255});
+        // }
+
+
+        ///
+        const Texture* txt_tst = res_mng.texture(txt_tst_test);
+        const int w = txt_tst->w;
+        const int h = txt_tst->h;
 
         for (uint16_t y = 0; y < tm.map.size(); y++) {
+            if (y * tm.sz.y < 0 || (y + 1) * tm.sz.y >= view_h) {
+                break;
+            }
             for (uint16_t x = 0; x < tm.map[y].size(); x++) {
+                if (x * tm.sz.x < 0 || (x + 1) * tm.sz.x >= view_w) {
+                    break;
+                }
                 const uint16_t tindex = tm.map[y][x];
                 const Tile t = tm.tileset[tindex];
                 const uint8_t v = t.v;
 
-                if ((v & cld_c::SOLID_F) == cld_c::SOLID_F) {
-                    rend.rectf(BBox::from(vec2(x * tm.sz.x, y * tm.sz.y), vec2(tm.sz.x, 2)), {255, 0, 0, 255});
-                }
-                if ((v & cld_c::SOLID_C) == cld_c::SOLID_C) {
-                    rend.rectf(BBox::from(vec2(x * tm.sz.x, y * tm.sz.y + tm.sz.y - 2), vec2(tm.sz.x, 2)), {255, 0, 0, 255});
-                }
-                if ((v & cld_c::SOLID_L) == cld_c::SOLID_L) {
-                    rend.rectf(BBox::from(vec2(x * tm.sz.x + tm.sz.x - 2, y * tm.sz.y), vec2(2, tm.sz.y)), {255, 0, 0, 255});
-                }
-                if ((v & cld_c::SOLID_R) == cld_c::SOLID_R) {
-                    rend.rectf(BBox::from(vec2(x * tm.sz.x, y * tm.sz.y), vec2(2, tm.sz.y)), {255, 0, 0, 255});
-                }
+
+
+                const fp6 xx = (tindex % w) * tm.sz.x;
+                const fp6 yy = (tindex / w) * tm.sz.y;
+                const BBox src = BBox::from(vec2(xx, yy), tm.sz);
+                rend.tex(txt_tst_test, vec2(x * tm.sz.x, y * tm.sz.y), 0, src);
+
+                // if ((v & cld_c::SOLID_F) == cld_c::SOLID_F) {
+                //     rend.rectf(BBox::from(vec2(x * tm.sz.x, y * tm.sz.y), vec2(tm.sz.x, 2)), {255, 0, 0, 255});
+                // }
+                // if ((v & cld_c::SOLID_C) == cld_c::SOLID_C) {
+                //     rend.rectf(BBox::from(vec2(x * tm.sz.x, y * tm.sz.y + tm.sz.y - 2), vec2(tm.sz.x, 2)), {255, 0, 0, 255});
+                // }
+                // if ((v & cld_c::SOLID_L) == cld_c::SOLID_L) {
+                //     rend.rectf(BBox::from(vec2(x * tm.sz.x + tm.sz.x - 2, y * tm.sz.y), vec2(2, tm.sz.y)), {255, 0, 0, 255});
+                // }
+                // if ((v & cld_c::SOLID_R) == cld_c::SOLID_R) {
+                //     rend.rectf(BBox::from(vec2(x * tm.sz.x, y * tm.sz.y), vec2(2, tm.sz.y)), {255, 0, 0, 255});
+                // }
             }
         }
 
