@@ -65,20 +65,41 @@ void Tileset::load(GwaCtx& ctx, const string2& s) {
     const auto decls = s.slice(1, -2).split_unless_between("\n", {"[]"}, false);
     std::unordered_map<string2, std::vector<string2>> map;
     for (const auto& decl : decls) {
-        auto parts = decl.trim().split_unless_between(" ", {"\"\""}, false);
+        auto parts = decl.trim().split_unless_between(" ", {"\"\"", "[]"}, false);
         map.insert({parts[0], parts});
     }
 
     tex = ctx.rm->texture(map.find("tex")->second[1]);
 
-    auto tileset_vals_str = map.find("tiles")->second;
-    for (int i = 1; i < tileset_vals_str.size(); i++) {
-        tiles.push_back(tileset_vals_str[i].to_i());
-    }
-
     auto it = map.find("sz");
     sz.x = it->second[1].to_d();
     sz.y = it->second[2].to_d();
+
+    auto tiles_arr = map.find("tiles")->second[1].trim().slice(1, -2).split(",", false);
+
+    for (const auto& tile : tiles_arr) {
+        const string2 tile_inner = tile.trim().slice(1, -2).trim();
+        const auto tdecl = tile_inner.split("\n", false);
+
+        std::unordered_map<string2, std::vector<string2>> tdecl_map;
+        for (const auto& decl : tdecl) {
+            auto parts = decl.trim().split_unless_between(" ", {"\"\"", "[]"}, false);
+            tdecl_map.insert({parts[0], parts});
+        }
+
+        auto it = tdecl_map.find("v");
+        int v = it->second[1].to_l();
+
+        it = tdecl_map.find("pos");
+        std::vector<vec2> pos;
+        for (int i = 1; i < it->second.size() - 1; i += 2) {
+            fp6 x = it->second[i].to_d();
+            fp6 y = it->second[i + 1].to_d();
+            pos.push_back({x, y});
+        }
+
+        tiles.push_back(Tile(v, pos));   
+    }
 }
 
 string2 Tileset::save(GwaCtx& ctx) const {
@@ -87,11 +108,21 @@ string2 Tileset::save(GwaCtx& ctx) const {
 
     s += "tex " + ctx.rm->texture_rev(tex) + "\n";
     s += "sz " + string2::from((int)sz.x) + " " + string2::from((int)sz.y) + "\n";
-    s += "tiles ";
+    s += "tiles [";
     for (const auto& t : tiles) {
-        s += string2::from(t.v) + " ";
+        s += "{";
+        s += "v " + string2::from(t.v) + "\n";
+        s += "pos ";
+        std::vector<string2> pos_vec_s;
+        for (const auto& v : t.pos) {
+            pos_vec_s.push_back(string2::from((int)v.x));
+            pos_vec_s.push_back(string2::from((int)v.y));
+        }
+        s += string2::join(pos_vec_s, " ");
+        s += "\n";
+        s += "},";
     }
-    s += "\n";
+    s += "]\n";
 
     s += "}\n";
     return s;

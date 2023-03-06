@@ -77,6 +77,8 @@ int main(int argc, char** argv) {
 
     GwaCtx ctx(&input, &rend, &em, &res_mng, &tm);
     res_mng.init_ctx(&ctx);
+    fp6 tile_anim_frame = 0;
+    fp6 tile_anim_spd = 0.15;
 
     //=========================================================================
 
@@ -155,6 +157,8 @@ int main(int argc, char** argv) {
             break;
         }
 
+        tile_anim_frame += tile_anim_spd;
+
         //=====================================================================
 
         status = rend.clear(128, 128, 128);
@@ -182,11 +186,7 @@ int main(int argc, char** argv) {
 
         Tileset* tileset = res_mng.tileset(tm.tileset);
         const Texture* txt_tst = res_mng.texture(tileset->tex);
-        vec2 sz = tileset->sz;
-        const int w = txt_tst->w;
-        const int h = txt_tst->h;
-        const int wn = w / sz.x;
-        const int hn = h / sz.y;
+        const vec2 sz = tileset->sz;
 
         for (uint16_t y = 0; y < tm.map.size(); y++) {
             if ((y + tm.sz.y) * tm.sz.y < cam_extents.u) continue;
@@ -199,8 +199,10 @@ int main(int argc, char** argv) {
                 const Tile t = tileset->tiles[tindex];
                 const uint8_t v = t.v;
 
-                const fp6 xx = (tindex % wn) * sz.x;
-                const fp6 yy = (tindex / hn) * sz.y;
+                int tile_anim_index = (int)(tile_anim_frame % (int)t.pos.size());
+
+                const fp6 xx = t.pos[tile_anim_index].x;
+                const fp6 yy = t.pos[tile_anim_index].y;
                 const BBox src = BBox::from(vec2(xx, yy), sz);
                 rend.tex(tileset->tex, vec2(x * tm.sz.x, y * tm.sz.y) - cam, 0, src);
             }

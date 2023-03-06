@@ -11,7 +11,8 @@ struct BBox;
 
 struct Tile {
     uint8_t v;
-    Tile(uint8_t v): v(v) {};
+    std::vector<vec2> pos;
+    Tile(uint8_t v, const std::vector<vec2>& pos): v(v), pos(pos) {};
 };
 
 struct TilePos {
