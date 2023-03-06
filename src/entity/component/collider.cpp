@@ -51,7 +51,11 @@ void cld_c::build_tilemap_range(GwaCtx& ctx, EntityID self) {
     }
     
     const BBox bbox_self = (bbox + body->p).exp(abs_vel).exp(vec2(1, 1));
-    tilemap_range = ctx.tm->touching_compressed(bbox_self);
+
+    tilemap_range.clear();
+    for (const auto& layer : ctx.tm->layers) {
+        tilemap_range.push_back(layer.touching_compressed(bbox_self));
+    }
 }
 
 bool cld_c::collision(GwaCtx& ctx, EntityID self, EntityID other) {

@@ -36,16 +36,24 @@ struct Tileset {
     void clear();
 };
 
-struct TileMap {
-    TilesetH tileset;
+struct TileMapLayer {
+    int depth;
     std::vector<std::vector<uint16_t>> map;
     vec2 sz;
-
-    TileMap();
+    TilesetH tileset;
 
     std::vector<TilePos> touching(const BBox& bbox) const;
     BBoxDiscrete touching_compressed(const BBox& bbox) const;
     std::vector<TilePos> decompress(const BBoxDiscrete& bbox) const;
+
+    string2 save(GwaCtx& ctx) const;
+    void load(GwaCtx& ctx, const string2& s);
+};
+
+struct TileMap {
+    std::vector<TileMapLayer> layers;
+
+    TileMap();
 
     string2 save(GwaCtx& ctx) const;
     void load(GwaCtx& ctx, const string2& s);

@@ -13,7 +13,7 @@ struct cld_c {
     // false-positives because of how build_other() works, so perform additional
     // collision checks when constructing collision responses.
     std::vector<EntityID> other;
-    BBoxDiscrete tilemap_range;
+    std::vector<BBoxDiscrete> tilemap_range; // i-th elem = i-th tilemap layer
     enum : uint8_t {
         NONE = 0b0000,
         SOLID_F = 0b0001, // floor

@@ -87,12 +87,15 @@ int main(int argc, char** argv) {
     tm.load(ctx, from_file("../res/lvl_test.tile"));
     to_file("../res/lvl_test2.tile", tm.save(ctx));
 
-    to_file("../res/test2.tileset", res_mng.tileset(tm.tileset)->save(ctx));
+    // to_file("../res/test2.tileset", res_mng.tileset(tm.tileset)->save(ctx));
 
     TextureH bg_sky_gradient = res_mng.texture("../res/bg_skygrad.png");
 
     vec2 cam;
-    const vec2 cam_max = vec2((int)tm.map[0].size() * tm.sz.x, (int)tm.map.size() * tm.sz.y);
+    const vec2 cam_max = vec2(
+        (int)tm.layers[0].map[0].size() * tm.layers[0].sz.x, 
+        (int)tm.layers[0].map.size() * tm.layers[0].sz.y
+    );
     const vec2 view_sz = vec2(view_w, view_h);
 
     bool rend_grid = true;
@@ -174,39 +177,42 @@ int main(int argc, char** argv) {
 
         rend.tex(bg_sky_gradient, vec2(0, 0), 0);
 
-        if (rend_grid) {
-            for (fp6 yy = 0; yy <= view_h + tm.sz.y; yy += tm.sz.y) {
-                const fp6 y_ = (int)((yy + cam.y) / tm.sz.y) * tm.sz.y;
-                rend.line(vec2(cam_extents.l, y_) - cam, vec2(cam_extents.r, y_) - cam, {255, 255, 255, 64});
-            }
+        // TODO: Show grid when editing a layer (only that specific layer).
+        // if (rend_grid) {
+        //     for (fp6 yy = 0; yy <= view_h + tm.sz.y; yy += tm.sz.y) {
+        //         const fp6 y_ = (int)((yy + cam.y) / tm.sz.y) * tm.sz.y;
+        //         rend.line(vec2(cam_extents.l, y_) - cam, vec2(cam_extents.r, y_) - cam, {255, 255, 255, 64});
+        //     }
 
-            for (fp6 xx = 0; xx <= view_w + tm.sz.x; xx += tm.sz.x) {
-                const fp6 x_ = (int)((xx + cam.x) / tm.sz.x) * tm.sz.x;
-                rend.line(vec2(x_, cam_extents.u) - cam, vec2(x_, cam_extents.d) - cam, {255, 255, 255, 64});
-            }
-        }
+        //     for (fp6 xx = 0; xx <= view_w + tm.sz.x; xx += tm.sz.x) {
+        //         const fp6 x_ = (int)((xx + cam.x) / tm.sz.x) * tm.sz.x;
+        //         rend.line(vec2(x_, cam_extents.u) - cam, vec2(x_, cam_extents.d) - cam, {255, 255, 255, 64});
+        //     }
+        // }
 
-        Tileset* tileset = res_mng.tileset(tm.tileset);
-        const Texture* txt_tst = res_mng.texture(tileset->tex);
-        const vec2 sz = tileset->sz;
+        for (const TileMapLayer& layer : tm.layers) {
+            Tileset* tileset = res_mng.tileset(layer.tileset);
+            const Texture* txt_tst = res_mng.texture(tileset->tex);
+            const vec2 sz = tileset->sz;
 
-        for (uint16_t y = 0; y < tm.map.size(); y++) {
-            if ((y + tm.sz.y) * tm.sz.y < cam_extents.u) continue;
-            if (y * tm.sz.y > cam_extents.d) break;
-            for (uint16_t x = 0; x < tm.map[y].size(); x++) {
-                if ((x + tm.sz.x) * tm.sz.x < cam_extents.l) continue;
-                if (x * tm.sz.x > cam_extents.r) break;
+            for (uint16_t y = 0; y < layer.map.size(); y++) {
+                if ((y + layer.sz.y) * layer.sz.y < cam_extents.u) continue;
+                if (y * layer.sz.y > cam_extents.d) break;
+                for (uint16_t x = 0; x < layer.map[y].size(); x++) {
+                    if ((x + layer.sz.x) * layer.sz.x < cam_extents.l) continue;
+                    if (x * layer.sz.x > cam_extents.r) break;
 
-                const uint16_t tindex = tm.map[y][x];
-                const Tile t = tileset->tiles[tindex];
-                const uint8_t v = t.v;
+                    const uint16_t tindex = layer.map[y][x];
+                    const Tile t = tileset->tiles[tindex];
+                    const uint8_t v = t.v;
 
-                int tile_anim_index = (int)(tile_anim_frame % (int)t.pos.size());
+                    int tile_anim_index = (int)(tile_anim_frame % (int)t.pos.size());
 
-                const fp6 xx = t.pos[tile_anim_index].x;
-                const fp6 yy = t.pos[tile_anim_index].y;
-                const BBox src = BBox::from(vec2(xx, yy), sz);
-                rend.tex(tileset->tex, vec2(x * tm.sz.x, y * tm.sz.y) - cam, 0, src);
+                    const fp6 xx = t.pos[tile_anim_index].x;
+                    const fp6 yy = t.pos[tile_anim_index].y;
+                    const BBox src = BBox::from(vec2(xx, yy), sz);
+                    rend.tex(tileset->tex, vec2(x * layer.sz.x, y * layer.sz.y) - cam, 0, src);
+                }
             }
         }
 

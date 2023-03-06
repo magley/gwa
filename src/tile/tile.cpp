@@ -14,11 +14,11 @@ TileMap::TileMap() {
     
 }
 
-std::vector<TilePos> TileMap::touching(const BBox& bbox) const {
+std::vector<TilePos> TileMapLayer::touching(const BBox& bbox) const {
     return decompress(touching_compressed(bbox));
 }
 
-BBoxDiscrete TileMap::touching_compressed(const BBox& bbox) const {
+BBoxDiscrete TileMapLayer::touching_compressed(const BBox& bbox) const {
     const fp6 y_min = bbox.u / sz.y;
     const fp6 y_max = bbox.d / sz.y;
     const fp6 x_min = bbox.l / sz.x;
@@ -26,7 +26,7 @@ BBoxDiscrete TileMap::touching_compressed(const BBox& bbox) const {
     return BBox::from(y_min, x_min, y_max, x_max);
 }
 
-std::vector<TilePos> TileMap::decompress(const BBoxDiscrete& bbox) const {
+std::vector<TilePos> TileMapLayer::decompress(const BBoxDiscrete& bbox) const {
     int16_t y_min = (int16_t)bbox.u.clamp(-1, (int)map.size());
     int16_t y_max = (int16_t)bbox.d.clamp(-1, (int)map.size());
     int16_t x_min = (int16_t)bbox.l.clamp(-1, (int)map[0].size());

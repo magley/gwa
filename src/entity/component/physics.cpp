@@ -64,15 +64,20 @@ void phys_c::cld_solid(GwaCtx& ctx, EntityID self) {
 
         other.push_back(a);
     }
-    for (const TilePos& tp : ctx.tm->decompress(cld->tilemap_range)) {
-        const uint16_t tile_val = ctx.tm->map[tp.y][tp.x];
-        CldAgent a;
-        vec2 sz = ctx.rm->tileset(ctx.tm->tileset)->sz;
-        a.bbox = BBox::from(vec2(tp.x * ctx.tm->sz.x, tp.y * ctx.tm->sz.y), sz);
-        a.flags = ctx.rm->tileset(ctx.tm->tileset)->tiles[tile_val].v;
-        a.v = vec2(0, 0);
+    for (int i = 0; i < ctx.tm->layers.size(); i++) {
+        const TileMapLayer& tilelayer = ctx.tm->layers[i];
+        const auto cells = tilelayer.decompress(cld->tilemap_range[i]);
 
-        other.push_back(a);
+        for (const TilePos& tp : cells) {
+            const uint16_t tile_val = tilelayer.map[tp.y][tp.x];
+            CldAgent a;
+            vec2 sz = ctx.rm->tileset(tilelayer.tileset)->sz;
+            a.bbox = BBox::from(vec2(tp.x * tilelayer.sz.x, tp.y * tilelayer.sz.y), sz);
+            a.flags = ctx.rm->tileset(tilelayer.tileset)->tiles[tile_val].v;
+            a.v = vec2(0, 0);
+
+            other.push_back(a);
+        }
     }
 
     // Floor
