@@ -3,6 +3,70 @@
 #include "util/string/string2.h"
 #include "resource/res_mng.h"
 #include "ctx/ctx.h"
+#include <cassert>
+
+//=============================================================================
+// GENERAL PURPOSE HELPER FUNCS
+//=============================================================================
+
+using Declarr = std::vector<string2>;
+using Declmap = std::unordered_map<string2, Declarr>;
+
+static Declmap decls(const string2& s) {
+    string2 ss = s.trim();
+    assert(ss[0] == '{');
+    assert(ss[-1] == '}');
+    ss = ss.slice(1, -2).trim();
+
+    const auto decls = ss.split_unless_between("\n", {"[]"}, false);
+    Declmap map;
+    for (const auto& decl : decls) {
+        auto p = decl.trim().split_unless_between(" ", {"\"\"", "[]"}, false);
+        map.insert({p[0], p});
+    }
+
+    return map;
+}
+
+static Declarr decl_arr(const Declmap& map, const string2& key) {
+    const auto it = map.find(key);
+    const string2 arr_full = it->second[1].trim();
+    assert(arr_full[0] == '[');
+    assert(arr_full[-1] == ']');
+    return arr_full.slice(1, -2).split_unless_between(",", {"{}", "[]"}, false);
+}
+
+static vec2 load_vec2(const Declmap& map, const string2& key) {
+    auto it = map.find(key);
+    vec2 v;
+    v.x = it->second[1].to_d();
+    v.y = it->second[2].to_d(); 
+    return v;
+}
+
+static std::vector<vec2> load_vec2_arr_inline(const Declmap& map, const string2& key) {
+    auto it = map.find(key);
+    std::vector<vec2> res;
+    for (int i = 1; i < it->second.size() - 1; i += 2) {
+        fp6 x = it->second[i].to_d();
+        fp6 y = it->second[i + 1].to_d();
+        res.push_back({x, y});
+    }
+    return res;
+}
+
+static string2 save_vec2_arr_inline(const std::vector<vec2>& arr) {
+    std::vector<string2> pos_vec_s;
+    for (const vec2& v : arr) {
+        pos_vec_s.push_back(string2::from((int)v.x));
+        pos_vec_s.push_back(string2::from((int)v.y));
+    }
+    return string2::join(pos_vec_s, " ");
+}
+
+//=============================================================================
+//
+//=============================================================================
 
 static string2 save_tile(const Tile& t);
 static void save_sz(string2& s, const TileMap* tm);
@@ -62,42 +126,16 @@ void TileMap::load(GwaCtx& ctx, const string2& s) {
 void Tileset::load(GwaCtx& ctx, const string2& s) {
     tiles.clear();
 
-    const auto decls = s.slice(1, -2).split_unless_between("\n", {"[]"}, false);
-    std::unordered_map<string2, std::vector<string2>> map;
-    for (const auto& decl : decls) {
-        auto parts = decl.trim().split_unless_between(" ", {"\"\"", "[]"}, false);
-        map.insert({parts[0], parts});
-    }
+    Declmap map = decls(s);
 
     tex = ctx.rm->texture(map.find("tex")->second[1]);
+    sz = load_vec2(map, "sz");
 
-    auto it = map.find("sz");
-    sz.x = it->second[1].to_d();
-    sz.y = it->second[2].to_d();
-
-    auto tiles_arr = map.find("tiles")->second[1].trim().slice(1, -2).split(",", false);
-
+    Declarr tiles_arr = decl_arr(map, "tiles");
     for (const auto& tile : tiles_arr) {
-        const string2 tile_inner = tile.trim().slice(1, -2).trim();
-        const auto tdecl = tile_inner.split("\n", false);
-
-        std::unordered_map<string2, std::vector<string2>> tdecl_map;
-        for (const auto& decl : tdecl) {
-            auto parts = decl.trim().split_unless_between(" ", {"\"\"", "[]"}, false);
-            tdecl_map.insert({parts[0], parts});
-        }
-
-        auto it = tdecl_map.find("v");
-        int v = it->second[1].to_l();
-
-        it = tdecl_map.find("pos");
-        std::vector<vec2> pos;
-        for (int i = 1; i < it->second.size() - 1; i += 2) {
-            fp6 x = it->second[i].to_d();
-            fp6 y = it->second[i + 1].to_d();
-            pos.push_back({x, y});
-        }
-
+        const Declmap tdecl_map = decls(tile);
+        const int v = tdecl_map.find("v")->second[1].to_l();
+        const std::vector<vec2> pos = load_vec2_arr_inline(tdecl_map, "pos");
         tiles.push_back(Tile(v, pos));   
     }
 }
@@ -112,14 +150,7 @@ string2 Tileset::save(GwaCtx& ctx) const {
     for (const auto& t : tiles) {
         s += "{";
         s += "v " + string2::from(t.v) + "\n";
-        s += "pos ";
-        std::vector<string2> pos_vec_s;
-        for (const auto& v : t.pos) {
-            pos_vec_s.push_back(string2::from((int)v.x));
-            pos_vec_s.push_back(string2::from((int)v.y));
-        }
-        s += string2::join(pos_vec_s, " ");
-        s += "\n";
+        s += "pos " + save_vec2_arr_inline(t.pos) + "\n";
         s += "},";
     }
     s += "]\n";

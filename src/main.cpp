@@ -87,6 +87,8 @@ int main(int argc, char** argv) {
     tm.load(ctx, from_file("../res/lvl_test.tile"));
     to_file("../res/lvl_test2.tile", tm.save(ctx));
 
+    to_file("../res/test2.tileset", res_mng.tileset(tm.tileset)->save(ctx));
+
     TextureH bg_sky_gradient = res_mng.texture("../res/bg_skygrad.png");
 
     vec2 cam;

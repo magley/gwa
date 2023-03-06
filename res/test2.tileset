@@ -1,0 +1,19 @@
+{
+tex ../res/tst_test.png
+sz 16 16
+tiles [{v 0
+pos 0 0
+},{v 15
+pos 16 0
+},{v 1
+pos 32 0
+},{v 4
+pos 48 0
+},{v 8
+pos 0 16
+},{v 2
+pos 16 16
+},{v 0
+pos 32 16 48 16 0 32 16 32
+},]
+}
