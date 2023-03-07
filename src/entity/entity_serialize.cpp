@@ -105,6 +105,7 @@ static void body_from(std::vector<string2>& m, Entity* e) {
     fp6 px = m[1].to_d();
     fp6 py = m[2].to_d();
     fp6 ang = m[3].to_d();
+    int8_t depth = m[4].to_d();
     e->body.p = vec2(px, py);
     e->body.ang = ang;
 }
@@ -154,7 +155,8 @@ static void body_to(string2& s, const Entity* e) {
     string2 px = string2::from((float)e->body.p.x);
     string2 py = string2::from((float)e->body.p.y);
     string2 ang = string2::from((float)e->body.ang);
-    s += string2::join({px, py, ang}, " ");
+    string2 depth = string2::from(e->body.depth);
+    s += string2::join({px, py, ang, depth}, " ");
     s += "\n";
 }
 

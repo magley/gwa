@@ -2,6 +2,7 @@
 #include <stdio.h>
 #include <vector>
 #include <fstream>
+#include <set>
 #include <sstream>
 #include "util/string/string2.h"
 
@@ -30,6 +31,98 @@ void handle_sdl_error() {
     print_sdl_error();
     exit(1);
 }
+
+//=============================================================================
+// REND UTILITY
+//=============================================================================
+
+struct RendAgent {
+    union {
+        EntityID entity;
+        int tile_layer;
+    };
+    enum { ENTITY, TILE_LAYER };
+    int type;
+    int8_t depth;
+
+    static RendAgent from_entity(EntityID e, GwaCtx& ctx) {
+        RendAgent a;
+        a.entity = e;
+        a.type = ENTITY;
+        a.depth = ctx.em->body(e)->depth;
+        return a;
+    }
+
+    static RendAgent from_tilemap(int tilemap_layer, GwaCtx& ctx) {
+        RendAgent a;
+        a.tile_layer = tilemap_layer;
+        a.type = TILE_LAYER;
+        a.depth = ctx.tm->layers[a.tile_layer].depth;
+        return a;
+    }
+};
+
+int operator<(const RendAgent& a, const RendAgent& b) {
+    if (a.depth < b.depth) return -1;
+    if (a.depth > b.depth) return 1;
+    return 0;
+}
+
+void rend_tilemap_layer(const TileMapLayer& layer, GwaCtx& ctx, BBox cam_extents, fp6 tile_anim_frame, const vec2& cam) {
+    Tileset* tileset = ctx.rm->tileset(layer.tileset);
+    const Texture* txt_tst = ctx.rm->texture(tileset->tex);
+    const vec2 sz = tileset->sz;
+
+    for (uint16_t y = 0; y < layer.map.size(); y++) {
+        if ((y + layer.sz.y) * layer.sz.y < cam_extents.u) continue;
+        if (y * layer.sz.y > cam_extents.d) break;
+        for (uint16_t x = 0; x < layer.map[y].size(); x++) {
+            if ((x + layer.sz.x) * layer.sz.x < cam_extents.l) continue;
+            if (x * layer.sz.x > cam_extents.r) break;
+
+            const uint16_t tindex = layer.map[y][x];
+            const Tile t = tileset->tiles[tindex];
+            const uint8_t v = t.v;
+
+            int tile_anim_index = (int)(tile_anim_frame % (int)t.pos.size());
+
+            const fp6 xx = t.pos[tile_anim_index].x;
+            const fp6 yy = t.pos[tile_anim_index].y;
+            const BBox src = BBox::from(vec2(xx, yy), sz);
+            ctx.rend->tex(tileset->tex, vec2(x * layer.sz.x, y * layer.sz.y) - cam, 0, src);
+        }
+    }
+}
+
+void rend_entity(EntityID e, GwaCtx& ctx, const vec2& cam) {
+    if (ctx.em->has(e, CLD)) {
+        body_c* body = ctx.em->body(e);
+        cld_c* cld = ctx.em->cld(e);
+
+        ctx.rend->rect(cld->bbox + (body->p - cam), {180, 180, 180, 255});
+        if (cld->other.size() == 0) {
+        } else {
+            ctx.rend->rectf(cld->bbox + (body->p - cam), {32, 255, 96, 96});
+        }
+    }
+
+    if (ctx.em->has(e, SPR)) {
+        body_c* body = ctx.em->body(e);
+        spr_c* spr = ctx.em->spr(e);
+        TextureH tex = spr->tex;
+
+        if (ctx.em->has(e, CLD)) {
+            cld_c* cld = ctx.em->cld(e);
+            ctx.rend->tex_sized(tex, body->p - cam, 0, cld->bbox.size());
+        } else {
+            ctx.rend->tex(tex, body->p - cam, 0);
+        }
+    }
+}
+
+//=============================================================================
+// main()
+//=============================================================================
 
 int main(int argc, char** argv) {
     int status = SDL_Init(SDL_INIT_VIDEO);
@@ -88,6 +181,8 @@ int main(int argc, char** argv) {
     to_file("../res/lvl_test2.tile", tm.save(ctx));
 
     // to_file("../res/test2.tileset", res_mng.tileset(tm.tileset)->save(ctx));
+
+    std::multiset<RendAgent> rend_agents; // Because of depth.
 
     TextureH bg_sky_gradient = res_mng.texture("../res/bg_skygrad.png");
 
@@ -190,57 +285,81 @@ int main(int argc, char** argv) {
         //     }
         // }
 
-        for (const TileMapLayer& layer : tm.layers) {
-            Tileset* tileset = res_mng.tileset(layer.tileset);
-            const Texture* txt_tst = res_mng.texture(tileset->tex);
-            const vec2 sz = tileset->sz;
-
-            for (uint16_t y = 0; y < layer.map.size(); y++) {
-                if ((y + layer.sz.y) * layer.sz.y < cam_extents.u) continue;
-                if (y * layer.sz.y > cam_extents.d) break;
-                for (uint16_t x = 0; x < layer.map[y].size(); x++) {
-                    if ((x + layer.sz.x) * layer.sz.x < cam_extents.l) continue;
-                    if (x * layer.sz.x > cam_extents.r) break;
-
-                    const uint16_t tindex = layer.map[y][x];
-                    const Tile t = tileset->tiles[tindex];
-                    const uint8_t v = t.v;
-
-                    int tile_anim_index = (int)(tile_anim_frame % (int)t.pos.size());
-
-                    const fp6 xx = t.pos[tile_anim_index].x;
-                    const fp6 yy = t.pos[tile_anim_index].y;
-                    const BBox src = BBox::from(vec2(xx, yy), sz);
-                    rend.tex(tileset->tex, vec2(x * layer.sz.x, y * layer.sz.y) - cam, 0, src);
-                }
-            }
+        rend_agents.clear();
+        for (int i = 0; i < tm.layers.size(); i++) {
+            rend_agents.insert(RendAgent::from_tilemap(i, ctx));
         }
-
         for (EntityID e : em.get_all(0)) {
-            if (em.has(e, CLD)) {
-                body_c* body = em.body(e);
-                cld_c* cld = em.cld(e);
+            RendAgent ag = RendAgent::from_entity(e, ctx);
+            int x = rend_agents.find(ag) == rend_agents.end();
+            rend_agents.insert(ag);
+        }
 
-                rend.rect(cld->bbox + (body->p - cam), {180, 180, 180, 255});
-                if (cld->other.size() == 0) {
-                } else {
-                    rend.rectf(cld->bbox + (body->p - cam), {32, 255, 96, 96});
-                }
-            }
+        for (const RendAgent& ra : rend_agents) {
+            switch (ra.type) {
+                case RendAgent::ENTITY: {
+                    rend_entity(ra.entity, ctx, cam);
+                } break;
+                case RendAgent::TILE_LAYER: {
+                    rend_tilemap_layer(ctx.tm->layers[ra.tile_layer], ctx, cam_extents, tile_anim_frame, cam);
+                } break;
+                default: {
 
-            if (em.has(e, SPR)) {
-                body_c* body = em.body(e);
-                spr_c* spr = em.spr(e);
-                TextureH tex = spr->tex;
-
-                if (em.has(e, CLD)) {
-                    cld_c* cld = em.cld(e);
-                    rend.tex_sized(tex, body->p - cam, 0, cld->bbox.size());
-                } else {
-                    rend.tex(tex, body->p - cam, 0);
-                }
+                } break;
             }
         }
+
+        // for (const TileMapLayer& layer : tm.layers) {
+        //     Tileset* tileset = res_mng.tileset(layer.tileset);
+        //     const Texture* txt_tst = res_mng.texture(tileset->tex);
+        //     const vec2 sz = tileset->sz;
+
+        //     for (uint16_t y = 0; y < layer.map.size(); y++) {
+        //         if ((y + layer.sz.y) * layer.sz.y < cam_extents.u) continue;
+        //         if (y * layer.sz.y > cam_extents.d) break;
+        //         for (uint16_t x = 0; x < layer.map[y].size(); x++) {
+        //             if ((x + layer.sz.x) * layer.sz.x < cam_extents.l) continue;
+        //             if (x * layer.sz.x > cam_extents.r) break;
+
+        //             const uint16_t tindex = layer.map[y][x];
+        //             const Tile t = tileset->tiles[tindex];
+        //             const uint8_t v = t.v;
+
+        //             int tile_anim_index = (int)(tile_anim_frame % (int)t.pos.size());
+
+        //             const fp6 xx = t.pos[tile_anim_index].x;
+        //             const fp6 yy = t.pos[tile_anim_index].y;
+        //             const BBox src = BBox::from(vec2(xx, yy), sz);
+        //             rend.tex(tileset->tex, vec2(x * layer.sz.x, y * layer.sz.y) - cam, 0, src);
+        //         }
+        //     }
+        // }
+
+        // for (EntityID e : em.get_all(0)) {
+        //     if (em.has(e, CLD)) {
+        //         body_c* body = em.body(e);
+        //         cld_c* cld = em.cld(e);
+
+        //         rend.rect(cld->bbox + (body->p - cam), {180, 180, 180, 255});
+        //         if (cld->other.size() == 0) {
+        //         } else {
+        //             rend.rectf(cld->bbox + (body->p - cam), {32, 255, 96, 96});
+        //         }
+        //     }
+
+        //     if (em.has(e, SPR)) {
+        //         body_c* body = em.body(e);
+        //         spr_c* spr = em.spr(e);
+        //         TextureH tex = spr->tex;
+
+        //         if (em.has(e, CLD)) {
+        //             cld_c* cld = em.cld(e);
+        //             rend.tex_sized(tex, body->p - cam, 0, cld->bbox.size());
+        //         } else {
+        //             rend.tex(tex, body->p - cam, 0);
+        //         }
+        //     }
+        // }
 
         rend.rect(BBox::from(vec2(0, 0) - cam, cam_max), {0, 255, 0, 255});
 
