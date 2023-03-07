@@ -45,6 +45,8 @@ struct CldAgent {
     vec2 v;
 };
 
+#include <cassert>
+
 void phys_c::cld_solid(GwaCtx& ctx, EntityID self) {
     body_c* body = ctx.em->body(self);
     cld_c* cld = ctx.em->cld(self);
@@ -69,7 +71,11 @@ void phys_c::cld_solid(GwaCtx& ctx, EntityID self) {
         const auto cells = tilelayer.decompress(cld->tilemap_range[i]);
 
         for (const TilePos& tp : cells) {
-            const uint16_t tile_val = tilelayer.map[tp.y][tp.x];
+            const int16_t tile_val = tilelayer.map[tp.y][tp.x];
+            if (tile_val < 0) {
+                continue;
+            }
+            
             CldAgent a;
             vec2 sz = ctx.rm->tileset(tilelayer.tileset)->sz;
             a.bbox = BBox::from(vec2(tp.x * tilelayer.sz.x, tp.y * tilelayer.sz.y), sz);

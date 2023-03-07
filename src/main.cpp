@@ -84,7 +84,10 @@ void rend_tilemap_layer(const TileMapLayer& layer, GwaCtx& ctx, BBox cam_extents
             if ((x + layer.sz.x) * layer.sz.x < cam_extents.l) continue;
             if (x * layer.sz.x > cam_extents.r) break;
 
-            const uint16_t tindex = layer.map[y][x];
+            const int16_t tindex = layer.map[y][x];
+            if (tindex < 0) {
+                continue;
+            }
             const Tile t = tileset->tiles[tindex];
             const uint8_t v = t.v;
 
@@ -182,9 +185,21 @@ int main(int argc, char** argv) {
     //=========================================================================
 
     em.load(ctx, from_file("../res/data1.txt"));
-    to_file("../res/data2.txt", em.save(ctx));
-    tm.load(ctx, from_file("../res/lvl_test.tile"));
-    to_file("../res/lvl_test2.tile", tm.save(ctx));
+    //tm.load(ctx, from_file("../res/lvl_test.tile"));
+
+    // TOOD: Game will crash if
+    // 1) 0 tilemap layers (OOB)
+    // 2) 0th tilemap layer's map.size() or map[0].size() are 0 (OOB or divby0)
+    // 3) oth tilemap layer's sz is (0, 0) (divby0)
+    // So, please make it that this doesn't happen. Or the level editor should
+    // always have one minimal TileMapLayer (see below).
+
+    TileMapLayer tml = TileMapLayer();
+    tml.tileset = res_mng.tileset("../res/test.tileset");
+    tml.map.push_back({-1});
+    tml.depth = 10;
+    tml.sz = vec2(16, 16);
+    tm.layers.push_back(tml);
 
 
 
@@ -194,8 +209,8 @@ int main(int argc, char** argv) {
 
     vec2 cam;
     const vec2 cam_max = vec2(
-        (int)tm.layers[0].map[0].size() * tm.layers[0].sz.x, 
-        (int)tm.layers[0].map.size() * tm.layers[0].sz.y
+        view_w * 2,
+        view_h * 1
     );
     const vec2 view_sz = vec2(view_w, view_h);
 
@@ -300,7 +315,7 @@ int main(int argc, char** argv) {
                 }
                 for (int i = 0; i < layer.map.size(); i++) {
                     for (int j = layer.map[i].size(); j <= x; j++) {
-                        layer.map[i].push_back(0);
+                        layer.map[i].push_back(-1);
                     }
                 }
 

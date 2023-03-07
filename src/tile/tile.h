@@ -38,7 +38,7 @@ struct Tileset {
 
 struct TileMapLayer {
     int depth;
-    std::vector<std::vector<uint16_t>> map;
+    std::vector<std::vector<int16_t>> map;
     vec2 sz;
     TilesetH tileset;
 
