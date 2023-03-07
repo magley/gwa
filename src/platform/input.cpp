@@ -26,6 +26,10 @@ void Input::update(const unsigned char* kb_data,
     m_y_curr = my;
 }
 
+void Input::update_wheel(int wheel_dy) {
+    m_wheel = wheel_dy;
+}
+
 void Input::update() {
     const unsigned char* kb_state = SDL_GetKeyboardState(NULL);
     int mx, my;
@@ -72,4 +76,8 @@ int Input::m_vx() const {
 
 int Input::m_vy() const {
     return m_y_curr - m_y_prev;
+}
+
+int Input::m_w() const {
+    return m_wheel;
 }

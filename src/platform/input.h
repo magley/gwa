@@ -6,6 +6,7 @@ private:
     unsigned char* kb_prev;
     int m_x_curr, m_y_curr;
     int m_x_prev, m_y_prev;
+    int m_wheel;
     unsigned int m_curr, m_prev;
 
     void update(const unsigned char* kbdat, unsigned int mdat, int mx, int my);
@@ -13,6 +14,7 @@ private:
 public:
     Input();
     void update();
+    void update_wheel(int wheel_dy);
     bool down(unsigned char scancode) const;
     bool press(unsigned char scancode) const;
     bool release(unsigned char scancode) const;
@@ -23,4 +25,5 @@ public:
     int m_y() const;
     int m_vx() const;
     int m_vy() const;
+    int m_w() const;
 };
