@@ -1,6 +1,8 @@
 #include "tile.h"
 #include "util/geometry/vec2.h"
 #include "util/geometry/bbox.h"
+#include "ctx/ctx.h"
+#include "SDL2/SDL_render.h"
 
 TilePos::TilePos() {
 
@@ -52,6 +54,51 @@ std::vector<TilePos> TileMapLayer::decompress(const BBoxDiscrete& bbox) const {
     }
 
     return res; 
+}
+
+
+void TileMapLayer::rend(GwaCtx& ctx, fp6 anim_frame, bool dim) const {
+    Tileset* tst = ctx.rm->tileset(tileset);
+    const Texture* txt_tst = ctx.rm->texture(tst->tex);
+    const vec2 sz = tst->sz;
+
+    if (dim) {
+        SDL_SetTextureAlphaMod(txt_tst->texture, 64);
+    }
+
+    for (uint16_t y = 0; y < map.size(); y++) {
+        if ((y + sz.y) * sz.y < ctx.cam_extents().u) continue;
+        if (y * sz.y > ctx.cam_extents().d) break;
+        for (uint16_t x = 0; x < map[y].size(); x++) {
+            if ((x + sz.x) * sz.x < ctx.cam_extents().l) continue;
+            if (x * sz.x > ctx.cam_extents().r) break;
+
+            const int16_t tindex = map[y][x];
+            if (tindex < 0) {
+                continue;
+            }
+            const Tile t = tst->tiles[tindex];
+
+            t.rend(ctx, tst, vec2(x, y), sz, anim_frame);
+        }
+    }
+
+    SDL_SetTextureAlphaMod(txt_tst->texture, 255);
+}
+
+void Tile::rend(GwaCtx& ctx, Tileset* tst, const vec2& cell_pos, const vec2& cell_size, fp6 anim_frame) const {
+    int tile_anim_index = (int)(anim_frame % (int)pos.size());
+
+    const fp6 xx = pos[tile_anim_index].x;
+    const fp6 yy = pos[tile_anim_index].y;
+    const BBox src = BBox::from(vec2(xx, yy), cell_size);
+
+    const vec2 world_pos(
+        cell_pos.x * cell_size.x, 
+        cell_pos.y * cell_size.y
+    );
+
+    ctx.rend->tex(tst->tex, world_pos - ctx.cam, 0, src);
 }
 
 void Tileset::clear() {

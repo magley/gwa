@@ -68,67 +68,6 @@ int operator<(const RendAgent& a, const RendAgent& b) {
     return 0;
 }
 
-void rend_tilemap_layer(const TileMapLayer& layer, GwaCtx& ctx, BBox cam_extents, fp6 tile_anim_frame, const vec2& cam, bool should_dim) {
-    Tileset* tileset = ctx.rm->tileset(layer.tileset);
-    const Texture* txt_tst = ctx.rm->texture(tileset->tex);
-    const vec2 sz = tileset->sz;
-
-    if (should_dim) {
-        SDL_SetTextureAlphaMod(txt_tst->texture, 64);
-    }
-
-    for (uint16_t y = 0; y < layer.map.size(); y++) {
-        if ((y + layer.sz.y) * layer.sz.y < cam_extents.u) continue;
-        if (y * layer.sz.y > cam_extents.d) break;
-        for (uint16_t x = 0; x < layer.map[y].size(); x++) {
-            if ((x + layer.sz.x) * layer.sz.x < cam_extents.l) continue;
-            if (x * layer.sz.x > cam_extents.r) break;
-
-            const int16_t tindex = layer.map[y][x];
-            if (tindex < 0) {
-                continue;
-            }
-            const Tile t = tileset->tiles[tindex];
-            const uint8_t v = t.v;
-
-            int tile_anim_index = (int)(tile_anim_frame % (int)t.pos.size());
-
-            const fp6 xx = t.pos[tile_anim_index].x;
-            const fp6 yy = t.pos[tile_anim_index].y;
-            const BBox src = BBox::from(vec2(xx, yy), sz);
-            ctx.rend->tex(tileset->tex, vec2(x * layer.sz.x, y * layer.sz.y) - cam, 0, src);
-        }
-    }
-
-    SDL_SetTextureAlphaMod(txt_tst->texture, 255);
-}
-
-void rend_entity(EntityID e, GwaCtx& ctx, const vec2& cam) {
-    if (ctx.em->has(e, CLD)) {
-        body_c* body = ctx.em->body(e);
-        cld_c* cld = ctx.em->cld(e);
-
-        ctx.rend->rect(cld->bbox + (body->p - cam), {180, 180, 180, 255});
-        if (cld->other.size() == 0) {
-        } else {
-            ctx.rend->rectf(cld->bbox + (body->p - cam), {32, 255, 96, 96});
-        }
-    }
-
-    if (ctx.em->has(e, SPR)) {
-        body_c* body = ctx.em->body(e);
-        spr_c* spr = ctx.em->spr(e);
-        TextureH tex = spr->tex;
-
-        if (ctx.em->has(e, CLD)) {
-            cld_c* cld = ctx.em->cld(e);
-            ctx.rend->tex_sized(tex, body->p - cam, 0, cld->bbox.size());
-        } else {
-            ctx.rend->tex(tex, body->p - cam, 0);
-        }
-    }
-}
-
 //=============================================================================
 // main()
 //=============================================================================
@@ -177,7 +116,7 @@ int main(int argc, char** argv) {
     Renderer rend = Renderer(sdl_renderer, &res_mng);
     TileMap tm;
 
-    GwaCtx ctx(&input, &rend, &em, &res_mng, &tm);
+    GwaCtx ctx(&input, &rend, &em, &res_mng, &tm, vec2(view_w, view_h));
     res_mng.init_ctx(&ctx);
     fp6 tile_anim_frame = 0;
     fp6 tile_anim_spd = 0.15;
@@ -207,12 +146,11 @@ int main(int argc, char** argv) {
 
     TextureH bg_sky_gradient = res_mng.texture("../res/bg_skygrad.png");
 
-    vec2 cam;
     const vec2 cam_max = vec2(
         view_w * 2,
         view_h * 1
     );
-    const vec2 view_sz = vec2(view_w, view_h);
+    
 
     bool editor_rend_grid = true;
     int editor_focused_tile_layer = 0;
@@ -293,9 +231,9 @@ int main(int argc, char** argv) {
 
         for (EntityID e : em.get_all(PLAYER)) {
             body_c* body = em.body(e);
-            cam = body->p - view_sz / 2;
-            cam.x = cam.x.clamp(0, cam_max.x - view_sz.x);
-            cam.y = cam.y.clamp(0, cam_max.y - view_sz.y);
+            ctx.cam = body->p - ctx.view_sz / 2;
+            ctx.cam.x = ctx.cam.x.clamp(0, cam_max.x - ctx.view_sz.x);
+            ctx.cam.y = ctx.cam.y.clamp(0, cam_max.y - ctx.view_sz.y);
             break;
         }
 
@@ -306,8 +244,8 @@ int main(int argc, char** argv) {
             if (input.m_down(SDL_BUTTON_LMASK)) {
                 TileMapLayer& layer = ctx.tm->layers[editor_focused_tile_layer];
                 Tileset* tileset = ctx.rm->tileset(layer.tileset);
-                int x = (input.m_x() / 3 + cam.x) / layer.sz.x;
-                int y = (input.m_y() / 3 + cam.y) / layer.sz.y;
+                int x = (input.m_x() / 3 + ctx.cam.x) / layer.sz.x;
+                int y = (input.m_y() / 3 + ctx.cam.y) / layer.sz.y;
                 const Tile t = tileset->tiles[editor_tile_index];
 
                 for (int i = layer.map.size(); i <= y; i++) {
@@ -326,7 +264,6 @@ int main(int argc, char** argv) {
 
         //=====================================================================
 
-        const BBox cam_extents = BBox::from(cam, view_sz);
         status = rend.clear(128, 128, 128);
         if (status != 0) {
             handle_sdl_error();
@@ -340,13 +277,13 @@ int main(int argc, char** argv) {
 
             if (editor_rend_grid) {
                 for (fp6 yy = 0; yy <= view_h + layer.sz.y; yy += layer.sz.y) {
-                    const fp6 y_ = (int)((yy + cam.y) / layer.sz.y) * layer.sz.y;
-                    rend.line(vec2(cam_extents.l, y_) - cam, vec2(cam_extents.r, y_) - cam, {255, 255, 255, 64});
+                    const fp6 y_ = (int)((yy + ctx.cam.y) / layer.sz.y) * layer.sz.y;
+                    rend.line(vec2(ctx.cam_extents().l, y_) - ctx.cam, vec2(ctx.cam_extents().r, y_) - ctx.cam, {255, 255, 255, 64});
                 }
 
                 for (fp6 xx = 0; xx <= view_w + layer.sz.x; xx += layer.sz.x) {
-                    const fp6 x_ = (int)((xx + cam.x) / layer.sz.x) * layer.sz.x;
-                    rend.line(vec2(x_, cam_extents.u) - cam, vec2(x_, cam_extents.d) - cam, {255, 255, 255, 64});
+                    const fp6 x_ = (int)((xx + ctx.cam.x) / layer.sz.x) * layer.sz.x;
+                    rend.line(vec2(x_, ctx.cam_extents().u) - ctx.cam, vec2(x_, ctx.cam_extents().d) - ctx.cam, {255, 255, 255, 64});
                 }
             }
         }
@@ -366,11 +303,14 @@ int main(int argc, char** argv) {
         for (const RendAgent& ra : rend_agents) {
             switch (ra.type) {
                 case RendAgent::ENTITY: {
-                    rend_entity(ra.entity, ctx, cam);
+                    ctx.em->rend(ra.entity, ctx);
                 } break;
                 case RendAgent::TILE_LAYER: {
-                    bool should_dim_layer = editor_dim_unfocused_layers && (editor_focused_tile_layer != ra.tile_layer);
-                    rend_tilemap_layer(ctx.tm->layers[ra.tile_layer], ctx, cam_extents, tile_anim_frame, cam, should_dim_layer);
+                    const bool dim_layer = 
+                            editor_dim_unfocused_layers && 
+                            (editor_focused_tile_layer != ra.tile_layer);
+                    const TileMapLayer& layer = ctx.tm->layers[ra.tile_layer];
+                    layer.rend(ctx, tile_anim_frame, dim_layer);
                 } break;
                 default: {
 
@@ -382,25 +322,15 @@ int main(int argc, char** argv) {
         {
             TileMapLayer& layer = ctx.tm->layers[editor_focused_tile_layer];
             Tileset* tileset = ctx.rm->tileset(layer.tileset);
-
-            // TODO: This and the general-purpose tile rend use the same code.
-            // Except for the logic in deciding which Tile t to choose and x,y.
-
-            int x = (input.m_x() / 3 + cam.x) / layer.sz.x;
-            int y = (input.m_y() / 3 + cam.y) / layer.sz.y;
-
             const Tile t = tileset->tiles[editor_tile_index];
+            const int x = (input.m_x() / 3 + ctx.cam.x) / layer.sz.x;
+            const int y = (input.m_y() / 3 + ctx.cam.y) / layer.sz.y;
 
-            int tile_anim_index = (int)(tile_anim_frame % (int)t.pos.size());
-
-            const fp6 xx = t.pos[tile_anim_index].x;
-            const fp6 yy = t.pos[tile_anim_index].y;
-            const BBox src = BBox::from(vec2(xx, yy), tileset->sz);
-            ctx.rend->tex(tileset->tex, vec2(x * layer.sz.x, y * layer.sz.y) - cam, 0, src);
+            t.rend(ctx, tileset, vec2(x, y), layer.sz, tile_anim_frame);
         }
         ///////////////////////////////////
 
-        rend.rect(BBox::from(vec2(0, 0) - cam, cam_max), {0, 255, 0, 255});
+        rend.rect(BBox::from(vec2(0, 0) - ctx.cam, cam_max), {0, 255, 0, 255});
         rend.swap_buffers();
     }
 

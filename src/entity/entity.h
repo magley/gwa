@@ -68,6 +68,10 @@ struct EntityManager {
     std::vector<EntityID> get_all(ComponentBit components);
     EntityID get_first(ComponentBit components);
 
+    // Draw a single entity. You don't draw multiple entities yourself because
+    // of depth. The main loop takes care of that.
+    void rend(EntityID id, GwaCtx& ctx) const;
+
     body_c*   body(EntityID id) const;
     phys_c*   phys(EntityID id) const;
     cld_c*    cld(EntityID id) const;
@@ -83,4 +87,5 @@ struct EntityManager {
 
     string2 save(GwaCtx& ctx) const;
     void load(GwaCtx& ctx, const string2& s);
+
 };

@@ -14,9 +14,11 @@ struct GwaCtx {
     ResMng* rm;
     TileMap* tm;
 
-    GwaCtx(Input* input, Renderer* rend, EntityManager* em, ResMng* rm, TileMap* tm):
-        input(input), rend(rend), em(em), rm(rm), tm(tm)
-    {
+    const vec2 view_sz;
+    vec2 cam;
 
-    }
+    GwaCtx(Input* input, Renderer* rend, EntityManager* em, ResMng* rm, TileMap* tm, const vec2& view_sz):
+        input(input), rend(rend), em(em), rm(rm), tm(tm), view_sz(view_sz) {}
+
+    BBox cam_extents() const;
 };
