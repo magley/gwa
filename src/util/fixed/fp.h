@@ -20,6 +20,7 @@ public:
     fp6(long long i);
     fp6(float i);
     fp6(double i);
+    fp6(unsigned i);
     fp6(const fp6& i);
     inline static fp6 raw(int raw_val);
     fp6 abs() const;
@@ -209,13 +210,15 @@ public:
     fp6& operator|=(const fp6& i);
 
     operator bool() const;
-    explicit operator char() const;
-    explicit operator short() const;
-    explicit operator int() const;
-    explicit operator long() const;
-    explicit operator long long() const;
-    explicit operator float() const;
-    explicit operator double() const;
+    operator char() const;
+    operator short() const;
+    operator int() const;
+    operator long() const;
+    operator long long() const;
+    operator float() const;
+    operator double() const;
+    operator unsigned() const;
+    operator uint16_t() const;
 };
 
 bool operator==(char i, const fp6& f);

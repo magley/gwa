@@ -1,10 +1,11 @@
 #pragma once
 
 #include "entity/typedef.h"
+#include "ctx/fdecl.h"
 
 struct Input;
 
 struct player_c {
-    void collect_items(EntityManager& em, EntityID self);
-    void move(EntityManager& em, EntityID self, const Input& input);
+    void collect_items(GwaCtx& ctx, EntityID self);
+    void move(GwaCtx& ctx, EntityID self);
 };

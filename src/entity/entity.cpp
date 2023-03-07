@@ -1,6 +1,8 @@
 #include "entity.h"
 #include <assert.h>
 #include <cstring>
+#include "ctx/ctx.h"
+#include "SDL2/SDL_render.h"
 
 EntityManager::EntityManager() {
 }
@@ -104,6 +106,32 @@ void EntityManager::cleanup() {
 
     if (invalid_refs >= refs.size() / 2 && refs.size() > entity.size()) {
         remove_invalid_refs();
+    }
+}
+
+void EntityManager::rend(EntityID e, GwaCtx& ctx) const {
+    if (has(e, CLD)) {
+        body_c* b = body(e);
+        cld_c* c = cld(e);
+
+        ctx.rend->rect(c->bbox + (b->p - ctx.cam), {180, 180, 180, 255});
+        if (c->other.size() == 0) {
+        } else {
+            ctx.rend->rectf(c->bbox + (b->p - ctx.cam), {32, 255, 96, 96});
+        }
+    }
+
+    if (has(e, SPR)) {
+        body_c* b = body(e);
+        spr_c* s = spr(e);
+        TextureH tex = s->tex;
+
+        if (has(e, CLD)) {
+            cld_c* c = cld(e);
+            ctx.rend->tex_sized(tex, b->p - ctx.cam, 0, c->bbox.size());
+        } else {
+            ctx.rend->tex(tex, b->p - ctx.cam, 0);
+        }
     }
 }
 

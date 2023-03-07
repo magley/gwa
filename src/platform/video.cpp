@@ -141,3 +141,8 @@ void Renderer::rectf(const BBox& bbox, SDL_Color col) const {
     r.h = (float)bbox.size().y;
     SDL_RenderFillRectF(rend, &r);
 }
+
+void Renderer::line(const vec2& a, const vec2& b, SDL_Color col) const {
+    SDL_SetRenderDrawColor(rend, col.r, col.g, col.b, col.a); 
+    SDL_RenderDrawLineF(rend, (float)a.x, (float)a.y, (float)b.x, (float)b.y);
+}

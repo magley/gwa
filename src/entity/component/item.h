@@ -1,6 +1,7 @@
 #pragma once
 
 #include "entity/typedef.h"
+#include "ctx/fdecl.h"
 
 struct item_c {
     enum : int8_t {
@@ -10,5 +11,5 @@ struct item_c {
     int8_t flags;
 
     void collect();
-    void update(EntityManager& em, EntityID self);
+    void update(GwaCtx& ctx, EntityID self);
 };

@@ -54,4 +54,6 @@ public:
 
     void rect(const BBox& bbox, SDL_Color col) const;
     void rectf(const BBox& bbox, SDL_Color col) const;
+
+    void line(const vec2& a, const vec2& b, SDL_Color col) const;
 };

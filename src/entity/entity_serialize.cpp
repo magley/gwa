@@ -3,6 +3,7 @@
 #include "stdio.h"
 #include "unordered_map"
 #include "resource/res_mng.h"
+#include "ctx/ctx.h"
 
 static void body_from(std::vector<string2>& m, Entity* e);
 static void phys_from(std::vector<string2>& m, Entity* e);
@@ -19,15 +20,15 @@ static void player_to(string2& s, const Entity* e);
 static void spr_to(string2& s, const Entity* e, ResMng& rm);
 
 
-string2 EntityManager::save(ResMng& rm) const {
+string2 EntityManager::save(GwaCtx& ctx) const {
     string2 s;
     for (const auto& e : entity) {
-        s += e->save(*this, rm);
+        s += e->save(ctx);
     }
     return s;
 }
 
-void EntityManager::load(const string2& s, ResMng& rm) {
+void EntityManager::load(GwaCtx& ctx, const string2& s) {
     entity.clear();
 
     auto entity_parts = s.split_unless_between(",", {"{}"});
@@ -37,37 +38,37 @@ void EntityManager::load(const string2& s, ResMng& rm) {
         }
         EntityID e_id = create();
         Entity* e = entity[e_id];
-        e->load(*this, s, rm);
+        e->load(ctx, s);
     }
 }
 
-string2 Entity::save(const EntityManager& em, ResMng& rm) const {
+string2 Entity::save(GwaCtx& ctx) const {
     string2 s;
     s += "{\n";
 
     body_to(s, this);
 
-    if (em.has(id, PHYS)) {
+    if (ctx.em->has(id, PHYS)) {
         phys_to(s, this);
     }
-    if (em.has(id, CLD)) {
+    if (ctx.em->has(id, CLD)) {
         cld_to(s, this);
     }
-    if (em.has(id, ITEM)) {
+    if (ctx.em->has(id, ITEM)) {
         item_to(s, this);
     }
-    if (em.has(id, PLAYER)) {
+    if (ctx.em->has(id, PLAYER)) {
         player_to(s, this);
     }
-    if (em.has(id, SPR)) {
-        spr_to(s, this, rm);
+    if (ctx.em->has(id, SPR)) {
+        spr_to(s, this, *ctx.rm);
     }
 
     s += "},\n";
     return s;
 }
 
-void Entity::load(EntityManager& em, const string2& s, ResMng& rm) {
+void Entity::load(GwaCtx& ctx, const string2& s) {
     auto decls = s.slice(1, -2).split("\n", false);
     std::unordered_map<string2, std::vector<string2>> map;
     for (const auto& decl : decls) {
@@ -92,7 +93,7 @@ void Entity::load(EntityManager& em, const string2& s, ResMng& rm) {
         player_from(it->second, this);
     }
     if ((it = map.find("spr")), it != map.end()) {
-        spr_from(it->second, this, rm);
+        spr_from(it->second, this, *ctx.rm);
     }
 }
 
@@ -104,6 +105,7 @@ static void body_from(std::vector<string2>& m, Entity* e) {
     fp6 px = m[1].to_d();
     fp6 py = m[2].to_d();
     fp6 ang = m[3].to_d();
+    int8_t depth = m[4].to_d();
     e->body.p = vec2(px, py);
     e->body.ang = ang;
 }
@@ -153,7 +155,8 @@ static void body_to(string2& s, const Entity* e) {
     string2 px = string2::from((float)e->body.p.x);
     string2 py = string2::from((float)e->body.p.y);
     string2 ang = string2::from((float)e->body.ang);
-    s += string2::join({px, py, ang}, " ");
+    string2 depth = string2::from(e->body.depth);
+    s += string2::join({px, py, ang, depth}, " ");
     s += "\n";
 }
 

@@ -5,4 +5,5 @@
 struct body_c {
     vec2 p;
     fp6 ang;
+    int8_t depth;
 };

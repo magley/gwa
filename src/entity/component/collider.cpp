@@ -1,34 +1,36 @@
 #include "collider.h"
 #include "entity/entity.h"
+#include "tile/tile.h"
+#include "ctx/ctx.h"
 
 void cld_c::solve(fp6 curr, fp6 desired, fp6* in) const {
     *in += desired - curr;
 }
 
-void cld_c::build_other(EntityManager& em, EntityID self) {
+void cld_c::build_other(GwaCtx& ctx, EntityID self) {
     other.clear();
 
-    body_c* body = em.body(self);
-    phys_c* phys = em.phys(self);
+    body_c* body = ctx.em->body(self);
+    phys_c* phys = ctx.em->phys(self);
     
     vec2 abs_vel = vec2();
-    if (em.has(self, PHYS)) {
+    if (ctx.em->has(self, PHYS)) {
         abs_vel = phys->v.abs();
     }
 
     const BBox bbox_self = (bbox + body->p).exp(abs_vel).exp(vec2(1, 1));
 
-    for (EntityID e : em.get_all(CLD)) {
-        cld_c* ocld = em.cld(e);
+    for (EntityID e : ctx.em->get_all(CLD)) {
+        cld_c* ocld = ctx.em->cld(e);
         if (ocld == this) {
             continue;
         }
 
-        body_c* obody = em.body(e);
-        phys_c* ophys = em.phys(e);
+        body_c* obody = ctx.em->body(e);
+        phys_c* ophys = ctx.em->phys(e);
 
         abs_vel = vec2();
-        if (em.has(e, PHYS)) {
+        if (ctx.em->has(e, PHYS)) {
             abs_vel = ophys->v.abs();
         }
 
@@ -40,10 +42,26 @@ void cld_c::build_other(EntityManager& em, EntityID self) {
     }
 }
 
-bool cld_c::collision(EntityManager& em, EntityID self, EntityID other) {
-    body_c* body = em.body(self);
-    body_c* obody = em.body(other);
-    cld_c* ocld = em.cld(other);
+void cld_c::build_tilemap_range(GwaCtx& ctx, EntityID self) {
+    body_c* body = ctx.em->body(self);
+    phys_c* phys = ctx.em->phys(self);
+    vec2 abs_vel = vec2();
+    if (ctx.em->has(self, PHYS)) {
+        abs_vel = phys->v.abs();
+    }
+    
+    const BBox bbox_self = (bbox + body->p).exp(abs_vel).exp(vec2(1, 1));
+
+    tilemap_range.clear();
+    for (const auto& layer : ctx.tm->layers) {
+        tilemap_range.push_back(layer.touching_compressed(bbox_self));
+    }
+}
+
+bool cld_c::collision(GwaCtx& ctx, EntityID self, EntityID other) {
+    body_c* body = ctx.em->body(self);
+    body_c* obody = ctx.em->body(other);
+    cld_c* ocld = ctx.em->cld(other);
 
     BBox b1 = bbox + body->p;
     BBox b2 = ocld->bbox + obody->p;
@@ -51,10 +69,10 @@ bool cld_c::collision(EntityManager& em, EntityID self, EntityID other) {
     return b1.cld(b2);
 }
 
-bool cld_c::collision_excl(EntityManager& em, EntityID self, EntityID other) {
-    body_c* body = em.body(self);
-    body_c* obody = em.body(other);
-    cld_c* ocld = em.cld(other);
+bool cld_c::collision_excl(GwaCtx& ctx, EntityID self, EntityID other) {
+    body_c* body = ctx.em->body(self);
+    body_c* obody = ctx.em->body(other);
+    cld_c* ocld = ctx.em->cld(other);
 
     BBox b1 = bbox + body->p;
     BBox b2 = ocld->bbox + obody->p;

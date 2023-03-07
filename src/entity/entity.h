@@ -5,6 +5,7 @@
 #include "component/EVERYTHING.h"
 #include <unordered_map>
 #include "resource/fwdecl.h"
+#include "ctx/fdecl.h"
 
 struct string2;
 
@@ -36,8 +37,8 @@ struct Entity {
     player_c player;
     spr_c    spr;
 
-    string2 save(const EntityManager& em, ResMng& rm) const;
-    void load(EntityManager& em, const string2& s, ResMng& rm);
+    string2 save(GwaCtx& ctx) const;
+    void load(GwaCtx& ctx, const string2& s);
 };
 
 struct EntityRef {
@@ -67,6 +68,10 @@ struct EntityManager {
     std::vector<EntityID> get_all(ComponentBit components);
     EntityID get_first(ComponentBit components);
 
+    // Draw a single entity. You don't draw multiple entities yourself because
+    // of depth. The main loop takes care of that.
+    void rend(EntityID id, GwaCtx& ctx) const;
+
     body_c*   body(EntityID id) const;
     phys_c*   phys(EntityID id) const;
     cld_c*    cld(EntityID id) const;
@@ -80,6 +85,7 @@ struct EntityManager {
     uint32_t invalidate_refs_to_destroyed_entities();
     void remove_invalid_refs();
 
-    string2 save(ResMng& rm) const;
-    void load(const string2& s, ResMng& rm);
+    string2 save(GwaCtx& ctx) const;
+    void load(GwaCtx& ctx, const string2& s);
+
 };
