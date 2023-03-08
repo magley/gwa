@@ -16,6 +16,7 @@
 #include "tile/tile.h"
 
 #include "ctx/ctx.h"
+#include "platform/font.h"
 #include "util/file/futil.h"
 
 void print_err(const char* prefix, const char* msg, const char* suffix) {
@@ -120,6 +121,8 @@ int main(int argc, char** argv) {
     res_mng.init_ctx(&ctx);
     fp6 tile_anim_frame = 0;
     fp6 tile_anim_spd = 0.15;
+
+    FontH font_small = res_mng.font("../res/font_small.font");
 
     //=========================================================================
 
@@ -329,6 +332,8 @@ int main(int argc, char** argv) {
             t.rend(ctx, tileset, vec2(x, y), layer.sz, tile_anim_frame);
         }
         ///////////////////////////////////
+
+        rend.text(vec2(32, 32), font_small, "Hello\n1234 ~3820^{}[]");
 
         rend.rect(BBox::from(vec2(0, 0) - ctx.cam, cam_max), {0, 255, 0, 255});
         rend.swap_buffers();

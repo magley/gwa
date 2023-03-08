@@ -2,6 +2,7 @@
 #include "platform/video.h"
 #include "tile/tile.h"
 #include "util/file/futil.h"
+#include "platform/font.h"
 
 ResMng::ResMng(SDL_Renderer* rend): rend(rend) {
 }
@@ -46,6 +47,15 @@ TilesetH ResMng::tileset(const string2& fname) {
     }
 }
 
+FontH ResMng::font(const string2& fname) {
+    auto it = font_h.find(fname);
+    if (it == font_h.end()) {
+        return load_font_(fname);
+    } else {
+        return it->second;
+    }
+}
+
 //=============================================================================
 // Get actual resource
 //=============================================================================
@@ -56,6 +66,10 @@ Texture* ResMng::texture(TextureH tex) {
 
 Tileset* ResMng::tileset(TilesetH tst) {
     return tilesets[tst];
+}
+
+Font* ResMng::font(FontH font) {
+    return fonts[font];
 }
 
 //=============================================================================
@@ -74,6 +88,15 @@ string2 ResMng::texture_rev(TextureH tex) {
 string2 ResMng::tileset_rev(TilesetH tst) {
     for (auto it = tileset_h.begin(); it != tileset_h.end(); it++) {
         if (it->second == tst) {
+            return it->first;   
+        }
+    }
+    return "";
+}
+
+string2 ResMng::font_rev(FontH font) {
+    for (auto it = font_h.begin(); it != font_h.end(); it++) {
+        if (it->second == font) {
             return it->first;   
         }
     }
@@ -106,3 +129,15 @@ TilesetH ResMng::load_tileset_(const string2& fname) {
     return id;
 }
 
+FontH ResMng::load_font_(const string2& fname) {
+    Font* font = new Font();
+
+    string2 file_contents = from_file(fname.c_str());
+    font->load(*ctx, file_contents);
+
+    FontH id = fonts.size();
+    fonts.push_back(font);
+    font_h.insert({fname, id});
+
+    return id;
+}

@@ -7,6 +7,8 @@
 #include "util/geometry/vec2.h"
 
 #include "resource/res_mng.h"
+#include "util/string/string2.h"
+#include "font.h"
 
 //-----------------------------------------------------------------------------
 // Texture
@@ -145,4 +147,30 @@ void Renderer::rectf(const BBox& bbox, SDL_Color col) const {
 void Renderer::line(const vec2& a, const vec2& b, SDL_Color col) const {
     SDL_SetRenderDrawColor(rend, col.r, col.g, col.b, col.a); 
     SDL_RenderDrawLineF(rend, (float)a.x, (float)a.y, (float)b.x, (float)b.y);
+}
+
+void Renderer::text(const vec2& pos, FontH font, const string2& s) const {
+    Font* f = res_mng->font(font);
+    Texture* t = res_mng->texture(f->tex);
+
+    const int chars_per_row = t->w / f->sz.x;
+    const int chars_per_col = t->h / f->sz.y;
+
+    vec2 p = pos;
+
+    for (int i = 0; i < s.size(); i++) {
+        char c = s[i];
+
+        if (c == '\n') {
+            p.x = pos.x;
+            p.y += f->sz.y;
+            continue;
+        }
+
+        int src_x = c % chars_per_row;
+        int src_y = c / chars_per_row;
+
+        tex(f->tex, p, 0, BBox::from(vec2(src_x, src_y), f->sz)); 
+        p.x += f->sz.x;
+    }
 }

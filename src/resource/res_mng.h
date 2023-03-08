@@ -11,6 +11,7 @@
 
 struct Texture;
 struct SDL_Renderer;
+struct Font;
 
 
 // Adding a new resource type:
@@ -49,4 +50,11 @@ public:
     Tileset* tileset(TilesetH tst);
     string2 tileset_rev(TilesetH tst);
     TilesetH load_tileset_(const string2& fname);
+
+    std::unordered_map<string2, FontH> font_h;
+    std::vector<Font*> fonts;
+    FontH font(const string2& fname);
+    Font* font(FontH font);
+    string2 font_rev(FontH font);
+    FontH load_font_(const string2& fname);
 };

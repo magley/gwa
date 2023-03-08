@@ -6,6 +6,7 @@ struct SDL_Color;
 
 struct BBox;
 struct vec2;
+struct string2;
 
 #include "resource/fwdecl.h"
 
@@ -56,4 +57,6 @@ public:
     void rectf(const BBox& bbox, SDL_Color col) const;
 
     void line(const vec2& a, const vec2& b, SDL_Color col) const;
+
+    void text(const vec2& pos, FontH font, const string2& s) const;
 };
