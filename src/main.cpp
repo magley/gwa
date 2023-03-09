@@ -18,6 +18,7 @@
 #include "ctx/ctx.h"
 #include "platform/font.h"
 #include "util/file/futil.h"
+#include "editor/editor.h"
 
 void print_err(const char* prefix, const char* msg, const char* suffix) {
     printf("\033[0;37m%s\033[0;31m%s\033[0;37m%s", prefix, msg, suffix);
@@ -37,37 +38,7 @@ void handle_sdl_error() {
 // REND UTILITY
 //=============================================================================
 
-struct RendAgent {
-    union {
-        EntityID entity;
-        int tile_layer;
-    };
-    enum { ENTITY, TILE_LAYER };
-    int type;
-    int8_t depth;
-
-    static RendAgent from_entity(EntityID e, GwaCtx& ctx) {
-        RendAgent a;
-        a.entity = e;
-        a.type = ENTITY;
-        a.depth = ctx.em->body(e)->depth;
-        return a;
-    }
-
-    static RendAgent from_tilemap(int tilemap_layer, GwaCtx& ctx) {
-        RendAgent a;
-        a.tile_layer = tilemap_layer;
-        a.type = TILE_LAYER;
-        a.depth = ctx.tm->layers[a.tile_layer].depth;
-        return a;
-    }
-};
-
-int operator<(const RendAgent& a, const RendAgent& b) {
-    if (a.depth < b.depth) return -1;
-    if (a.depth > b.depth) return 1;
-    return 0;
-}
+#include "platform/rendagent.h"
 
 //=============================================================================
 // main()
@@ -116,10 +87,11 @@ int main(int argc, char** argv) {
     ResMng res_mng = ResMng(sdl_renderer);
     Renderer rend = Renderer(sdl_renderer, &res_mng);
     TileMap tm;
+    Editor editor;
 
     GwaCtx ctx(&input, &rend, &em, &res_mng, &tm, vec2(view_w, view_h));
     res_mng.init_ctx(&ctx);
-    fp6 tile_anim_frame = 0;
+    // fp6 tile_anim_frame = 0;
     fp6 tile_anim_spd = 0.15;
 
     FontH font_small = res_mng.font("../res/font_small.font");
@@ -144,7 +116,6 @@ int main(int argc, char** argv) {
     tm.layers.push_back(tml);
 
 
-
     std::multiset<RendAgent> rend_agents; // Because of depth.
 
     TextureH bg_sky_gradient = res_mng.texture("../res/bg_skygrad.png");
@@ -154,13 +125,6 @@ int main(int argc, char** argv) {
         view_h * 1
     );
     
-
-    bool editor_rend_grid = true;
-    int editor_focused_tile_layer = 0;
-    bool editor_dim_unfocused_layers = false;
-
-    int editor_tile_index = 0;
-
     while (is_running) {
         input.update_wheel(0);
         while (SDL_PollEvent(&event) == 1) {
@@ -172,24 +136,6 @@ int main(int argc, char** argv) {
         }
 
         input.update();
-
-        if (input.press(SDL_SCANCODE_F1)) {
-            editor_rend_grid ^= true;
-        }
-        if (input.press(SDL_SCANCODE_F2)) {
-            editor_dim_unfocused_layers ^= true;
-        }
-        editor_focused_tile_layer += input.press(SDL_SCANCODE_EQUALS) - input.press(SDL_SCANCODE_MINUS);
-        if (editor_focused_tile_layer < 0) {
-            editor_focused_tile_layer += ctx.tm->layers.size();
-        }
-        editor_focused_tile_layer %= ctx.tm->layers.size();
-
-        editor_tile_index += input.m_w() > 0 ? 1 : input.m_w() < 0 ? -1 : 0;
-        if (editor_tile_index < 0) {
-            editor_tile_index += ctx.rm->tileset(ctx.tm->layers[editor_focused_tile_layer].tileset)->tiles.size();
-        }
-        editor_tile_index %= ctx.rm->tileset(ctx.tm->layers[editor_focused_tile_layer].tileset)->tiles.size();
 
         if (input.press(SDL_SCANCODE_ESCAPE)) {
             is_running = false;
@@ -240,57 +186,17 @@ int main(int argc, char** argv) {
             break;
         }
 
-        tile_anim_frame += tile_anim_spd;
+        ctx.tile_anim += tile_anim_spd;
 
-        ///// UPDATE EDITOR
-        {
-            if (input.m_down(SDL_BUTTON_LMASK)) {
-                TileMapLayer& layer = ctx.tm->layers[editor_focused_tile_layer];
-                Tileset* tileset = ctx.rm->tileset(layer.tileset);
-                int x = (input.m_x() / 3 + ctx.cam.x) / layer.sz.x;
-                int y = (input.m_y() / 3 + ctx.cam.y) / layer.sz.y;
-                const Tile t = tileset->tiles[editor_tile_index];
-
-                for (int i = layer.map.size(); i <= y; i++) {
-                    layer.map.push_back({});
-                }
-                for (int i = 0; i < layer.map.size(); i++) {
-                    for (int j = layer.map[i].size(); j <= x; j++) {
-                        layer.map[i].push_back(-1);
-                    }
-                }
-
-                layer.map[y][x] = editor_tile_index;
-            }
-        }
-        ////////////////////////////////////////
+        editor.on_input(ctx);
 
         //=====================================================================
 
-        status = rend.clear(128, 128, 128);
-        if (status != 0) {
-            handle_sdl_error();
-        }
-
+        rend.clear(128, 128, 128);
         rend.tex(bg_sky_gradient, vec2(0, 0), 0);
 
-        /////// RENDER EDITOR BEFORE
-        {
-            TileMapLayer& layer = ctx.tm->layers[editor_focused_tile_layer];
 
-            if (editor_rend_grid) {
-                for (fp6 yy = 0; yy <= view_h + layer.sz.y; yy += layer.sz.y) {
-                    const fp6 y_ = (int)((yy + ctx.cam.y) / layer.sz.y) * layer.sz.y;
-                    rend.line(vec2(ctx.cam_extents().l, y_) - ctx.cam, vec2(ctx.cam_extents().r, y_) - ctx.cam, {255, 255, 255, 64});
-                }
-
-                for (fp6 xx = 0; xx <= view_w + layer.sz.x; xx += layer.sz.x) {
-                    const fp6 x_ = (int)((xx + ctx.cam.x) / layer.sz.x) * layer.sz.x;
-                    rend.line(vec2(x_, ctx.cam_extents().u) - ctx.cam, vec2(x_, ctx.cam_extents().d) - ctx.cam, {255, 255, 255, 64});
-                }
-            }
-        }
-        ///////////////////////////////////
+        editor.render_before(ctx);
 
 
         rend_agents.clear();
@@ -310,10 +216,10 @@ int main(int argc, char** argv) {
                 } break;
                 case RendAgent::TILE_LAYER: {
                     const bool dim_layer = 
-                            editor_dim_unfocused_layers && 
-                            (editor_focused_tile_layer != ra.tile_layer);
+                            editor.tile_focuslayer && 
+                            (editor.tile_layer != ra.tile_layer);
                     const TileMapLayer& layer = ctx.tm->layers[ra.tile_layer];
-                    layer.rend(ctx, tile_anim_frame, dim_layer);
+                    layer.rend(ctx, ctx.tile_anim, dim_layer);
                 } break;
                 default: {
 
@@ -321,19 +227,11 @@ int main(int argc, char** argv) {
             }
         }
 
-        /////// RENDER EDITOR AFTER
-        {
-            TileMapLayer& layer = ctx.tm->layers[editor_focused_tile_layer];
-            Tileset* tileset = ctx.rm->tileset(layer.tileset);
-            const Tile t = tileset->tiles[editor_tile_index];
-            const int x = (input.m_x() / 3 + ctx.cam.x) / layer.sz.x;
-            const int y = (input.m_y() / 3 + ctx.cam.y) / layer.sz.y;
+        editor.render_after(ctx);
 
-            t.rend(ctx, tileset, vec2(x, y), layer.sz, tile_anim_frame);
-        }
         ///////////////////////////////////
 
-        rend.text(vec2(32, 32), font_small, "Hello\n1234 ~3820^{}[]");
+        editor.render_gui(ctx, font_small);
 
         rend.rect(BBox::from(vec2(0, 0) - ctx.cam, cam_max), {0, 255, 0, 255});
         rend.swap_buffers();
