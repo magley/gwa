@@ -170,7 +170,7 @@ void Renderer::text(const vec2& pos, FontH font, const string2& s) const {
         int src_x = c % chars_per_row;
         int src_y = c / chars_per_row;
 
-        tex(f->tex, p, 0, BBox::from(vec2(src_x, src_y), f->sz)); 
+        tex(f->tex, p, 0, BBox::from(vec2(src_x * f->sz.x, src_y * f->sz.y), f->sz)); 
         p.x += f->sz.x;
     }
 }
