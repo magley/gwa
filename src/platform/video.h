@@ -43,6 +43,19 @@ public:
              const vec2& p,
              float ang) const;
 
+    void tex_colored(TextureH texture, 
+             const vec2& p, 
+             float ang, 
+             const BBox& src, 
+             const BBox& dest,
+             const vec2& flip,
+             SDL_Color col) const;
+    void tex_colored(TextureH texture,
+            const vec2& p,
+            float ang,
+            const BBox& src,
+            SDL_Color col) const;
+
     void tex_sized(TextureH texture,
                    const vec2& p,
                    float ang,

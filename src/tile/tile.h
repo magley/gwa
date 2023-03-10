@@ -8,13 +8,15 @@
 
 struct string2;
 struct BBox;
+struct SDL_Color;
 
 struct Tile {
     uint8_t v;
     std::vector<vec2> pos;
     Tile(uint8_t v, const std::vector<vec2>& pos): v(v), pos(pos) {};
 
-    void rend(GwaCtx& ctx, Tileset* tst, const vec2& cell_pos, const vec2& cell_size, fp6 anim_frame) const;
+    void rend(GwaCtx& ctx, Tileset* tst, const vec2& cell_pos, const vec2& cell_size, fp6 anim_frame, SDL_Color colormod) const;
+
 };
 
 struct TilePos {

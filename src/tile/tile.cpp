@@ -62,8 +62,10 @@ void TileMapLayer::rend(GwaCtx& ctx, fp6 anim_frame, bool dim) const {
     const Texture* txt_tst = ctx.rm->texture(tst->tex);
     const vec2 sz = tst->sz;
 
+    unsigned char alpha = 255;
+
     if (dim) {
-        SDL_SetTextureAlphaMod(txt_tst->texture, 64);
+        alpha = 64;
     }
 
     for (uint16_t y = 0; y < map.size(); y++) {
@@ -79,14 +81,13 @@ void TileMapLayer::rend(GwaCtx& ctx, fp6 anim_frame, bool dim) const {
             }
             const Tile t = tst->tiles[tindex];
 
-            t.rend(ctx, tst, vec2(x, y), sz, anim_frame);
+            t.rend(ctx, tst, vec2(x, y), sz, anim_frame, {255, 255, 255, alpha});
         }
     }
 
-    SDL_SetTextureAlphaMod(txt_tst->texture, 255);
 }
 
-void Tile::rend(GwaCtx& ctx, Tileset* tst, const vec2& cell_pos, const vec2& cell_size, fp6 anim_frame) const {
+void Tile::rend(GwaCtx& ctx, Tileset* tst, const vec2& cell_pos, const vec2& cell_size, fp6 anim_frame, SDL_Color colormod) const {
     int tile_anim_index = (int)(anim_frame % (int)pos.size());
 
     const fp6 xx = pos[tile_anim_index].x;
@@ -98,7 +99,7 @@ void Tile::rend(GwaCtx& ctx, Tileset* tst, const vec2& cell_pos, const vec2& cel
         cell_pos.y * cell_size.y
     );
 
-    ctx.rend->tex(tst->tex, world_pos - ctx.cam, 0, src);
+    ctx.rend->tex_colored(tst->tex, world_pos - ctx.cam, 0, src, colormod);
 }
 
 void Tileset::clear() {

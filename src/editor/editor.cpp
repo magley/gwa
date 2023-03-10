@@ -19,6 +19,13 @@ int wrap(int a, int mini, int maxi) {
 // OTHER FUNCS
 //=============================================================================
 
+TilePos Editor::mouse_cell(GwaCtx& ctx) {
+    const TileMapLayer& layer = ctx.tm->layers[tile_layer];
+    const int x = (ctx.input->m_x() / 3 + ctx.cam.x) / layer.sz.x;
+    const int y = (ctx.input->m_y() / 3 + ctx.cam.y) / layer.sz.y;
+    return TilePos(x, y);
+}
+
 void Editor::add_empty_tile_layer(GwaCtx& ctx) {
     TileMapLayer tml = TileMapLayer();
     tml.tileset = ctx.rm->tileset("../res/test.tileset");
@@ -26,6 +33,31 @@ void Editor::add_empty_tile_layer(GwaCtx& ctx) {
     tml.depth = 10;
     tml.sz = vec2(16, 16);
     ctx.tm->layers.push_back(tml);
+}
+
+void Editor::place_tile(GwaCtx& ctx, TilePos tile, int tile_index_to_place) {
+    Input& input = *ctx.input;
+
+    TileMapLayer& layer = ctx.tm->layers[tile_layer];
+    Tileset* tileset = ctx.rm->tileset(layer.tileset);
+    const Tile t = tileset->tiles[tile_index];
+
+    if (tile_index_to_place >= 0) {
+        for (int i = layer.map.size(); i <= tile.y; i++) {
+            layer.map.push_back({});
+        }
+        for (int i = 0; i < layer.map.size(); i++) {
+            for (int j = layer.map[i].size(); j <= tile.x; j++) {
+                layer.map[i].push_back(-1);
+            }
+        }
+    } else {
+        if (tile.y >= layer.map.size() || tile.x >= layer.map[tile.y].size()) {
+            return; // When deleting no need to expand with empty space.
+        }
+    }
+
+    layer.map[tile.y][tile.x] = tile_index_to_place;
 }
 
 //=============================================================================
@@ -79,10 +111,10 @@ void Editor::render_gui(GwaCtx& ctx, FontH fnt) {
 void Editor::on_input_tile(GwaCtx& ctx) {
     Input& input = *ctx.input;
 
-    if (input.press(SDL_SCANCODE_F1)) {
+    if (input.press(SDL_SCANCODE_1)) {
         tile_showgrid ^= true;
     }
-    if (input.press(SDL_SCANCODE_F2)) {
+    if (input.press(SDL_SCANCODE_2)) {
         tile_focuslayer ^= true;
     }
 
@@ -99,39 +131,61 @@ void Editor::on_input_tile(GwaCtx& ctx) {
         );
     }
 
-    if (input.m_down(SDL_BUTTON_LMASK)) {
-        TileMapLayer& layer = ctx.tm->layers[tile_layer];
-        Tileset* tileset = ctx.rm->tileset(layer.tileset);
-        int x = (input.m_x() / 3 + ctx.cam.x) / layer.sz.x;
-        int y = (input.m_y() / 3 + ctx.cam.y) / layer.sz.y;
-        const Tile t = tileset->tiles[tile_index];
-
-        for (int i = layer.map.size(); i <= y; i++) {
-            layer.map.push_back({});
+    if (rect_mode == RECT_NONE) {
+        if (input.m_down(SDL_BUTTON_LMASK)) {
+            place_tile(ctx, mouse_cell(ctx), tile_index);
+        } else if (input.m_down(SDL_BUTTON_RMASK)) {
+            place_tile(ctx, mouse_cell(ctx), -1);
         }
-        for (int i = 0; i < layer.map.size(); i++) {
-            for (int j = layer.map[i].size(); j <= x; j++) {
-                layer.map[i].push_back(-1);
+
+        if (input.press(SDL_SCANCODE_SPACE)) {
+            add_empty_tile_layer(ctx);
+        }
+
+        if (input.down(SDL_SCANCODE_LCTRL)) {
+            rect_mode = RECT_BEGIN;
+            rect_start = mouse_cell(ctx);
+            rect.u = rect_start.y;
+            rect.l = rect_start.x;
+            rect.d = rect_start.y + 1;
+            rect.r = rect_start.x + 1;
+        }
+    } else if (rect_mode != RECT_NONE) {
+        const TilePos mp = mouse_cell(ctx);
+
+        rect.r = mp.x + (mp.x < rect.l ? 0 : 1);
+        rect.d = mp.y + (mp.y < rect.u ? 0 : 1);
+        rect.l = rect_start.x + (mp.x < rect.l ? 1 : 0);
+        rect.u = rect_start.y + (mp.y < rect.u ? 1 : 0);
+
+        if (input.release(SDL_SCANCODE_LCTRL)) {
+            rect_mode = RECT_NONE;
+        }
+
+        if (input.m_press(SDL_BUTTON_LMASK)) {
+            rect_mode = RECT_START_PLACE;
+        } else if (input.m_press(SDL_BUTTON_RMASK)) {
+            rect_mode = RECT_START_DEL;
+        }
+
+        if (input.m_release(SDL_BUTTON_LMASK) && rect_mode == RECT_START_PLACE) {
+            rect_mode = RECT_NONE;
+
+            for (int y = min(rect.u, rect.d); y < max(rect.u, rect.d); y++) {
+                for (int x = min(rect.l, rect.r); x < max(rect.l, rect.r); x++) {
+                    place_tile(ctx, TilePos(x, y), tile_index);  
+                }
             }
         }
+        if (input.m_release(SDL_BUTTON_RMASK) && rect_mode == RECT_START_DEL) {
+            rect_mode = RECT_NONE;
 
-        layer.map[y][x] = tile_index;
-    } else if (input.m_down(SDL_BUTTON_RMASK)) {
-        TileMapLayer& layer = ctx.tm->layers[tile_layer];
-        Tileset* tileset = ctx.rm->tileset(layer.tileset);
-        int x = (input.m_x() / 3 + ctx.cam.x) / layer.sz.x;
-        int y = (input.m_y() / 3 + ctx.cam.y) / layer.sz.y;
-        const Tile t = tileset->tiles[tile_index];
-
-        if (y >= layer.map.size() || x >= layer.map[y].size()) {
-            // Do nothing.
-        } else {
-            layer.map[y][x] = -1;
+            for (int y = min(rect.u, rect.d); y < max(rect.u, rect.d); y++) {
+                for (int x = min(rect.l, rect.r); x < max(rect.l, rect.r); x++) {
+                    place_tile(ctx, TilePos(x, y), -1);  
+                }
+            }
         }
-    }
-
-    if (input.press(SDL_SCANCODE_SPACE)) {
-        add_empty_tile_layer(ctx);
     }
 }
 
@@ -158,10 +212,25 @@ void Editor::render_tile_after(GwaCtx& ctx) {
     TileMapLayer& layer = ctx.tm->layers[tile_layer];
     Tileset* tileset = ctx.rm->tileset(layer.tileset);
     const Tile t = tileset->tiles[tile_index];
-    const int x = (input.m_x() / 3 + ctx.cam.x) / layer.sz.x;
-    const int y = (input.m_y() / 3 + ctx.cam.y) / layer.sz.y;
 
-    t.rend(ctx, tileset, vec2(x, y), layer.sz, ctx.tile_anim);
+    if (rect_mode != RECT_NONE) {
+        BBox bbox_world = rect;
+        bbox_world.l *= layer.sz.x;
+        bbox_world.r *= layer.sz.x;
+        bbox_world.u *= layer.sz.y;
+        bbox_world.d *= layer.sz.y;
+        bbox_world += -ctx.cam;
+        ctx.rend->rect(bbox_world, {255, 0, 0, 255});
+
+        for (int y = min(rect.u, rect.d); y < max(rect.u, rect.d); y++) {
+            for (int x = min(rect.l, rect.r); x < max(rect.l, rect.r); x++) {
+                t.rend(ctx, tileset, vec2(x, y), layer.sz, ctx.tile_anim, {100, 255, 255, 128});
+            }
+        }
+    } else {
+        TilePos p = mouse_cell(ctx);
+        t.rend(ctx, tileset, vec2(p.x, p.y), layer.sz, ctx.tile_anim, {100, 255, 255, 128});
+    }
 }
 
 void Editor::render_gui_tile(GwaCtx& ctx, FontH fnt) {

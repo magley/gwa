@@ -105,6 +105,48 @@ void Renderer::tex(TextureH texture,
     tex(texture, p, ang, BBox::from(0, 0, t->h, t->w));
 }
 
+void Renderer::tex_colored(TextureH texture, 
+                           const vec2& p, 
+                           float ang,
+                           const BBox& src, 
+                           const BBox& dest,
+                           const vec2& flip,
+                           SDL_Color col) const
+{
+    Texture* t = res_mng->texture(texture);
+
+    SDL_SetTextureColorMod(t->texture, col.r, col.g, col.b);
+    SDL_SetTextureAlphaMod(t->texture, col.a);
+
+    const SDL_Rect s = {
+        (int)src.l, (int)src.u, (int)src.size().x, (int)src.size().y
+    };
+    const SDL_FRect d = {
+        (float)dest.l, (float)dest.u, (float)dest.size().x, (float)dest.size().y
+    };
+
+    int f = SDL_FLIP_NONE;
+    if (flip.x < 0) {
+        f |= SDL_FLIP_HORIZONTAL;
+    }
+    if (flip.y < 0) {
+        f |= SDL_FLIP_VERTICAL;
+    }
+
+    SDL_RenderCopyExF(rend, t->texture, &s, &d, ang, NULL, (SDL_RendererFlip)f);
+}
+
+void Renderer::tex_colored(TextureH texture,
+        const vec2& p,
+        float ang,
+        const BBox& src,
+        SDL_Color col) const
+{
+    tex_colored(texture, p, ang, src, 
+        BBox::from(vec2(0, 0), src.size()) + p, vec2(1, 1), col
+    );
+}
+
 
 void Renderer::tex_sized(TextureH texture,
                          const vec2& p,
