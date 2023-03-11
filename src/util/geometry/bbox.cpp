@@ -54,6 +54,10 @@ bool BBox::cld(const BBox& other) const {
     return cld_h(other) && cld_v(other);
 }
 
+bool BBox::test(const vec2& point) const {
+    return (point.x < r && point.x > l && point.y < d && point.y > u);
+}
+
 vec2 BBox::size() const {
     return vec2(r - l, d - u);
 }

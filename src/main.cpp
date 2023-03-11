@@ -20,6 +20,8 @@
 #include "util/file/futil.h"
 #include "editor/editor.h"
 
+#include "gui/gui.h"
+
 void print_err(const char* prefix, const char* msg, const char* suffix) {
     printf("\033[0;37m%s\033[0;31m%s\033[0;37m%s", prefix, msg, suffix);
 }
@@ -58,7 +60,7 @@ int main(int argc, char** argv) {
     const int view_w = 480;
     const int view_h = 270;
     const int win_w = view_w * 3;
-    const int win_h = view_h * 3;
+    const int win_h = view_h * 3;// TODO: Sync up 3 with GwaCtx::scale.
 
     SDL_Window* win = SDL_CreateWindow("gwa",
                                        SDL_WINDOWPOS_CENTERED,
@@ -90,7 +92,10 @@ int main(int argc, char** argv) {
     Editor editor;
 
     GwaCtx ctx(&input, &rend, &em, &res_mng, &tm, vec2(view_w, view_h));
+    input.init_ctx(&ctx);
     res_mng.init_ctx(&ctx);
+    Gui gui = Gui(&ctx);
+
     // fp6 tile_anim_frame = 0;
     fp6 tile_anim_spd = 0.15;
 
@@ -136,6 +141,7 @@ int main(int argc, char** argv) {
         }
 
         input.update();
+        gui.begin();
 
         if (input.press(SDL_SCANCODE_ESCAPE)) {
             is_running = false;
@@ -227,11 +233,15 @@ int main(int argc, char** argv) {
             }
         }
 
+        gui.checkbox(NULL);
+        gui.checkbox(NULL);
+
         editor.render_after(ctx);
 
         ///////////////////////////////////
 
         editor.render_gui(ctx, font_small);
+        gui.draw();
 
         rend.rect(BBox::from(vec2(0, 0) - ctx.cam, cam_max), {0, 255, 0, 255});
         rend.swap_buffers();

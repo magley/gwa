@@ -2,10 +2,15 @@
 
 #include <SDL2/SDL_keyboard.h>
 #include <SDL2/SDL_mouse.h>
+#include "ctx/ctx.h"
 
 Input::Input() {
     kb_curr = new unsigned char[255];
     kb_prev = new unsigned char[255];
+}
+
+void Input::init_ctx(GwaCtx* ctx) {
+    this->ctx = ctx;
 }
 
 void Input::update(const unsigned char* kb_data,
@@ -80,4 +85,12 @@ int Input::m_vy() const {
 
 int Input::m_w() const {
     return m_wheel;
+}
+
+vec2 Input::m_pos() const {
+    return vec2(m_x_curr, m_y_curr);
+}
+
+vec2 Input::m_pos_raw() const {
+    return vec2(m_x_curr, m_y_curr) / ctx->scale;
 }

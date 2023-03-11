@@ -1,7 +1,11 @@
 #pragma once
 
+struct vec2;
+#include "ctx/fdecl.h"
+
 class Input {
 private:
+    GwaCtx* ctx; // Required to get scaled mousepos (window scale).
     unsigned char* kb_curr;
     unsigned char* kb_prev;
     int m_x_curr, m_y_curr;
@@ -13,6 +17,7 @@ private:
 
 public:
     Input();
+    void init_ctx(GwaCtx* ctx);
     void update();
     void update_wheel(int wheel_dy);
     bool down(unsigned char scancode) const;
@@ -26,4 +31,6 @@ public:
     int m_vx() const;
     int m_vy() const;
     int m_w() const;
+    vec2 m_pos() const;
+    vec2 m_pos_raw() const;
 };

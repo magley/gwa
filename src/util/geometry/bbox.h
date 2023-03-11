@@ -20,6 +20,7 @@ struct BBox {
     bool cld_v(const BBox& other) const;
     bool cld(const BBox& other) const;
 
+    bool test(const vec2& point) const;
     vec2 size() const;
 
     BBox operator+(const vec2& v) const;

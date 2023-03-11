@@ -17,6 +17,7 @@ struct GwaCtx {
     const vec2 view_sz;
     vec2 cam;
     fp6 tile_anim = 0;
+    int scale = 3;
 
     GwaCtx(Input* input, Renderer* rend, EntityManager* em, ResMng* rm, TileMap* tm, const vec2& view_sz):
         input(input), rend(rend), em(em), rm(rm), tm(tm), view_sz(view_sz) {}
