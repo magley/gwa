@@ -109,6 +109,10 @@ void Editor::render_gui(GwaCtx& ctx, FontH fnt) {
 //=============================================================================
 
 void Editor::on_input_tile(GwaCtx& ctx) {
+    if (ctx.gui->hasfocus()) {
+        return;
+    }
+
     Input& input = *ctx.input;
 
     if (input.press(SDL_SCANCODE_1)) {
@@ -227,7 +231,7 @@ void Editor::render_tile_after(GwaCtx& ctx) {
                 t.rend(ctx, tileset, vec2(x, y), layer.sz, ctx.tile_anim, {100, 255, 255, 128});
             }
         }
-    } else {
+    } else if (!ctx.gui->hasfocus()) {
         TilePos p = mouse_cell(ctx);
         t.rend(ctx, tileset, vec2(p.x, p.y), layer.sz, ctx.tile_anim, {100, 255, 255, 128});
     }
@@ -235,10 +239,17 @@ void Editor::render_tile_after(GwaCtx& ctx) {
 
 void Editor::render_gui_tile(GwaCtx& ctx, FontH fnt) {
     Renderer& rend = *ctx.rend;
+    Gui& gui = *ctx.gui;
+
     const std::vector<TileMapLayer>& layers = ctx.tm->layers;
     std::multiset<RendAgent> layers_sorted;
     for (int i = 0; i < layers.size(); i++) {
         layers_sorted.insert(RendAgent::from_tilemap(i, ctx));
+    }
+
+    gui.checkbox(vec2(4, 4), &this->tile_showgrid);
+    if (gui.button(vec2(20, 4), "Add layer")) {
+        add_empty_tile_layer(ctx);
     }
 
     string2 layer_data;
@@ -250,5 +261,6 @@ void Editor::render_gui_tile(GwaCtx& ctx, FontH fnt) {
         }
         layer_data += "\n";
     }
-    rend.text(vec2(8, 8), fnt, layer_data);
+    rend.text(vec2(4, 24), fnt, layer_data);
+
 }

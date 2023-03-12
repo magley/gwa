@@ -88,9 +88,9 @@ int Input::m_w() const {
 }
 
 vec2 Input::m_pos() const {
-    return vec2(m_x_curr, m_y_curr);
+    return vec2(m_x_curr, m_y_curr) / ctx->scale;
 }
 
 vec2 Input::m_pos_raw() const {
-    return vec2(m_x_curr, m_y_curr) / ctx->scale;
+    return vec2(m_x_curr, m_y_curr);
 }

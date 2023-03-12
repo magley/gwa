@@ -90,11 +90,12 @@ int main(int argc, char** argv) {
     Renderer rend = Renderer(sdl_renderer, &res_mng);
     TileMap tm;
     Editor editor;
+    Gui gui;
 
-    GwaCtx ctx(&input, &rend, &em, &res_mng, &tm, vec2(view_w, view_h));
+    GwaCtx ctx(&input, &rend, &em, &res_mng, &tm, &gui, vec2(view_w, view_h));
     input.init_ctx(&ctx);
     res_mng.init_ctx(&ctx);
-    Gui gui = Gui(&ctx);
+    gui.init_ctx(&ctx);
 
     // fp6 tile_anim_frame = 0;
     fp6 tile_anim_spd = 0.15;
@@ -201,9 +202,7 @@ int main(int argc, char** argv) {
         rend.clear(128, 128, 128);
         rend.tex(bg_sky_gradient, vec2(0, 0), 0);
 
-
         editor.render_before(ctx);
-
 
         rend_agents.clear();
         for (int i = 0; i < tm.layers.size(); i++) {
@@ -214,7 +213,6 @@ int main(int argc, char** argv) {
             int x = rend_agents.find(ag) == rend_agents.end();
             rend_agents.insert(ag);
         }
-
         for (const RendAgent& ra : rend_agents) {
             switch (ra.type) {
                 case RendAgent::ENTITY: {
@@ -228,20 +226,18 @@ int main(int argc, char** argv) {
                     layer.rend(ctx, ctx.tile_anim, dim_layer);
                 } break;
                 default: {
-
                 } break;
             }
         }
 
-        gui.checkbox(NULL);
-        gui.checkbox(NULL);
-
         editor.render_after(ctx);
 
-        ///////////////////////////////////
+        // It's okay to do GUI stuff from this point on.
+        // This is rendered above EVERYTHING else.
 
         editor.render_gui(ctx, font_small);
-        gui.draw();
+
+        gui.end();
 
         rend.rect(BBox::from(vec2(0, 0) - ctx.cam, cam_max), {0, 255, 0, 255});
         rend.swap_buffers();

@@ -5,27 +5,35 @@
 #include "util/geometry/vec2.h"
 #include "util/geometry/bbox.h"
 #include "ctx/fdecl.h"
+#include "resource/fwdecl.h"
 
-using WidgetH = int16_t;
+struct string2;
 
-struct GuiCheckbox {
-    WidgetH id;
-    BBox extents;
-
-    GuiCheckbox(WidgetH id, BBox extents): id(id), extents(extents) {};
-};
+using GuiId = int16_t;
 
 struct Gui {
-    std::unordered_map<WidgetH, GuiCheckbox> checkbox_map;
-    WidgetH counter = 0;
-    WidgetH focus = -1;
-    vec2 layout = vec2(0, 0);
     GwaCtx* ctx;
+    void init_ctx(GwaCtx* ctx);
 
-    Gui(GwaCtx* ctx): ctx(ctx) {};
+    FontH font_small =  -1;
+    int16_t cnt = 0;
+
+    GuiId hot = -1;
+    GuiId active = -1;
+
+    // We don't seperate draw calls from GUI logic, so they must come at the
+    // very end. To have other parts of the engine (level editor for example)
+    // ignore user input when the user focuses on the GUI, we need the previous
+    // state because the current state is altered by the time the editor gets
+    // to call its update code.
+
+    GuiId hot_prev = -1;
+    GuiId active_prev = -1;
 
     void begin();
-    void checkbox(bool* v);
+    void end();
+    bool hasfocus();
 
-    void draw();
+    bool button(const vec2& pos, const string2& s);
+    void checkbox(const vec2& pos, bool* b);
 };

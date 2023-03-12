@@ -54,6 +54,7 @@ int Renderer::clear(unsigned char r, unsigned char g, unsigned char b) const {
 
 void Renderer::swap_buffers() const {
     SDL_RenderPresent(rend);
+    SDL_Delay(10);
 }
 
 //=============================================================================
