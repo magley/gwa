@@ -8,6 +8,7 @@ struct BBox;
 struct vec2;
 struct string2;
 
+#include "ctx/fdecl.h"
 #include "resource/fwdecl.h"
 
 class Texture {
@@ -22,12 +23,17 @@ public:
 };
 
 class Renderer {
+    GwaCtx* ctx = 0;
     SDL_Renderer* rend = 0;
-    ResMng* res_mng = 0;
+    float scale = 1;
 public:
-    Renderer(SDL_Renderer* rend, ResMng* res_mng);
+    Renderer(SDL_Renderer* rend);
+    void init_ctx(GwaCtx* ctx);
     int clear(unsigned char r, unsigned char g, unsigned char b) const;
     void swap_buffers() const;
+
+    void begin_gui();
+    void end_gui();
 
     void tex(TextureH texture, 
              const vec2& p, 
@@ -72,4 +78,5 @@ public:
     void line(const vec2& a, const vec2& b, SDL_Color col) const;
 
     void text(const vec2& pos, FontH font, const string2& s, SDL_Color col) const;
+    vec2 text_size(FontH font, const string2& s) const;
 };

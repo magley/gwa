@@ -249,9 +249,9 @@ void Editor::render_gui_tile(GwaCtx& ctx) {
     }
 
     gui.startwin("MyWindow1", vec2(96, 32), vec2(128, 64));
-    gui.checkbox(vec2(4, 8), {7, 7}, &this->tile_showgrid);
-    gui.checkbox(vec2(20, 8),{7, 7}, &this->tile_focuslayer);
-    if (gui.button(vec2(40, 8), "Add layer")) {
+    gui.checkbox(vec2(4, 24), {20, 20}, &this->tile_showgrid);
+    gui.checkbox(vec2(28, 24),{20, 20}, &this->tile_focuslayer);
+    if (gui.button(vec2(62, 24), "Add layer")) {
         add_empty_tile_layer(ctx);
     }
     gui.endwin();

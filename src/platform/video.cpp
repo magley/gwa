@@ -9,6 +9,19 @@
 #include "resource/res_mng.h"
 #include "util/string/string2.h"
 #include "font.h"
+#include "ctx/ctx.h"
+
+void Renderer::init_ctx(GwaCtx* ctx) {
+    this->ctx = ctx;
+}
+
+void Renderer::begin_gui() {
+    scale = ctx->scale;
+}
+
+void Renderer::end_gui() {
+    scale = 1;
+}
 
 //-----------------------------------------------------------------------------
 // Texture
@@ -39,7 +52,7 @@ void Texture::free_mem() {
 // Renderer
 //-----------------------------------------------------------------------------
 
-Renderer::Renderer(SDL_Renderer* rend, ResMng* rm): rend(rend), res_mng(rm) {
+Renderer::Renderer(SDL_Renderer* rend): rend(rend) {
 }
 
 int Renderer::clear(unsigned char r, unsigned char g, unsigned char b) const {
@@ -68,13 +81,13 @@ void Renderer::tex(TextureH texture,
                    const BBox& dest,
                    const vec2& flip) const
 {
-    Texture* t = res_mng->texture(texture);
+    Texture* t = ctx->rm->texture(texture);
 
     const SDL_Rect s = {
         (int)src.l, (int)src.u, (int)src.size().x, (int)src.size().y
     };
     const SDL_FRect d = {
-        (float)dest.l / 3, (float)dest.u / 3, (float)dest.size().x / 3, (float)dest.size().y / 3
+        (float)dest.l/ scale, (float)dest.u/ scale, (float)dest.size().x/ scale, (float)dest.size().y/ scale
     };
 
     int f = SDL_FLIP_NONE;
@@ -102,7 +115,7 @@ void Renderer::tex(TextureH texture,
                    const vec2& p, 
                    float ang) const 
 {
-    const Texture* const t = res_mng->texture(texture);
+    const Texture* const t = ctx->rm->texture(texture);
     tex(texture, p, ang, BBox::from(0, 0, t->h, t->w));
 }
 
@@ -114,7 +127,7 @@ void Renderer::tex_colored(TextureH texture,
                            const vec2& flip,
                            SDL_Color col) const
 {
-    Texture* t = res_mng->texture(texture);
+    Texture* t = ctx->rm->texture(texture);
 
     SDL_SetTextureColorMod(t->texture, col.r, col.g, col.b);
     SDL_SetTextureAlphaMod(t->texture, col.a);
@@ -123,7 +136,7 @@ void Renderer::tex_colored(TextureH texture,
         (int)src.l, (int)src.u, (int)src.size().x, (int)src.size().y
     };
     const SDL_FRect d = {
-        (float)dest.l / 3, (float)dest.u / 3, (float)dest.size().x / 3, (float)dest.size().y / 3
+        (float)dest.l/ scale, (float)dest.u/ scale, (float)dest.size().x/ scale, (float)dest.size().y/ scale
     };
 
     int f = SDL_FLIP_NONE;
@@ -164,37 +177,37 @@ void Renderer::tex_sized(TextureH texture,
                          float ang,
                          const vec2& scale) const
 {
-    const Texture* const t = res_mng->texture(texture);
+    const Texture* const t = ctx->rm->texture(texture);
     tex_sized(texture, p, ang, BBox::from(0, 0, t->h, t->w), scale);
 }
 
 void Renderer::rect(const BBox& bbox, SDL_Color col) const {
     SDL_SetRenderDrawColor(rend, col.r, col.g, col.b, col.a);
     SDL_FRect r;
-    r.x = (float)bbox.l / 3;
-    r.y = (float)bbox.u / 3;
-    r.w = (float)bbox.size().x / 3;
-    r.h = (float)bbox.size().y / 3;
+    r.x = (float)bbox.l/ scale;
+    r.y = (float)bbox.u/ scale;
+    r.w = (float)bbox.size().x/ scale;
+    r.h = (float)bbox.size().y/ scale;
     SDL_RenderDrawRectF(rend, &r);
 }
 void Renderer::rectf(const BBox& bbox, SDL_Color col) const {
     SDL_SetRenderDrawColor(rend, col.r, col.g, col.b, col.a);
     SDL_FRect r;
-    r.x = (float)bbox.l / 3;
-    r.y = (float)bbox.u / 3;
-    r.w = (float)bbox.size().x / 3;
-    r.h = (float)bbox.size().y / 3;
+    r.x = (float)bbox.l/ scale;
+    r.y = (float)bbox.u/ scale;
+    r.w = (float)bbox.size().x/ scale;
+    r.h = (float)bbox.size().y/ scale;
     SDL_RenderFillRectF(rend, &r);
 }
 
 void Renderer::line(const vec2& a, const vec2& b, SDL_Color col) const {
     SDL_SetRenderDrawColor(rend, col.r, col.g, col.b, col.a); 
-    SDL_RenderDrawLineF(rend, (float)a.x / 3, (float)a.y / 3, (float)b.x / 3, (float)b.y / 3);
+    SDL_RenderDrawLineF(rend, (float)a.x/ scale, (float)a.y/ scale, (float)b.x/ scale, (float)b.y/ scale);
 }
 
 void Renderer::text(const vec2& pos, FontH font, const string2& s, SDL_Color col) const {
-    Font* f = res_mng->font(font);
-    Texture* t = res_mng->texture(f->tex);
+    Font* f = ctx->rm->font(font);
+    Texture* t = ctx->rm->texture(f->tex);
 
     const int chars_per_row = t->w / f->cell_size.x;
     const int chars_per_col = t->h / f->cell_size.y;
@@ -219,4 +232,34 @@ void Renderer::text(const vec2& pos, FontH font, const string2& s, SDL_Color col
         tex(f->tex, p, 0, BBox::from(vec2(src_x * f->cell_size.x, src_y * f->cell_size.y), f->cell_size)); 
         p.x += f->base_width[c];
     }
+}
+
+vec2 Renderer::text_size(FontH font, const string2& s) const {
+    Font* f = ctx->rm->font(font);
+    Texture* t = ctx->rm->texture(f->tex);
+
+    const int chars_per_row = t->w / f->cell_size.x;
+    const int chars_per_col = t->h / f->cell_size.y;
+
+    vec2 p = vec2(0, 0);
+    vec2 pmax = vec2(0, 0);
+
+    for (int i = 0; i < s.size(); i++) {
+        char c = s[i];
+
+        if (c == '\n') {
+            p.x = 0;
+            p.y += f->cell_size.y;
+            continue;
+        }
+        p.x += f->base_width[c];
+
+        pmax.x = pmax.x < p.x ? p.x : pmax.x;
+    }
+
+    p.y += f->cell_size.y;
+
+    pmax.y = p.y;
+
+    return pmax;
 }

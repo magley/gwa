@@ -45,7 +45,7 @@ bool Gui::button(const vec2& pos, const string2& s) {
     cnt++;
     const int16_t id = cnt;
     const Input& input = *ctx->input;
-    const Renderer& rend = *ctx->rend;
+    Renderer& rend = *ctx->rend;
     ResMng& rm = *ctx->rm;
 
     vec2 p = pos;
@@ -58,9 +58,10 @@ bool Gui::button(const vec2& pos, const string2& s) {
         }
     }
 
-    const vec2 chsz = rm.font(font_small)->cell_size; // TODO: Variable width.
+    const vec2 text_padding = vec2(8, 4);
+    const vec2 chsz = rend.text_size(font_small, s) + text_padding;
 
-    const BBox bbox = BBox::from(p, vec2(chsz.x * s.size(), chsz.y)).exp(vec2(1, 1));
+    const BBox bbox = BBox::from(p, chsz).exp(vec2(1, 1));
     if (bbox.test(input.m_pos_raw())) {
         hot = id;
 
@@ -69,6 +70,7 @@ bool Gui::button(const vec2& pos, const string2& s) {
         }
     }
 
+    rend.begin_gui();
     rend.rectf(bbox, {200, 200, 200, 255});
     rend.rect(bbox, {0, 0, 0, 255});
 
@@ -77,11 +79,12 @@ bool Gui::button(const vec2& pos, const string2& s) {
     }
 
     if (active == id) {
-            rend.rectf(bbox.exp(vec2(-1, -1)), {64, 64, 64, 255});
-            rend.rect(bbox, {128, 128, 128, 255});
+        rend.rectf(bbox.exp(vec2(-1, -1)), {64, 64, 64, 255});
+        rend.rect(bbox, {128, 128, 128, 255});
     }
 
-    rend.text(p + vec2(active == id, active == id), font_small, s, {0,0,0,255});
+    rend.text(p + vec2(active == id, active == id) + text_padding/2, font_small, s, {0,0,0,255});
+    rend.end_gui();
 
     if (hot == id && active == id && !input.m_down(SDL_BUTTON_LMASK)) {
         return true;
@@ -93,7 +96,7 @@ void Gui::checkbox(const vec2& pos, const vec2& sz, bool* b, bool omni) {
     cnt++;
     const int16_t id = cnt;
     const Input& input = *ctx->input;
-    const Renderer& rend = *ctx->rend;
+    Renderer& rend = *ctx->rend;
 
     vec2 p = pos;
     if (!win_stack.empty()) {
@@ -114,12 +117,13 @@ void Gui::checkbox(const vec2& pos, const vec2& sz, bool* b, bool omni) {
         }
     }
 
+    rend.begin_gui();
     rend.rectf(bbox, {200, 200, 200, 255});
     rend.rect(bbox, {0, 0, 0, 255});
 
     if (hot == id) {
         if (active == id) {
-            rend.rectf(bbox.exp(vec2(-1, -1)), {64, 64, 64, 255});
+            rend.rectf(bbox.exp(vec2(-4, -4)), {64, 64, 64, 255});
             rend.rect(bbox, {128, 128, 128, 255});
         } else {
             rend.rect(bbox, {255, 255, 255, 255});
@@ -131,6 +135,7 @@ void Gui::checkbox(const vec2& pos, const vec2& sz, bool* b, bool omni) {
     } else {
         rend.rectf(bbox.exp({-2, -2}), {32, 32, 32, 255});
     }
+    rend.end_gui();
 
     if (hot == id && active == id && !input.m_down(SDL_BUTTON_LMASK)) {
         *b ^= true;
@@ -141,7 +146,7 @@ void Gui::startwin(const string2& name, const vec2& pos, const vec2& size) {
     cnt++;
     const int16_t id = cnt;
     const Input& input = *ctx->input;
-    const Renderer& rend = *ctx->rend;
+    Renderer& rend = *ctx->rend;
 
     _WinState state;
     const auto it = map_windows.find(name);
@@ -155,8 +160,10 @@ void Gui::startwin(const string2& name, const vec2& pos, const vec2& size) {
         state.expanded = true;
     }
 
-    BBox bbox = BBox::from(state.pos, state.expanded ? size : vec2(size.x, 8));
-    BBox bbox_h = BBox::from(state.pos, {size.x, 8});
+    const int titleh = 20;
+
+    BBox bbox = BBox::from(state.pos, state.expanded ? size : vec2(size.x, titleh));
+    BBox bbox_h = BBox::from(state.pos, {size.x, titleh});
     if (bbox.test(input.m_pos_raw())) {
         hot = id;
 
@@ -181,19 +188,19 @@ void Gui::startwin(const string2& name, const vec2& pos, const vec2& size) {
     win_stack.push({cnt, name});
     map_windows[name] = state;
 
-    
-
     vec2 sz = size;
     if (map_windows[name].expanded == false) {
         sz.y = bbox_h.size().y;
     }
 
+    rend.begin_gui();
     bbox = BBox::from(state.pos, sz);
     rend.rectf(bbox, {200, 200, 200, 255});
     rend.rectf(BBox::from(state.pos, bbox_h.size()), {0, 0, 255, 255});
     rend.rect(bbox, {0, 0, 0, 255});
+    rend.end_gui();
 
-    checkbox({0, 0}, {8, 8}, &map_windows[name].expanded, true);
+    checkbox({0, 0}, {titleh, titleh}, &map_windows[name].expanded, true);
 }
 
 void Gui::endwin() {

@@ -87,12 +87,13 @@ int main(int argc, char** argv) {
     Input input;
     EntityManager em;
     ResMng res_mng = ResMng(sdl_renderer);
-    Renderer rend = Renderer(sdl_renderer, &res_mng);
+    Renderer rend = Renderer(sdl_renderer);
     TileMap tm;
     Editor editor;
     Gui gui;
 
     GwaCtx ctx(&input, &rend, &em, &res_mng, &tm, &gui, vec2(view_w, view_h));
+    rend.init_ctx(&ctx);
     input.init_ctx(&ctx);
     res_mng.init_ctx(&ctx);
     gui.init_ctx(&ctx);
