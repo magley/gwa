@@ -21,7 +21,7 @@ public:
     fp6(float i);
     fp6(double i);
     fp6(unsigned i);
-    fp6(size_t i);
+    //fp6(size_t i);
     fp6(const fp6& i);
     inline static fp6 raw(int raw_val);
     fp6 abs() const;

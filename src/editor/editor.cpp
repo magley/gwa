@@ -247,10 +247,13 @@ void Editor::render_gui_tile(GwaCtx& ctx, FontH fnt) {
         layers_sorted.insert(RendAgent::from_tilemap(i, ctx));
     }
 
-    gui.checkbox(vec2(4, 4), &this->tile_showgrid);
-    if (gui.button(vec2(20, 4), "Add layer")) {
+    gui.startwin("MyWindow1", vec2(96, 32), vec2(128, 64));
+    gui.checkbox(vec2(4, 8), {7, 7}, &this->tile_showgrid);
+    gui.checkbox(vec2(20, 8),{7, 7}, &this->tile_focuslayer);
+    if (gui.button(vec2(40, 8), "Add layer")) {
         add_empty_tile_layer(ctx);
     }
+    gui.endwin();
 
     string2 layer_data;
     for (const auto& layer : layers_sorted) {
