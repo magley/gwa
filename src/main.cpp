@@ -97,10 +97,7 @@ int main(int argc, char** argv) {
     res_mng.init_ctx(&ctx);
     gui.init_ctx(&ctx);
 
-    // fp6 tile_anim_frame = 0;
     fp6 tile_anim_spd = 0.15;
-
-    FontH font_small = res_mng.font("../res/font_small.font");
 
     //=========================================================================
 
@@ -235,7 +232,7 @@ int main(int argc, char** argv) {
         // It's okay to do GUI stuff from this point on.
         // This is rendered above EVERYTHING else.
 
-        editor.render_gui(ctx, font_small);
+        editor.render_gui(ctx);
 
         gui.end();
 

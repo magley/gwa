@@ -1,0 +1,4 @@
+{
+    tex ../res/font/font_12pt.png
+    data ../res/font/font_12pt.csv
+}

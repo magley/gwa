@@ -94,10 +94,10 @@ void Editor::render_after(GwaCtx& ctx) {
     }
 }
 
-void Editor::render_gui(GwaCtx& ctx, FontH fnt) {
+void Editor::render_gui(GwaCtx& ctx) {
     switch (mode) {
         case MODE_TILEMAP:
-            render_gui_tile(ctx, fnt);
+            render_gui_tile(ctx);
             break;
         default:
             break;
@@ -237,9 +237,10 @@ void Editor::render_tile_after(GwaCtx& ctx) {
     }
 }
 
-void Editor::render_gui_tile(GwaCtx& ctx, FontH fnt) {
+void Editor::render_gui_tile(GwaCtx& ctx) {
     Renderer& rend = *ctx.rend;
     Gui& gui = *ctx.gui;
+    FontH fnt = ctx.rm->font("../res//font/font_12pt.font");
 
     const std::vector<TileMapLayer>& layers = ctx.tm->layers;
     std::multiset<RendAgent> layers_sorted;
@@ -264,6 +265,6 @@ void Editor::render_gui_tile(GwaCtx& ctx, FontH fnt) {
         }
         layer_data += "\n";
     }
-    rend.text(vec2(4, 24), fnt, layer_data);
+    rend.text(vec2(4, 24), fnt, layer_data, {255,0,0,255});
 
 }

@@ -71,6 +71,15 @@ BBox BBox::operator+(const vec2& v) const {
     return bbox;
 }
 
+BBox BBox::operator/(const fp6& v) const {
+    BBox bbox = *this;
+    bbox.l /= v;
+    bbox.r /= v;
+    bbox.u /= v;
+    bbox.d /= v;
+    return bbox;
+}
+
 BBox& BBox::operator+=(const vec2& v) {
     l += v.x;
     r += v.x;

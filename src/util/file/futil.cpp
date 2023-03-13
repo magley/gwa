@@ -4,6 +4,10 @@
 
 string2 from_file(const char* file) {
     std::ifstream ff(file);
+    if (!ff.good()) {
+        printf("Could not open %s\n", file);
+        return "";
+    }
     std::stringstream ss;
     ss << ff.rdbuf();
     string2 s = ss.str();

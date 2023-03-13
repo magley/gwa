@@ -27,10 +27,10 @@ struct Editor {
     void on_input(GwaCtx& ctx);
     void render_before(GwaCtx& ctx);
     void render_after(GwaCtx& ctx);
-    void render_gui(GwaCtx& ctx, FontH fnt);
+    void render_gui(GwaCtx& ctx);
 
     void on_input_tile(GwaCtx& ctx);
     void render_tile_before(GwaCtx& ctx);
     void render_tile_after(GwaCtx& ctx);
-    void render_gui_tile(GwaCtx& ctx, FontH fnt);
+    void render_gui_tile(GwaCtx& ctx);
 };

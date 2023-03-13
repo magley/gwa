@@ -18,7 +18,7 @@ void Gui::begin() {
     cnt = 0;
 
     if (font_small == -1) {
-        font_small = ctx->rm->font("../res/font_small.font");
+        font_small = ctx->rm->font("../res/font/font_12pt.font");
     }
 }
 
@@ -58,10 +58,10 @@ bool Gui::button(const vec2& pos, const string2& s) {
         }
     }
 
-    const vec2 chsz = rm.font(font_small)->sz;
+    const vec2 chsz = rm.font(font_small)->cell_size; // TODO: Variable width.
 
     const BBox bbox = BBox::from(p, vec2(chsz.x * s.size(), chsz.y)).exp(vec2(1, 1));
-    if (bbox.test(input.m_pos())) {
+    if (bbox.test(input.m_pos_raw())) {
         hot = id;
 
         if (/*active == -1 &&*/ input.m_down(SDL_BUTTON_LMASK)) {
@@ -81,7 +81,7 @@ bool Gui::button(const vec2& pos, const string2& s) {
             rend.rect(bbox, {128, 128, 128, 255});
     }
 
-    rend.text(p + vec2(active == id, active == id), font_small, s);
+    rend.text(p + vec2(active == id, active == id), font_small, s, {0,0,0,255});
 
     if (hot == id && active == id && !input.m_down(SDL_BUTTON_LMASK)) {
         return true;
@@ -106,7 +106,7 @@ void Gui::checkbox(const vec2& pos, const vec2& sz, bool* b, bool omni) {
     }
 
     const BBox bbox = BBox::from(p, sz);
-    if (bbox.test(input.m_pos())) {
+    if (bbox.test(input.m_pos_raw())) {
         hot = id;
 
         if (/*active == -1 && */input.m_down(SDL_BUTTON_LMASK)) {
@@ -157,23 +157,23 @@ void Gui::startwin(const string2& name, const vec2& pos, const vec2& size) {
 
     BBox bbox = BBox::from(state.pos, state.expanded ? size : vec2(size.x, 8));
     BBox bbox_h = BBox::from(state.pos, {size.x, 8});
-    if (bbox.test(input.m_pos())) {
+    if (bbox.test(input.m_pos_raw())) {
         hot = id;
 
-        if (bbox_h.test(input.m_pos())) {
+        if (bbox_h.test(input.m_pos_raw())) {
             if (active == -1 && input.m_down(SDL_BUTTON_LMASK)) {
                 active = id;
             }
         }
     }
 
-    state.drag_diff = (input.m_pos() - state.pos);
+    state.drag_diff = (input.m_pos_raw() - state.pos);
     if (active == id) {          
         const auto it = map_windows.find(name);
         if (it != map_windows.end()) {
             const _WinState state_prev = it->second;
 
-            state.pos = input.m_pos() - state_prev.drag_diff;
+            state.pos = input.m_pos_raw() - state_prev.drag_diff;
             state.drag_diff = state_prev.drag_diff;
         }
     } 

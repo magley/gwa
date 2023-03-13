@@ -71,5 +71,5 @@ public:
 
     void line(const vec2& a, const vec2& b, SDL_Color col) const;
 
-    void text(const vec2& pos, FontH font, const string2& s) const;
+    void text(const vec2& pos, FontH font, const string2& s, SDL_Color col) const;
 };
